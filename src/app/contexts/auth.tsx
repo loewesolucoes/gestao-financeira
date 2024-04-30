@@ -2,6 +2,7 @@
 
 import Cookies from 'js-cookie'
 import moment from 'moment';
+import Script from 'next/script';
 import React, { createContext, useState, useEffect } from "react"
 
 const AuthContext = createContext({
@@ -35,10 +36,14 @@ export function AuthProvider(props: any) {
   const [isLoadingGapi, setIsLoadingGapi] = useState(true);
   const [isLoadingGis, setIsLoadingGis] = useState(true);
   const [authError, setAuthError] = useState<any>(null);
+  const [gload, setGLoad] = useState({ api: false, client: false });
 
   useEffect(() => {
-    createGDrive();
-  }, []);
+    console.log(gload.api, gload.client);
+
+    if (gload.api && gload.client)
+      createGDrive();
+  }, [gload]);
 
   useEffect(() => {
     if (!isLoadingGapi && !isLoadingGis) {
@@ -152,7 +157,11 @@ export function AuthProvider(props: any) {
         authError,
       }}
       {...props}
-    />
+    >
+      {props.children}
+      <Script async defer src="/vendor/api.min.js" strategy="afterInteractive" onLoad={() => setGLoad((p) => ({ ...p, api: true }))} />
+      <Script async defer src="/vendor/client.js" strategy="afterInteractive" onLoad={() => setGLoad((p) => ({ ...p, client: true }))} />
+    </AuthContext.Provider>
   )
 }
 
