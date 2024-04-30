@@ -1,0 +1,39 @@
+@import "_bootstrap";
+
+.valor-terreno,
+.compra-terreno-parcelada {
+  .row {
+    padding: 10px 20px;
+  }
+}
+
+.compra-terreno-parcelada {
+  .card-header {
+    border-bottom: none;
+  }
+
+  &.show {
+    .card-header {
+      border-bottom: var(--bs-card-border-width) solid
+        var(--bs-card-border-color);
+    }
+  }
+}
+
+.home {
+  display: flex;
+  // border: 1px solid;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  
+  @include media-breakpoint-up(lg) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+}

@@ -1,0 +1,23 @@
+.faq {
+  svg.arrow {
+    width: 14px;
+    height: 9px;
+  }
+
+  ul {
+    padding-left: 0;
+    list-style: none;
+
+    li {
+      p {
+        display: none;
+      }
+
+      &.show {
+        p {
+          display: flex;
+        }
+      }
+    }
+  }
+}

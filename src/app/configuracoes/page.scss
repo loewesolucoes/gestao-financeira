@@ -1,0 +1,31 @@
+@import "../_bootstrap";
+
+.configs {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 50vh;
+
+  &.is-loading {
+    align-items: center;
+  }
+
+  @include media-breakpoint-up(md) {
+    flex-direction: row;
+    justify-content: space-between;
+    
+    &.is-loading {
+      justify-content: center;
+    }
+  }
+}
+
+.gdrive {
+  .auth-button {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
