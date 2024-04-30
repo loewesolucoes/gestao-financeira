@@ -1,6 +1,8 @@
 import moment from 'moment';
 import initSqlJs from 'sql.js';
 import BigNumber from 'bignumber.js';
+import localforage from 'localforage'
+
 
 let SQL: import('sql.js').SqlJsStatic
 
@@ -41,14 +43,12 @@ export class DbRepository {
     return repo;
   }
 
-  public static async persistLocalDump(dump?: string) {
-    await Promise.resolve();
-    localStorage.setItem(DbRepository.DB_NAME, dump || '');
+  public static async persistLocalDump(dump?: string): Promise<void> {
+    await localforage.setItem(DbRepository.DB_NAME, dump || '');
   }
 
-  public static async exportLocalDump() {
-    await Promise.resolve();
-    return localStorage.getItem(DbRepository.DB_NAME);
+  public static async exportLocalDump(): Promise<string | null> {
+    return await localforage.getItem<string>(DbRepository.DB_NAME);
   }
 
   public async exportOriginalDump() {
