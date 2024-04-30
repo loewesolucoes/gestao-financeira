@@ -39,7 +39,7 @@ export function AuthProvider(props: any) {
   const [gload, setGLoad] = useState({ api: false, client: false });
 
   useEffect(() => {
-    console.log(gload.api, gload.client);
+    console.log("gload.api, gload.client", gload.api, gload.client);
 
     if (gload.api && gload.client)
       createGDrive();
@@ -159,8 +159,8 @@ export function AuthProvider(props: any) {
       {...props}
     >
       {props.children}
-      <Script async defer src="/vendor/api.min.js" strategy="afterInteractive" onLoad={() => setGLoad((p) => ({ ...p, api: true }))} />
-      <Script async defer src="/vendor/client.js" strategy="afterInteractive" onLoad={() => setGLoad((p) => ({ ...p, client: true }))} />
+      <Script async defer src="https://apis.google.com/js/api.js" strategy="afterInteractive" onLoad={() => setGLoad((p) => ({ ...p, api: true }))} />
+      <Script async defer src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onLoad={() => setGLoad((p) => ({ ...p, client: true }))} />
     </AuthContext.Provider>
   )
 }
