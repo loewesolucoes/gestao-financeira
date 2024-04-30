@@ -52,8 +52,6 @@ export default function RootLayout({
       <body className={inter.className}>
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-54VR7557" height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}></iframe></noscript>
         {children}
-        {/* <script async defer src="https://apis.google.com/js/api.js"></script>
-        <script async defer src="https://accounts.google.com/gsi/client"></script> */}
       </body>
     </html>
   );
