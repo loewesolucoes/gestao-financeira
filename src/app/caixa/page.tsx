@@ -40,13 +40,20 @@ function Caixa() {
   return (
     <main className="caixa container mt-3">
       <h1>Caixa</h1>
+      <div className="btn-group my-3">
+        <button type="button" className="btn btn-outline-secondary">ultimo mes</button>
+        <button type="button" className="btn btn-outline-secondary">3 ultimos meses</button>
+        <button type="button" className="btn btn-outline-secondary">6 ultimos meses</button>
+        <button type="button" className="btn btn-outline-secondary">ultimo ano</button>
+        <button type="button" className="btn btn-outline-secondary">todo historico</button>
+      </div>
+
       {Object.keys(transacoes).map(key => {
         const periodo = transacoes[key];
-
         const somaPeriodo = periodo.reduce((p, n) => p.plus(n.valor || 0), BigNumber(0))
 
         return (
-          <section className="card">
+          <section key={key} className="card my-3">
             <h4 className="card-header">Periodo de: {moment(key, 'YYYY-MM').format('MMMM YYYY')}</h4>
             <div className="card-body d-flex justify-content-around">
               <div className="totals">
@@ -55,8 +62,8 @@ function Caixa() {
                 <small>{SimuladorUtil.extenso(somaPeriodo)}</small>
               </div>
               <ul className="list-group">
-                {periodo.map(x => (
-                  <li className="list-group-item">
+                {periodo.map((x, i) => (
+                  <li key={`${x.local}:${i}`} className="list-group-item">
                     <div className="d-flex w-100 justify-content-between">
                       <h5>{x.local}</h5>
                       <small>{x.data.format('DD/MM/YY')}</small>
