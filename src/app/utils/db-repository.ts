@@ -6,10 +6,29 @@ import localforage from 'localforage'
 
 let SQL: import('sql.js').SqlJsStatic
 
+export enum MapperTypes {
+  DATE,
+  DATE_TIME,
+  NUMBER,
+}
+
+export enum TipoDeReceita {
+  FIXO = 0,
+  VARIAVEL = 1
+}
 
 export interface Caixa {
   id: BigNumber
+  valor?: BigNumber
+  data: moment.Moment
+  tipo?: TipoDeReceita
+  local?: string
+  comentario?: string
+  createdDate: moment.Moment
+  updatedDate?: moment.Moment
 }
+
+const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, };
 
 const BUFFER_TYPE = 'base64';
 
@@ -82,12 +101,12 @@ export class DbRepository {
   public async list(): Promise<Caixa[]> {
     await Promise.resolve();
 
-    const result = this.db.exec("SELECT name FROM sqlite_temp_master WHERE type='table';");
+    const result = this.db.exec("SELECT * FROM transacoes");
 
     if (!Array.isArray(result))
       throw new Error('simulacao não encontrada');
 
-    return this.parseSqlResultToObj(result)[0] || [];
+    return this.parseSqlResultToObj(result, CAIXA_MAPPING)[0] || [];
   }
 
   public async getSimulacao(id: string) {
@@ -98,14 +117,36 @@ export class DbRepository {
     if (result.length === 0)
       throw new Error('simulacao não encontrada');
 
-    return this.parseSqlResultToObj(result)[0][0];
+    return this.parseSqlResultToObj(result, CAIXA_MAPPING)[0][0];
   }
 
-  private parseSqlResultToObj(result: initSqlJs.QueryExecResult[]) {
+  private parseSqlResultToObj(result: initSqlJs.QueryExecResult[], mapper?: { [key: string]: MapperTypes }) {
     return result.map(res => res.values.map(values => res.columns.reduce((p, n, i) => {
       const value = values[i];
+      let original = true;
 
-      p[n] = typeof (value) === 'number' ? BigNumber(value) : value;
+      if (n !== 'id' && value != null) {
+        if (mapper != null) {
+          if (mapper[n] === MapperTypes.DATE) {
+            p[n] = moment(value as any, 'YYYY-MM-DD'); //2022-11-03 00:00:00
+            original = false;
+          } else if (mapper[n] === MapperTypes.DATE_TIME) {
+            p[n] = moment(value as any, 'YYYY-MM-DD hh:mm:ss'); //2022-11-03 00:00:00
+            original = false;
+          } else if (mapper[n] === MapperTypes.NUMBER) {
+            p[n] = value;
+            original = false;
+          }
+        }
+
+        if (original && typeof (value) === 'number') {
+          p[n] = BigNumber(value);
+          original = false;
+        }
+      }
+
+      if (original)
+        p[n] = value;
 
       return p;
     }, {} as any)));
@@ -183,8 +224,8 @@ export class DbRepository {
   }
 
   private async runMigrations() {
-    await Promise.resolve();
+    this.db.exec(`CREATE TABLE IF NOT EXISTS "transacoes" ("id" INTEGER NOT NULL,"valor" REAL NULL DEFAULT NULL,"data" DATETIME NOT NULL,"tipo" INTEGER NULL DEFAULT NULL,"local" TEXT NULL DEFAULT NULL,"comentario" TEXT NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
 
-    // this.db.exec(`CREATE TABLE IF NOT EXISTS "simulacao" ( "id" INTEGER NOT NULL, "titulo" TEXT NULL DEFAULT NULL, "area" REAL NULL DEFAULT 0, "valor" REAL NULL DEFAULT 0, "itbi" REAL NULL DEFAULT 0, "escrituraERegistro" REAL NULL DEFAULT 0, "iptu" REAL NULL DEFAULT 0, "valorEntrada" REAL NULL DEFAULT 0, "taxaDeJuros" REAL NULL DEFAULT 0, "mesDeInicio" REAL NULL DEFAULT 0, "prazo" REAL NULL DEFAULT 0, "createdDate" DATETIME NOT NULL, "updatedDate" DATETIME NULL,PRIMARY KEY ("id"));`);
+    await this.persistDb();
   }
 }

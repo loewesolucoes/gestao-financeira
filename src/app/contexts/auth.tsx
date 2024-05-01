@@ -39,8 +39,6 @@ export function AuthProvider(props: any) {
   const [gload, setGLoad] = useState({ api: false, client: false });
 
   useEffect(() => {
-    console.log("gload.api, gload.client", gload.api, gload.client);
-
     if (gload.api && gload.client)
       createGDrive();
   }, [gload]);

@@ -38,7 +38,7 @@ function Home() {
           ? (<section className="cards"><Loader /></section>)
           : (
             simulacoes.length === 0
-              ? (<div className="alert alert-info" role="alert">Nenhuma simulação encontrada</div>)
+              ? (<div className="alert alert-info" role="alert">Nenhum dado encontrado</div>)
               : (
                 <section className="cards">
                   {simulacoes.map(x => (
