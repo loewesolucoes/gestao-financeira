@@ -31,8 +31,6 @@ function Caixa() {
   }, [isDbOk, periodo]);
 
   async function load() {
-    console.log("here");
-    
     setIsLoading(true);
     const result = await repository.list(periodo);
     const transacoes = {} as any;

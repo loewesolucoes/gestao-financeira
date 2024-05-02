@@ -109,7 +109,27 @@ export class DbRepository {
   public async list(periodo: PeriodoTransacoes): Promise<Caixa[]> {
     await Promise.resolve();
 
-    const result = this.db.exec("SELECT * FROM transacoes");
+    let query = "data > DATETIME('now', '-30 day')"
+
+    switch (periodo) {
+      case PeriodoTransacoes.TRES_ULTIMOS_MESES:
+        query = "data > DATETIME('now', '-3 month')"
+        break;
+      case PeriodoTransacoes.SEIS_ULTIMOS_MESES:
+        query = "data > DATETIME('now', '-6 month')"
+        break;
+      case PeriodoTransacoes.ULTIMO_ANO:
+        query = "data > DATETIME('now', '-12 month')"
+        break;
+      case PeriodoTransacoes.TODO_HISTORICO:
+        query = "1=1"
+        break;
+
+      default:
+        break;
+    }
+
+    const result = this.db.exec(`select * FROM transacoes where ${query}`);
 
     if (!Array.isArray(result))
       throw new Error('simulacao não encontrada');

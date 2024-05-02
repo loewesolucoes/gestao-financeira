@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 import { Layout } from "./shared/layout";
 import { useStorage } from "./contexts/storage";
-import { Caixa } from "./utils/db-repository";
+import { Caixa, PeriodoTransacoes } from "./utils/db-repository";
 import { Loader } from "./components/loader";
 
 function Home() {
@@ -23,7 +23,7 @@ function Home() {
 
   async function load() {
     setIsLoading(true);
-    const result = await repository.list();
+    const result = await repository.list(PeriodoTransacoes.ULTIMO_ANO);
 
     console.log(result);
 
