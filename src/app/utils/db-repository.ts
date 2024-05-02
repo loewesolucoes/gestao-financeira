@@ -28,6 +28,14 @@ export interface Caixa {
   updatedDate?: moment.Moment
 }
 
+export enum PeriodoTransacoes {
+  ULTIMO_MES,
+  TRES_ULTIMOS_MESES,
+  SEIS_ULTIMOS_MESES,
+  ULTIMO_ANO,
+  TODO_HISTORICO,
+}
+
 const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, };
 
 const BUFFER_TYPE = 'base64';
@@ -98,7 +106,7 @@ export class DbRepository {
     return result;
   }
 
-  public async list(): Promise<Caixa[]> {
+  public async list(periodo: PeriodoTransacoes): Promise<Caixa[]> {
     await Promise.resolve();
 
     const result = this.db.exec("SELECT * FROM transacoes");
