@@ -7,6 +7,8 @@ import { Footer } from "../components/footer";
 import "moment/locale/pt-br";
 import moment from "moment";
 
+import 'chart.js/auto';
+
 BigNumber.config({
   FORMAT: {
     // decimal separator
