@@ -1,5 +1,6 @@
 "use client";
 import BigNumber from 'bignumber.js';
+import moment from 'moment';
 
 interface CustomProps extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   isNumber?: boolean,
@@ -13,6 +14,7 @@ interface CustomProps extends React.DetailedHTMLProps<React.InputHTMLAttributes<
 export function Input(props: CustomProps) {
   const { onChange, isNumber, groupSymbolLeft, groupSymbolRight, isPercent, value, ...otherProps } = props;
   const isInputNumber = props.type === 'number' || isNumber;
+  const isInputDate = props.type === 'date';
 
   function onChangeInput(event: any) {
     const { value } = event.target;
@@ -23,12 +25,13 @@ export function Input(props: CustomProps) {
       onChangeOrDefault(BigNumber(value).div(100));
     else if (isInputNumber)
       onChangeOrDefault(BigNumber(value));
+    else if (isInputDate)
+      onChangeOrDefault(moment(value, 'YYYY-MM-DD'));
     else
       onChangeOrDefault(value);
   }
 
-  const inputValue = isInputNumber && value ? parseNumber(value, { isPercent }) : value || '';
-
+  const inputValue = parseInputValue(value, isInputNumber, isInputDate, isPercent);
   const input = <input className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps} />;
 
   return groupSymbolLeft || groupSymbolRight ? (
@@ -38,6 +41,17 @@ export function Input(props: CustomProps) {
       {groupSymbolRight && <span className="input-group-text">{groupSymbolRight}</span>}
     </div>
   ) : input;
+}
+
+function parseInputValue(value: any, isInputNumber?: boolean, isInputDate?: boolean, isPercent?: boolean) {
+  if (value == null)
+    return value || ''
+
+  if (isInputNumber)
+    return parseNumber(value, { isPercent });
+
+  if (isInputDate)
+    return value.format('YYYY-MM-DD');
 }
 
 function parseNumber(value: BigNumber, { isPercent }: any) {

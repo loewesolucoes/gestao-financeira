@@ -10,9 +10,9 @@ const periodosTransacoes = [
 ];
 
 export function PeriodoForm({ onChange, value }: any) {
-  return <section>
-    <h5>Escolha o periodo</h5>
-    <div className="btn-group my-3">
+  return <form className="periodo-form card">
+    <h5 className="card-header">Escolha o periodo</h5>
+    <div className="btn-group my-3 px-3">
       {periodosTransacoes.map((x, i) => (
         <label key={x.value} className={`btn btn-outline-secondary ${x.value === value && 'active'}`} htmlFor={`periodosTransacoes${i}`}>
           <input type="radio" className="btn-check" name="periodosTransacoes" id={`periodosTransacoes${i}`} value={x.value} onChange={e => onChange(Number(e.target.value))} checked={x.value === value} />
@@ -20,5 +20,5 @@ export function PeriodoForm({ onChange, value }: any) {
         </label>
       ))}
     </div>
-  </section>;
+  </form>;
 }
