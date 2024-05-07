@@ -5,6 +5,7 @@ import "./page.scss";
 import { Layout } from "../shared/layout";
 import { useStorage } from "../contexts/storage";
 import { useEffect, useState } from "react";
+
 import { Caixa, PeriodoTransacoes, TableNames } from "../utils/db-repository";
 import moment from "moment";
 import { Loader } from "../components/loader";
@@ -13,7 +14,7 @@ import { ListaCaixa } from "./components/lista-caixa";
 import { BalancoDoMes } from "./components/balanco-do-mes";
 import { TransacaoForm } from "./components/transacao-form";
 
-export function CaixaPage() {
+function CaixaPage(): React.ReactElement {
   const { isDbOk, repository } = useStorage();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
