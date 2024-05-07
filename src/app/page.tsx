@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 import { Layout } from "./shared/layout";
 import { useStorage } from "./contexts/storage";
-import { Caixa, PeriodoTransacoes } from "./utils/db-repository";
+import { Caixa, PeriodoTransacoes, TableNames } from "./utils/db-repository";
 import { Loader } from "./components/loader";
 
 function Home() {
@@ -23,7 +23,7 @@ function Home() {
 
   async function load() {
     setIsLoading(true);
-    const result = await repository.list(PeriodoTransacoes.ULTIMO_ANO);
+    const result = await repository.list(TableNames.TRANSACOES, PeriodoTransacoes.ULTIMO_ANO);
 
     console.log(result);
 
@@ -42,9 +42,9 @@ function Home() {
               : (
                 <section className="cards">
                   {simulacoes.map(x => (
-                    <div key={x.id.toNumber()} className="card m-3">
+                    <div key={x.id} className="card m-3">
                       <div className="card-body">
-                        <h5 className="card-title">{x.id.toNumber()}</h5>
+                        <h5 className="card-title">{x.id}</h5>
                         <Link href={`/orcamentos?sim=${x.id}`} className="btn btn-secondary">Ver simulação</Link>
                       </div>
                     </div>

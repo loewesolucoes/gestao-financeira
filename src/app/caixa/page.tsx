@@ -13,7 +13,7 @@ import { ListaCaixa } from "./components/lista-caixa";
 import { BalancoDoMes } from "./components/balanco-do-mes";
 import { TransacaoForm } from "./components/transacao-form";
 
-export function Caixa() {
+export function CaixaPage() {
   const { isDbOk, repository } = useStorage();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -78,7 +78,7 @@ export function Caixa() {
 export default function Page() {
   return (
     <Layout>
-      <Caixa />
+      <CaixaPage />
     </Layout>
   );
 }
