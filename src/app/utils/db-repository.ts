@@ -18,7 +18,7 @@ export enum TipoDeReceita {
 }
 
 export interface Caixa {
-  id: BigNumber
+  id: number
   valor?: BigNumber
   data: Date
   tipo?: TipoDeReceita
@@ -34,6 +34,10 @@ export enum PeriodoTransacoes {
   SEIS_ULTIMOS_MESES,
   ULTIMO_ANO,
   TODO_HISTORICO,
+}
+
+export enum TableNames {
+  TRANSACOES = "transacoes"
 }
 
 const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER };
@@ -96,22 +100,34 @@ export class DbRepository {
     console.info("persistDb ok");
   }
 
-  public async save(data: any) {
+  public async save(tableName: TableNames, data: any) {
     await Promise.resolve();
 
     let result = {} as any;
 
     if (data?.id != null)
-      result = this.update(data)
+      result = this.update(tableName, data)
     else
-      result = this.insert(data);
+      result = this.insert(tableName, data);
 
-    this.persistDb();
+    await this.persistDb();
 
     return result;
   }
 
-  public async list(periodo: PeriodoTransacoes): Promise<Caixa[]> {
+  public async delete(tableName: TableNames, id: number) {
+    await Promise.resolve();
+
+    let result = {} as any;
+
+    this.db.exec(`delete from ${tableName} where id = $id`, { "$id": id })
+
+    await this.persistDb();
+
+    return result;
+  }
+
+  public async list(tableName: TableNames, periodo: PeriodoTransacoes): Promise<Caixa[]> {
     await Promise.resolve();
 
     let query = "data > DATETIME('now', '-30 day')"
@@ -134,23 +150,48 @@ export class DbRepository {
         break;
     }
 
-    const result = this.db.exec(`select * FROM transacoes where ${query}`);
+    const result = this.db.exec(`select * FROM ${tableName} where ${query}`);
 
     if (!Array.isArray(result))
-      throw new Error('simulacao não encontrada');
+      throw new Error(`${tableName} não encontrado (a)`);
 
     return this.parseSqlResultToObj(result, CAIXA_MAPPING)[0] || [];
   }
 
-  public async getSimulacao(id: string) {
+  public async get(tableName: TableNames, id: string) {
     await Promise.resolve();
 
-    const result = this.db.exec('select * from simulacao where id = $id', { "$id": id });
+    const result = this.db.exec(`select * from ${tableName} where id = $id`, { "$id": id });
 
     if (result.length === 0)
-      throw new Error('simulacao não encontrada');
+      throw new Error(`${tableName} não encontrado (a)`);
 
     return this.parseSqlResultToObj(result, CAIXA_MAPPING)[0][0];
+  }
+
+  private async insert(tableName: TableNames, data: any) {
+    const nextData = { ...data, createdDate: new Date() };
+    const { keys, params } = this.parseToCommand(nextData);
+    const command = `INSERT INTO ${tableName} (${keys.join(', ')}) VALUES (${keys.map(k => `$${k}`).join(', ')});SELECT LAST_INSERT_ROWID();`;
+
+    console.log(command);
+    console.log(params);
+
+    const result = this.db.exec(command, params);
+
+    nextData.id = result[0].values[0][0];
+
+    return nextData;
+  }
+
+  private async update(tableName: TableNames, data: any) {
+    const nextData = { ...data, updatedDate: new Date() };
+    const { keys, params } = this.parseToCommand(nextData);
+    const command = `UPDATE ${tableName} SET ${keys.map(k => `${k}=$${k}`).join(', ')} WHERE id=$id`;
+
+    this.db.exec(command, params);
+
+    return this.get(tableName, data.id);
   }
 
   private parseSqlResultToObj(result: initSqlJs.QueryExecResult[], mapper?: { [key: string]: MapperTypes }) {
@@ -185,22 +226,6 @@ export class DbRepository {
     }, {} as any)));
   }
 
-  private async insert(data: any) {
-    const nextData = { ...data, createdDate: new Date() };
-    const { keys, params } = this.parseToCommand(nextData);
-    const command = `INSERT INTO transacoes (${keys.join(', ')}) VALUES (${keys.map(k => `$${k}`).join(', ')});SELECT LAST_INSERT_ROWID();`;
-
-    console.log(command);
-    console.log(params);
-
-    const result = this.db.exec(command, params);
-
-
-    nextData.id = result[0].values[0][0];
-
-    return nextData;
-  }
-
   private parseToCommand(nextData: any) {
     const keys = Object.keys(nextData).filter(k => nextData[k] !== undefined);
     const params = keys.reduce((p, n) => {
@@ -219,16 +244,6 @@ export class DbRepository {
       return p;
     }, {} as any);
     return { keys, params };
-  }
-
-  private async update(data: any) {
-    const nextData = { ...data, updatedDate: new Date() };
-    const { keys, params } = this.parseToCommand(nextData);
-    const command = `UPDATE transacoes SET ${keys.map(k => `${k}=$${k}`).join(', ')} WHERE id=$id`;
-
-    this.db.exec(command, params);
-
-    return this.getSimulacao(data.id);
   }
 
   private beforeClose() {

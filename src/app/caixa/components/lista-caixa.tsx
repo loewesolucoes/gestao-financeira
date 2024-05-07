@@ -27,8 +27,8 @@ export function ListaCaixa({ periodo }: { periodo: Caixa[]; }) {
       </li>
     ))}
     {transaction && (
-      <Modal onClose={() => setTransaction(null)} title={`Detalhes da transação: ${transaction.local}`}>
-        <TransacaoForm transacao={transaction} />
+      <Modal hideFooter={true} onClose={() => setTransaction(null)} title={`Detalhes da transação: ${transaction.local}`}>
+        <TransacaoForm transacao={transaction} cleanStyle={true} onClose={() => setTransaction(null)} />
       </Modal>
     )}
   </ul>;

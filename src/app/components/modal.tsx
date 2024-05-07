@@ -4,9 +4,10 @@ interface CustomProps {
   children?: any
   title?: any
   onClose?: () => void
+  hideFooter?: boolean
 }
 
-export function Modal({ children, title, onClose }: CustomProps) {
+export function Modal({ children, title, onClose, hideFooter }: CustomProps) {
   const [isOpen, setIsOpen] = useState(true);
 
   function onCloseClick() {
@@ -23,7 +24,7 @@ export function Modal({ children, title, onClose }: CustomProps) {
 
   return (
     <>
-      <div className={`modal modal-lg fade ${isOpen && 'show'}`} id="modal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ zIndex: 99, display: isOpen && 'block' }} onClick={onCloseClickBackdrop}>
+      <div className={`modal modal-lg fade ${isOpen && 'show'}`} id="modal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ zIndex: 99, display: isOpen ? 'block' : 'none' }} onClick={onCloseClickBackdrop}>
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -33,9 +34,11 @@ export function Modal({ children, title, onClose }: CustomProps) {
             <div className="modal-body">
               {children}
             </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={onCloseClick}>Close</button>
-            </div>
+            {!hideFooter && (
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal" onClick={onCloseClick}>Close</button>
+              </div>
+            )}
           </div>
         </div>
       </div>

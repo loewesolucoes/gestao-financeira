@@ -5,7 +5,7 @@ import "./page.scss";
 import { Layout } from "../shared/layout";
 import { useStorage } from "../contexts/storage";
 import { useEffect, useState } from "react";
-import { Caixa, PeriodoTransacoes } from "../utils/db-repository";
+import { Caixa, PeriodoTransacoes, TableNames } from "../utils/db-repository";
 import moment from "moment";
 import { Loader } from "../components/loader";
 import { PeriodoForm } from "./components/periodo-form";
@@ -26,7 +26,7 @@ export function Caixa() {
 
   async function load() {
     setIsLoading(true);
-    const result = await repository.list(periodo);
+    const result = await repository.list(TableNames.TRANSACOES, periodo);
     const transacoes = {} as any;
 
     result.forEach(x => {
