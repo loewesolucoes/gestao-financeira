@@ -1,4 +1,7 @@
-.caixa {}
+@import "../_bootstrap";
+
+.caixa {
+}
 
 .transacoes {
   display: flex;
@@ -8,9 +11,26 @@
 .forms {
   display: flex;
   gap: 30px;
+  flex-direction: column;
+
+  @include media-breakpoint-up(lg) {
+    flex-direction: row;
+  }
 }
 
 .periodos {
   display: flex;
   flex-direction: column;
+  
+  .totals {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 50%;
+    
+    @include media-breakpoint-up(lg) {
+      max-width: 100%;
+    }
+  }
 }

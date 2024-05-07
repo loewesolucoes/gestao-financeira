@@ -63,7 +63,7 @@ function CaixaPage(): React.ReactElement {
               return (
                 <section key={key} className="card my-3">
                   <h4 className="card-header">Periodo de: {moment(key, 'YYYY-MM').format('MMMM YYYY')}</h4>
-                  <div className="card-body d-flex justify-content-around">
+                  <div className="card-body d-flex align-items-center flex-column-reverse flex-lg-row justify-content-lg-around">
                     <ListaCaixa periodo={periodo} />
                     <BalancoDoMes periodo={periodo} />
                   </div>

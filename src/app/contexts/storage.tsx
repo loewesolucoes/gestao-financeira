@@ -126,6 +126,7 @@ export function StorageProvider(props: any) {
 
     await loadGDrive();
     console.log('doGDriveLoad end');
+    await refresh();
     setIsGDriveLoadLoading(false);
   }
 
