@@ -15,7 +15,7 @@ interface CustomProps {
 export function TransacaoForm({ transacao, cleanStyle, onClose }: CustomProps) {
   console.log("transacao", transacao);
 
-  const { isDbOk, repository } = useStorage();
+  const { isDbOk, repository, refresh } = useStorage();
   //@ts-ignore
   const [valor, setValor] = useState<BigNumber>(transacao?.valor || BigNumber());
   const [data, setData] = useState<Date>(transacao?.data || new Date());
@@ -34,6 +34,7 @@ export function TransacaoForm({ transacao, cleanStyle, onClose }: CustomProps) {
 
     console.info('onSubmitForm', result);
 
+    await refresh();
     setIsLoading(false);
 
     onClose && onClose();
@@ -48,6 +49,7 @@ export function TransacaoForm({ transacao, cleanStyle, onClose }: CustomProps) {
 
     console.info('onDelete', result);
 
+    refresh();
     setIsLoading(false);
 
     onClose && onClose();

@@ -21,6 +21,8 @@ export function Caixa() {
   const [periodo, setPeriodo] = useState<PeriodoTransacoes>(PeriodoTransacoes.ULTIMO_MES);
 
   useEffect(() => {
+    console.log("page. isDbOk", isDbOk);
+
     isDbOk && load();
   }, [isDbOk, periodo]);
 

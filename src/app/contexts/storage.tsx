@@ -15,6 +15,7 @@ interface StorageProviderContext {
   doGDriveLoad: () => Promise<void>
   exportOriginalDumpToFileAndDownload: (fileName: string) => Promise<void>
   importOriginalDumpFromFile: (file?: File) => Promise<void>
+  refresh: () => Promise<void>
 }
 
 const StorageContext = createContext<StorageProviderContext>({
@@ -26,6 +27,7 @@ const StorageContext = createContext<StorageProviderContext>({
   doGDriveLoad: () => Promise.resolve(),
   exportOriginalDumpToFileAndDownload: () => Promise.resolve(),
   importOriginalDumpFromFile: () => Promise.resolve(),
+  refresh: () => Promise.resolve(),
 });
 
 export enum AvailableCollections {
@@ -55,6 +57,19 @@ export function StorageProvider(props: any) {
     console.log('startStorage isDbOk');
 
     return repository;
+  }
+
+  async function refresh() {
+    return new Promise<void>(resolve => {
+      console.log('refresh');
+      setIsDbOk(false);
+
+      setTimeout(() => {
+        setIsDbOk(true);
+        console.log('refresh isDbOk');
+        resolve();
+      }, 100);
+    })
   }
 
   async function exportOriginalDumpToFileAndDownload(fileName: string) {
@@ -148,6 +163,7 @@ export function StorageProvider(props: any) {
     <StorageContext.Provider
       value={{
         repository,
+        refresh,
         isDbOk,
         isGDriveSaveLoading,
         isGDriveLoadLoading,
