@@ -11,13 +11,15 @@ interface CustomProps {
 }
 
 export function TransacaoForm({ transacao }: CustomProps) {
+  console.log("transacao", transacao);
+
   const { isDbOk, repository } = useStorage();
   //@ts-ignore
-  const [valor, setValor] = useState<BigNumber>(BigNumber());
-  const [data, setData] = useState<Date>(new Date());
-  const [tipo, setTipo] = useState(TipoDeReceita.VARIAVEL);
-  const [local, setLocal] = useState('');
-  const [comentario, setComentario] = useState('');
+  const [valor, setValor] = useState<BigNumber>(transacao?.valor || BigNumber());
+  const [data, setData] = useState<Date>(transacao?.data || new Date());
+  const [tipo, setTipo] = useState(transacao?.tipo);
+  const [local, setLocal] = useState(transacao?.local);
+  const [comentario, setComentario] = useState(transacao?.comentario);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   async function onSubmitForm(event: import('react').ChangeEvent<any>) {
@@ -50,7 +52,7 @@ export function TransacaoForm({ transacao }: CustomProps) {
         </div>
         <div className="ms-3 flex-grow-1">
           <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
-          <select className="form-select" id="tipoReceita" onChange={e => setTipo(e.target.value as any)} value={tipo}>
+          <select className="form-select" id="tipoReceita" onChange={e => setTipo(e.target.value as any)} defaultValue={tipo}>
             <option value={TipoDeReceita.VARIAVEL}>Variável</option>
             <option value={TipoDeReceita.FIXO}>Fixo</option>
           </select>
@@ -75,6 +77,5 @@ export function TransacaoForm({ transacao }: CustomProps) {
           : 'Adicionar'}
       </button>
     </div>
-
   </form>;
 }

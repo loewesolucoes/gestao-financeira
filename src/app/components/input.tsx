@@ -44,14 +44,13 @@ export function Input(props: CustomProps) {
 }
 
 function parseInputValue(value: any, isInputNumber?: boolean, isInputDate?: boolean, isPercent?: boolean) {
-  if (value == null)
-    return value || ''
-
   if (isInputNumber)
     return parseNumber(value, { isPercent });
 
   if (isInputDate)
     return moment(value).format('YYYY-MM-DD');
+
+  return value || ''
 }
 
 function parseNumber(value: BigNumber, { isPercent }: any) {
