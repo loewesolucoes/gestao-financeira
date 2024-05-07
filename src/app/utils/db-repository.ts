@@ -20,12 +20,12 @@ export enum TipoDeReceita {
 export interface Caixa {
   id: BigNumber
   valor?: BigNumber
-  data: moment.Moment
+  data: Date
   tipo?: TipoDeReceita
   local?: string
   comentario?: string
-  createdDate: moment.Moment
-  updatedDate?: moment.Moment
+  createdDate: Date
+  updatedDate?: Date
 }
 
 export enum PeriodoTransacoes {
@@ -36,7 +36,7 @@ export enum PeriodoTransacoes {
   TODO_HISTORICO,
 }
 
-const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, };
+const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER };
 
 const BUFFER_TYPE = 'base64';
 
@@ -64,6 +64,11 @@ export class DbRepository {
     const repo = new DbRepository(db);
 
     await repo.runMigrations();
+
+    if (process.env.NODE_ENV !== 'production') {
+      //@ts-ignore
+      window._db = db;
+    }
 
     // repo.beforeClose();
 
@@ -156,10 +161,10 @@ export class DbRepository {
       if (n !== 'id' && value != null) {
         if (mapper != null) {
           if (mapper[n] === MapperTypes.DATE) {
-            p[n] = moment(value as any, 'YYYY-MM-DD'); //2022-11-03 00:00:00
+            p[n] = moment(value as any, 'YYYY-MM-DD').toDate(); //2022-11-03 00:00:00
             original = false;
           } else if (mapper[n] === MapperTypes.DATE_TIME) {
-            p[n] = moment(value as any, 'YYYY-MM-DD hh:mm:ss'); //2022-11-03 00:00:00
+            p[n] = moment(value as any, 'YYYY-MM-DD hh:mm:ss').toDate(); //2022-11-03 00:00:00
             original = false;
           } else if (mapper[n] === MapperTypes.NUMBER) {
             p[n] = value;
@@ -182,31 +187,22 @@ export class DbRepository {
 
   private async insert(data: any) {
     const nextData = { ...data, createdDate: new Date() };
-    const keys = Object.keys(nextData).filter(k => nextData[k] !== undefined);
-    const command = `INSERT INTO simulacao (${keys.join(', ')}) VALUES (${keys.map(k => `$${k}`).join(', ')});SELECT LAST_INSERT_ROWID();`;
-    const params = keys.reduce((p, n) => {
-      let value = nextData[n] || null;
+    const { keys, params } = this.parseToCommand(nextData);
+    const command = `INSERT INTO transacoes (${keys.join(', ')}) VALUES (${keys.map(k => `$${k}`).join(', ')});SELECT LAST_INSERT_ROWID();`;
 
-      if (value instanceof Date) {
-        value = moment(value).format();
-      }
-
-      p[`$${n}`] = value;
-
-      return p
-    }, {} as any);
+    console.log(command);
+    console.log(params);
 
     const result = this.db.exec(command, params);
+
 
     nextData.id = result[0].values[0][0];
 
     return nextData;
   }
 
-  private async update(data: any) {
-    const nextData = { ...data, updatedDate: new Date() };
+  private parseToCommand(nextData: any) {
     const keys = Object.keys(nextData).filter(k => nextData[k] !== undefined);
-    const command = `UPDATE simulacao SET ${keys.map(k => `${k}=$${k}`).join(', ')} WHERE id=$id`;
     const params = keys.reduce((p, n) => {
       let value = nextData[n] || null;
 
@@ -214,10 +210,21 @@ export class DbRepository {
         value = moment(value).format();
       }
 
+      if (value?._isBigNumber) {
+        value = value.toNumber();
+      }
+
       p[`$${n}`] = value;
 
-      return p
+      return p;
     }, {} as any);
+    return { keys, params };
+  }
+
+  private async update(data: any) {
+    const nextData = { ...data, updatedDate: new Date() };
+    const { keys, params } = this.parseToCommand(nextData);
+    const command = `UPDATE transacoes SET ${keys.map(k => `${k}=$${k}`).join(', ')} WHERE id=$id`;
 
     this.db.exec(command, params);
 

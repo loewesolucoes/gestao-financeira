@@ -26,7 +26,7 @@ export function Input(props: CustomProps) {
     else if (isInputNumber)
       onChangeOrDefault(BigNumber(value));
     else if (isInputDate)
-      onChangeOrDefault(moment(value, 'YYYY-MM-DD'));
+      onChangeOrDefault(moment(value, 'YYYY-MM-DD').toDate());
     else
       onChangeOrDefault(value);
   }
@@ -51,7 +51,7 @@ function parseInputValue(value: any, isInputNumber?: boolean, isInputDate?: bool
     return parseNumber(value, { isPercent });
 
   if (isInputDate)
-    return value.format('YYYY-MM-DD');
+    return moment(value).format('YYYY-MM-DD');
 }
 
 function parseNumber(value: BigNumber, { isPercent }: any) {

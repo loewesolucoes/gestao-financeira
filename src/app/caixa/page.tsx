@@ -30,7 +30,7 @@ export function Caixa() {
     const transacoes = {} as any;
 
     result.forEach(x => {
-      const period = x.data.format('YYYY-MM');
+      const period = moment(x.data).format('YYYY-MM');
       const transOfMonth = transacoes[period] || [];
 
       transOfMonth.push(x);

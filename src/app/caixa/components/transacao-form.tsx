@@ -1,25 +1,41 @@
 "use client";
 
-import { TipoDeReceita } from "@/app/utils/db-repository";
+import { Caixa, DbRepository, TipoDeReceita } from "@/app/utils/db-repository";
 import { Input } from "../../components/input";
 import { useState } from "react";
 import BigNumber from "bignumber.js";
+import { useStorage } from "@/app/contexts/storage";
 
-export function TransacaoForm({ }: any) {
+interface CustomProps {
+  transacao?: Caixa
+}
+
+export function TransacaoForm({ transacao }: CustomProps) {
+  const { isDbOk, repository } = useStorage();
   //@ts-ignore
   const [valor, setValor] = useState<BigNumber>(BigNumber());
-  const [data, setData] = useState();
-  const [tipoReceita, setTipoReceita] = useState(TipoDeReceita.VARIAVEL);
+  const [data, setData] = useState<Date>(new Date());
+  const [tipo, setTipo] = useState(TipoDeReceita.VARIAVEL);
   const [local, setLocal] = useState('');
   const [comentario, setComentario] = useState('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  function onSubmit(event: import('react').ChangeEvent<any>) {
+  async function onSubmitForm(event: import('react').ChangeEvent<any>) {
+    setIsLoading(true);
     event.preventDefault();
 
-    console.log(valor, data, tipoReceita, local, comentario);
+    const updatedTransaction = { ...transacao, valor, data, tipo, local, comentario }
+
+    const result = await repository.save(updatedTransaction);
+
+    console.log('onSubmitForm', result);
+
+    setIsLoading(false);
   }
 
-  return <form className="transacao-form card w-100" onSubmit={onSubmit}>
+  const isAllLoading = !isDbOk || isLoading
+
+  return <form className="transacao-form card w-100" onSubmit={onSubmitForm}>
     <h5 className="card-header">Adicione uma nova transação</h5>
 
     <div className="d-flex flex-column px-3 py-2">
@@ -34,8 +50,8 @@ export function TransacaoForm({ }: any) {
         </div>
         <div className="ms-3 flex-grow-1">
           <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
-          <select className="form-select" id="tipoReceita" onChange={e => setTipoReceita(e.target.value as any)} value={tipoReceita}>
-            <option value={TipoDeReceita.VARIAVEL}>Variavel</option>
+          <select className="form-select" id="tipoReceita" onChange={e => setTipo(e.target.value as any)} value={tipo}>
+            <option value={TipoDeReceita.VARIAVEL}>Variável</option>
             <option value={TipoDeReceita.FIXO}>Fixo</option>
           </select>
         </div>
@@ -50,7 +66,14 @@ export function TransacaoForm({ }: any) {
           <label htmlFor="comentario" className="form-label">Comentario (OBS)</label>
         </div>
       </div>
-      <button type="submit" className="btn btn-primary w-25 align-self-end mt-2">Adicionar</button>
+      <button type="submit" className="btn btn-primary w-25 align-self-end mt-2" disabled={isAllLoading}>
+        {isAllLoading
+          ? <>
+            <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            <span role="status">{" "}Carregando...</span>
+          </>
+          : 'Adicionar'}
+      </button>
     </div>
 
   </form>;
