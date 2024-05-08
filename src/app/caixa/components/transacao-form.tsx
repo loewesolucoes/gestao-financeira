@@ -10,9 +10,11 @@ interface CustomProps {
   transacao?: Caixa
   cleanStyle?: boolean
   onClose?: () => void
+  onCustomSubmit?: (transacao: Caixa) => void
+  onCustomDelete?: (transacao: Caixa) => void
 }
 
-export function TransacaoForm({ transacao, cleanStyle, onClose }: CustomProps) {
+export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, onCustomDelete }: CustomProps) {
   console.log("transacao", transacao);
 
   const { isDbOk, repository, refresh } = useStorage();
@@ -25,16 +27,21 @@ export function TransacaoForm({ transacao, cleanStyle, onClose }: CustomProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   async function onSubmitForm(event: import('react').ChangeEvent<any>) {
-    setIsLoading(true);
     event.preventDefault();
+    setIsLoading(true);
 
     const updatedTransaction = { ...transacao, valor, data, tipo, local, comentario }
 
-    const result = await repository.save(TableNames.TRANSACOES, updatedTransaction);
+    if (onCustomSubmit == null) {
+      const result = await repository.save(TableNames.TRANSACOES, updatedTransaction);
 
-    console.info('onSubmitForm', result);
+      console.info('onSubmitForm', result);
 
-    await refresh();
+      await refresh();
+    } else {
+      onCustomSubmit(updatedTransaction as any);
+    }
+
     setIsLoading(false);
 
     onClose && onClose();
@@ -45,11 +52,16 @@ export function TransacaoForm({ transacao, cleanStyle, onClose }: CustomProps) {
 
     if (transacao == null) throw new Error("transacao invalida");
 
-    const result = await repository.delete(TableNames.TRANSACOES, transacao.id);
+    if (onCustomDelete == null) {
+      const result = await repository.delete(TableNames.TRANSACOES, transacao.id);
 
-    console.info('onDelete', result);
+      console.info('onDelete', result);
 
-    refresh();
+      refresh();
+    } else {
+      onCustomDelete(transacao);
+    }
+
     setIsLoading(false);
 
     onClose && onClose();

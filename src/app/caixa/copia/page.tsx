@@ -35,6 +35,11 @@ function CopiaCaixaPage() {
 
     const result = await repository.listByMonth(TableNames.TRANSACOES, momentMonth.get('month'), momentMonth.get('year'));
 
+    result.forEach(x => {
+      // @ts-ignore
+      delete x.id;
+    });
+
     console.log(result);
 
     setTransacoes(result);
@@ -51,6 +56,15 @@ function CopiaCaixaPage() {
     const nextTransacoes = [...transacoes]
 
     nextTransacoes.splice(index, 1);
+    setTransacoes(nextTransacoes);
+  }
+
+  function salvarTransacao(previousTransacao: Caixa, nextTransacao: Caixa) {
+    const index = transacoes.indexOf(previousTransacao)
+
+    const nextTransacoes = [...transacoes]
+
+    nextTransacoes[index] = nextTransacao;
     setTransacoes(nextTransacoes);
   }
 
@@ -95,7 +109,7 @@ function CopiaCaixaPage() {
         )}
       {editTransacao && (
         <Modal hideFooter={true} onClose={() => setEditTransacao(null)} title={`Detalhes da transação: ${editTransacao?.local}`}>
-          <TransacaoForm transacao={editTransacao} cleanStyle={true} onClose={() => setEditTransacao(null)} />
+          <TransacaoForm transacao={editTransacao} cleanStyle={true} onClose={() => setEditTransacao(null)} onCustomSubmit={x => salvarTransacao(editTransacao, x)} onCustomDelete={x => removerTransacao(editTransacao)} />
         </Modal>
       )}
     </main>

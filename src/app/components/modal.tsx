@@ -21,11 +21,19 @@ export function Modal({ children, title, onClose, hideFooter }: CustomProps) {
     }
   }
 
+  function onCloseEscape(event: any) {
+    if (event?.key === "Escape") {
+      //Do whatever when esc is pressed
+      console.log("esc");
+      
+    }
+  }
+
   useEffect(() => {
-    document.addEventListener("keydown", onCloseClick, false);
+    document.addEventListener("keydown", onCloseEscape, false);
 
     return () => {
-      document.removeEventListener("keydown", onCloseClick, false);
+      document.removeEventListener("keydown", onCloseEscape, false);
     };
   }, []);
 
