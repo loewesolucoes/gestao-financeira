@@ -20,7 +20,7 @@ function CopiaCaixaPage() {
 
   const { isDbOk, repository } = useStorage();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [yearAndMonth, setYearAndMonth] = useState<Date>();
+  const [yearAndMonth, setYearAndMonth] = useState<Date>(new Date());
   const [transacoes, setTransacoes] = useState<Caixa[]>([]);
 
   useEffect(() => {
@@ -36,6 +36,10 @@ function CopiaCaixaPage() {
 
     setTransacoes(result);
     setIsLoading(false);
+  }
+
+  async function save() {
+    console.log(yearAndMonth, transacoes);
   }
 
   function removerTransacao(transacao: Caixa) {
@@ -74,14 +78,12 @@ function CopiaCaixaPage() {
             </ul>
             <div className="d-flex gap-3 justify-content-end">
               <div className="d-flex gap-3">
-                <button type="button" className="btn btn-secondary">Copiar transações para o mês especifico</button>
-                {/* <Input type="month" className="form-control" id="data" /> */}
                 <div className="form-floating">
                   <Input type="month" className="form-control" id="data" placeholder="Mês a aplicar" value={yearAndMonth} onChange={x => setYearAndMonth(x)} />
                   <label htmlFor="data" className="form-label">Mês a aplicar</label>
                 </div>
+                <button type="button" className="btn btn-primary" onClick={e => save()}>Copiar transações para o mês</button>
               </div>
-              <button type="button" className="btn btn-primary">Copiar transações para o mês atual</button>
             </div>
           </>
         )}
