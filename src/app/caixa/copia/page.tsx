@@ -12,6 +12,7 @@ import { BalancoDoMes } from "../components/balanco-do-mes";
 import { Loader } from "@/app/components/loader";
 import { NumberUtil } from "@/app/utils/number";
 import { Input } from "@/app/components/input";
+import BigNumber from "bignumber.js";
 
 function CopiaCaixaPage() {
   const params = useSearchParams()
@@ -51,6 +52,14 @@ function CopiaCaixaPage() {
     setTransacoes(nextTransacoes);
   }
 
+  function setValorTransacao(valor: BigNumber, transacao: Caixa) {
+    const index = transacoes.indexOf(transacao)
+    const nextTransacoes = [...transacoes]
+
+    nextTransacoes[index].valor = valor;
+    setTransacoes(nextTransacoes);
+  }
+
   return (
     <main className="caixa container mt-3 d-flex flex-column gap-3">
       <h1>Copiar transações do mês: {momentMonth.format('MMMM YYYY')}</h1>
@@ -69,7 +78,7 @@ function CopiaCaixaPage() {
                     </div>
                   </div>
                   <div className="d-flex w-100 justify-content-between gap-3">
-                    <p>{x.valor ? NumberUtil.toCurrency(x.valor) : 'sem valor'}</p>
+                    <Input type="number" className="form-control" id="valorAplicado" groupSymbolLeft="R$" onChange={y => setValorTransacao(y, x)} value={x.valor} />
                     <button className="btn btn-danger" onClick={e => removerTransacao(x)}>Remover</button>
                   </div>
                   <small>{x.comentario}</small>
