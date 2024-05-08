@@ -25,6 +25,7 @@ function CopiaCaixaPage() {
   const [yearAndMonth, setYearAndMonth] = useState<Date>(new Date());
   const [transacoes, setTransacoes] = useState<Caixa[]>([]);
   const [editTransacao, setEditTransacao] = useState<Caixa | null>();
+  const [isNewTransacaoOpen, setIsNewTransacaoOpen] = useState<boolean>(false);
 
   useEffect(() => {
     isDbOk && load();
@@ -72,6 +73,13 @@ function CopiaCaixaPage() {
     setTransacoes(nextTransacoes);
   }
 
+  function addTransacao(transacao: Caixa) {
+    const nextTransacoes = [...transacoes]
+
+    nextTransacoes.push(transacao);
+    setTransacoes(nextTransacoes);
+  }
+
   return (
     <main className="caixa container mt-3 d-flex flex-column gap-3">
       <h1>Copiar transações do mês: {momentMonth.format('MMMM YYYY')}</h1>
@@ -79,6 +87,11 @@ function CopiaCaixaPage() {
         ? <Loader className="align-self-center my-5" />
         : (
           <>
+            <div className="d-flex justify-content-center justify-content-lg-end">
+              <div className="d-flex gap-3 flex-column flex-lg-row">
+                <button type="button" className="btn btn-dark" onClick={e => setIsNewTransacaoOpen(true)}>Adicionar nova</button>
+              </div>
+            </div>
             <ul className="list-group">
               {transacoes.map((x, i) => (
                 <li key={`${x.local}:${i}`} className={`list-group-item ${x.valor ?? 'list-group-item-warning'}`}>
@@ -114,6 +127,11 @@ function CopiaCaixaPage() {
       {editTransacao && (
         <Modal hideFooter={true} onClose={() => setEditTransacao(null)} title={`Detalhes da transação: ${editTransacao?.local}`}>
           <TransacaoForm transacao={editTransacao} cleanStyle={true} onClose={() => setEditTransacao(null)} onCustomSubmit={x => salvarTransacao(editTransacao, x)} onCustomDelete={x => removerTransacao(editTransacao)} />
+        </Modal>
+      )}
+      {isNewTransacaoOpen && (
+        <Modal hideFooter={true} onClose={() => setIsNewTransacaoOpen(false)} title={`Adicionar transação`}>
+          <TransacaoForm cleanStyle={true} onClose={() => setIsNewTransacaoOpen(false)} onCustomSubmit={x => addTransacao(x)} onCustomDelete={x => setIsNewTransacaoOpen(false)} />
         </Modal>
       )}
     </main>
