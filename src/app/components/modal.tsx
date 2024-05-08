@@ -24,8 +24,7 @@ export function Modal({ children, title, onClose, hideFooter }: CustomProps) {
   function onCloseEscape(event: any) {
     if (event?.key === "Escape") {
       //Do whatever when esc is pressed
-      console.log("esc");
-      
+      onCloseClick();
     }
   }
 

@@ -38,6 +38,10 @@ function CopiaCaixaPage() {
     result.forEach(x => {
       // @ts-ignore
       delete x.id;
+      // @ts-ignore
+      delete x.createdDate;
+      delete x.updatedDate;
+      x.data = new Date();
     });
 
     console.log(result);
@@ -81,7 +85,7 @@ function CopiaCaixaPage() {
                   <div className="d-flex w-100 justify-content-between gap-3">
                     <h5>{x.local}</h5>
                     <div className="d-flex justify-content-between gap-3">
-                      <small>{moment(new Date()).format('DD/MM/YY')}</small>
+                      <small>{moment(x.data).format('DD/MM/YY')}</small>
                       <small className={x.tipo === TipoDeReceita.FIXO ? 'text-primary' : 'text-info'}>{x.tipo === TipoDeReceita.FIXO ? 'Fixo' : 'Variável'}</small>
                     </div>
                   </div>
