@@ -158,6 +158,17 @@ export class DbRepository {
     return this.parseSqlResultToObj(result, CAIXA_MAPPING)[0] || [];
   }
 
+  public async listByMonth(tableName: TableNames, month: number, year: number): Promise<Caixa[]> {
+    await Promise.resolve();
+
+    const result = this.db.exec(`select * FROM ${tableName} where strftime('%m', data) = $month and strftime('%Y', data) = $year`, { "$month": String(month).padStart(2, '0'), "$year": `${year}` });
+
+    if (!Array.isArray(result))
+      throw new Error(`${tableName} não encontrado (a)`);
+
+    return this.parseSqlResultToObj(result, CAIXA_MAPPING)[0] || [];
+  }
+
   public async get(tableName: TableNames, id: string) {
     await Promise.resolve();
 

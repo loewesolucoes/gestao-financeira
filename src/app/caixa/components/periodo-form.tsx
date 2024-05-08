@@ -15,7 +15,7 @@ export function PeriodoForm({ onChange, value }: any) {
     <div className="d-xl-none my-3 px-3">
       <select className="form-select" id="tipoReceita" onChange={e => onChange(Number(e.target.value))} defaultValue={value}>
         {periodosTransacoes.map((x, i) => (
-          <option value={x.value}>{x.title}</option>
+          <option key={x.value} value={x.value}>{x.title}</option>
         ))}
       </select>
     </div>

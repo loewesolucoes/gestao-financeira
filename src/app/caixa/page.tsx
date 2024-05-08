@@ -13,8 +13,9 @@ import { PeriodoForm } from "./components/periodo-form";
 import { ListaCaixa } from "./components/lista-caixa";
 import { BalancoDoMes } from "./components/balanco-do-mes";
 import { TransacaoForm } from "./components/transacao-form";
+import Link from "next/link";
 
-function CaixaPage(): React.ReactElement {
+function CaixaPage() {
   const { isDbOk, repository } = useStorage();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -22,8 +23,6 @@ function CaixaPage(): React.ReactElement {
   const [periodo, setPeriodo] = useState<PeriodoTransacoes>(PeriodoTransacoes.ULTIMO_MES);
 
   useEffect(() => {
-    console.log("page. isDbOk", isDbOk);
-
     isDbOk && load();
   }, [isDbOk, periodo]);
 
@@ -62,8 +61,11 @@ function CaixaPage(): React.ReactElement {
 
               return (
                 <section key={key} className="card my-3">
-                  <h4 className="card-header">Periodo de: {moment(key, 'YYYY-MM').format('MMMM YYYY')}</h4>
-                  <div className="card-body d-flex align-items-center flex-column-reverse flex-lg-row justify-content-lg-around">
+                  <div className="card-header d-flex justify-content-between">
+                    <h4 className="m-0">Periodo de: {moment(key, 'YYYY-MM').format('MMMM YYYY')}</h4>
+                    <Link href={`/caixa/copia?month=${key}`} className="btn btn-dark">Copiar mês</Link>
+                  </div>
+                  <div className="card-body d-flex align-items-start flex-column-reverse flex-lg-row justify-content-lg-around">
                     <ListaCaixa periodo={periodo} />
                     <BalancoDoMes periodo={periodo} />
                   </div>
