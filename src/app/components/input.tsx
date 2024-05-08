@@ -15,6 +15,7 @@ export function Input(props: CustomProps) {
   const { onChange, isNumber, groupSymbolLeft, groupSymbolRight, isPercent, value, ...otherProps } = props;
   const isInputNumber = props.type === 'number' || isNumber;
   const isInputDate = props.type === 'date';
+  const isInputMonth = props.type === 'month';
 
   function onChangeInput(event: any) {
     const { value } = event.target;
@@ -27,11 +28,13 @@ export function Input(props: CustomProps) {
       onChangeOrDefault(BigNumber(value));
     else if (isInputDate)
       onChangeOrDefault(moment(value, 'YYYY-MM-DD').toDate());
+    else if (isInputMonth)
+      onChangeOrDefault(moment(value, 'YYYY-MM').toDate());
     else
       onChangeOrDefault(value);
   }
 
-  const inputValue = parseInputValue(value, isInputNumber, isInputDate, isPercent);
+  const inputValue = parseInputValue(value, isInputNumber, isInputDate, isInputMonth, isPercent);
   const input = <input className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps} />;
 
   return groupSymbolLeft || groupSymbolRight ? (
@@ -43,12 +46,15 @@ export function Input(props: CustomProps) {
   ) : input;
 }
 
-function parseInputValue(value: any, isInputNumber?: boolean, isInputDate?: boolean, isPercent?: boolean) {
+function parseInputValue(value: any, isInputNumber?: boolean, isInputDate?: boolean, isInputMonth?: boolean, isPercent?: boolean) {
   if (isInputNumber)
     return parseNumber(value, { isPercent });
 
   if (isInputDate)
     return moment(value).format('YYYY-MM-DD');
+
+  if (isInputMonth)
+    return moment(value).format('YYYY-MM');
 
   return value || ''
 }
