@@ -12,7 +12,8 @@ import { BalancoDoMes } from "../components/balanco-do-mes";
 import { Loader } from "@/app/components/loader";
 import { NumberUtil } from "@/app/utils/number";
 import { Input } from "@/app/components/input";
-import BigNumber from "bignumber.js";
+import { Modal } from "@/app/components/modal";
+import { TransacaoForm } from "../components/transacao-form";
 
 function CopiaCaixaPage() {
   const params = useSearchParams()
@@ -23,6 +24,7 @@ function CopiaCaixaPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [yearAndMonth, setYearAndMonth] = useState<Date>(new Date());
   const [transacoes, setTransacoes] = useState<Caixa[]>([]);
+  const [editTransacao, setEditTransacao] = useState<Caixa | null>();
 
   useEffect(() => {
     isDbOk && load();
@@ -52,14 +54,6 @@ function CopiaCaixaPage() {
     setTransacoes(nextTransacoes);
   }
 
-  function setValorTransacao(valor: BigNumber, transacao: Caixa) {
-    const index = transacoes.indexOf(transacao)
-    const nextTransacoes = [...transacoes]
-
-    nextTransacoes[index].valor = valor;
-    setTransacoes(nextTransacoes);
-  }
-
   return (
     <main className="caixa container mt-3 d-flex flex-column gap-3">
       <h1>Copiar transações do mês: {momentMonth.format('MMMM YYYY')}</h1>
@@ -78,8 +72,11 @@ function CopiaCaixaPage() {
                     </div>
                   </div>
                   <div className="d-flex w-100 justify-content-between gap-3">
-                    <Input type="number" className="form-control" id="valorAplicado" groupSymbolLeft="R$" onChange={y => setValorTransacao(y, x)} value={x.valor} />
-                    <button className="btn btn-danger" onClick={e => removerTransacao(x)}>Remover</button>
+                    <p>{x.valor ? NumberUtil.toCurrency(x.valor) : 'sem valor'}</p>
+                    <div className="d-flex gap-3">
+                      <button className="btn btn-secondary" onClick={e => setEditTransacao(x)}>Editar</button>
+                      <button className="btn btn-danger" onClick={e => removerTransacao(x)}>Remover</button>
+                    </div>
                   </div>
                   <small>{x.comentario}</small>
                 </li>
@@ -96,6 +93,11 @@ function CopiaCaixaPage() {
             </div>
           </>
         )}
+      {editTransacao && (
+        <Modal hideFooter={true} onClose={() => setEditTransacao(null)} title={`Detalhes da transação: ${editTransacao?.local}`}>
+          <TransacaoForm transacao={editTransacao} cleanStyle={true} onClose={() => setEditTransacao(null)} />
+        </Modal>
+      )}
     </main>
   );
 }

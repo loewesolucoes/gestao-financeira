@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface CustomProps {
   children?: any
@@ -20,6 +20,14 @@ export function Modal({ children, title, onClose, hideFooter }: CustomProps) {
       onCloseClick();
     }
   }
+
+  useEffect(() => {
+    document.addEventListener("keydown", onCloseClick, false);
+
+    return () => {
+      document.removeEventListener("keydown", onCloseClick, false);
+    };
+  }, []);
 
 
   return (
