@@ -60,27 +60,27 @@ export function TransacaoForm({ transacao, cleanStyle, onClose }: CustomProps) {
   return <form className={`transacao-form w-100 ${!cleanStyle && 'card'}`} onSubmit={onSubmitForm}>
     {!cleanStyle && (<h5 className="card-header">Adicione uma nova transação</h5>)}
 
-    <div className="d-flex flex-column px-3 py-2">
-      <div className="d-flex w-100 mb-3">
+    <div className="d-flex flex-column px-3 py-2 gap-3">
+      <div className="d-flex gap-3 flex-column flex-md-row w-100">
         <div className="flex-grow-1">
           <label htmlFor="local" className="form-label">Local</label>
           <Input type="text" className="form-control" id="local" onChange={x => setLocal(x)} value={local} placeholder="Local" />
         </div>
-        <div className="ms-3 flex-grow-1">
+        <div className="flex-grow-1">
           <label htmlFor="comentario" className="form-label">Comentario (OBS)</label>
           <Input type="text" className="form-control" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentario (OBS)" />
         </div>
       </div>
-      <div className="d-flex w-100">
+      <div className="d-flex gap-3 flex-column flex-md-row w-100">
         <div className="flex-grow-1">
           <label htmlFor="valorAplicado" className="form-label">Valor aplicado</label>
           <Input type="number" className="form-control" id="valorAplicado" groupSymbolLeft="R$" onChange={x => setValor(x)} value={valor} />
         </div>
-        <div className="ms-3 flex-grow-1">
+        <div className="flex-grow-1">
           <label htmlFor="data" className="form-label">Data</label>
           <Input type="date" className="form-control" id="data" onChange={x => setData(x)} value={data} />
         </div>
-        <div className="ms-3 flex-grow-1">
+        <div className="flex-grow-1">
           <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
           <select className="form-select" id="tipoReceita" onChange={e => setTipo(e.target.value as any)} defaultValue={tipo}>
             <option value={TipoDeReceita.VARIAVEL}>Variável</option>
@@ -121,7 +121,7 @@ function FormButtons({ isAllLoading, transacao, onClose, onDelete }: any) {
             : 'Remover'}
         </button>
       )}
-      <button type="submit" className="btn btn-primary w-25 align-self-end mt-2" disabled={isAllLoading}>
+      <button type="submit" className="btn btn-primary align-self-end mt-2" disabled={isAllLoading}>
         {isAllLoading
           ? <>
             <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
