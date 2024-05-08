@@ -76,8 +76,8 @@ function CopiaCaixaPage() {
                 </li>
               ))}
             </ul>
-            <div className="d-flex gap-3 justify-content-end">
-              <div className="d-flex gap-3">
+            <div className="d-flex justify-content-center justify-content-lg-end">
+              <div className="d-flex gap-3 flex-column flex-lg-row">
                 <div className="form-floating">
                   <Input type="month" className="form-control" id="data" placeholder="Mês a aplicar" value={yearAndMonth} onChange={x => setYearAndMonth(x)} />
                   <label htmlFor="data" className="form-label">Mês a aplicar</label>
