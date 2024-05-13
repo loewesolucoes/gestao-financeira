@@ -14,6 +14,7 @@ import { NumberUtil } from "@/app/utils/number";
 import { Input } from "@/app/components/input";
 import { Modal } from "@/app/components/modal";
 import { TransacaoForm } from "../components/transacao-form";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 
 function CopiaCaixaPage() {
   const params = useSearchParams()
@@ -80,6 +81,21 @@ function CopiaCaixaPage() {
     setTransacoes(nextTransacoes);
   }
 
+  function trocarPosicao(drop: DropResult) {
+    console.log(arguments);
+    
+    const nextTransacoes = [...transacoes]
+
+    const destIndex = drop.destination?.index as any
+    const srcIndex = drop.source.index as any
+    const srcTemp = nextTransacoes[srcIndex];
+
+    nextTransacoes.splice(srcIndex, 1);
+    nextTransacoes.splice(destIndex, 0, srcTemp);
+
+    setTransacoes(nextTransacoes);
+  }
+
   return (
     <main className="caixa container mt-3 d-flex flex-column gap-3">
       <h1>Copiar transações do mês: {momentMonth.format('MMMM YYYY')}</h1>
@@ -92,27 +108,47 @@ function CopiaCaixaPage() {
                 <button type="button" className="btn btn-dark" onClick={e => setIsNewTransacaoOpen(true)}>Adicionar nova</button>
               </div>
             </div>
-            <ul className="list-group">
-              {transacoes.map((x, i) => (
-                <li key={`${x.local}:${i}`} className={`list-group-item ${x.valor ?? 'list-group-item-warning'}`}>
-                  <div className="d-flex w-100 justify-content-between gap-3">
-                    <h5>{x.local}</h5>
-                    <div className="d-flex justify-content-between gap-3">
-                      <small>{moment(x.data).format('DD/MM/YY')}</small>
-                      <small className={x.tipo === TipoDeReceita.FIXO ? 'text-primary' : 'text-info'}>{x.tipo === TipoDeReceita.FIXO ? 'Fixo' : 'Variável'}</small>
-                    </div>
-                  </div>
-                  <div className="d-flex w-100 justify-content-between gap-3">
-                    <p>{x.valor ? NumberUtil.toCurrency(x.valor) : 'sem valor'}</p>
-                    <div className="d-flex gap-3">
-                      <button className="btn btn-secondary" onClick={e => setEditTransacao(x)}>Editar</button>
-                      <button className="btn btn-danger" onClick={e => removerTransacao(x)}>Remover</button>
-                    </div>
-                  </div>
-                  <small>{x.comentario}</small>
-                </li>
-              ))}
-            </ul>
+            <DragDropContext onDragEnd={trocarPosicao}>
+              <Droppable droppableId="droppable">
+                {(provided, snapshot) => (
+                  <>
+                    <ul
+                      {...provided.droppableProps}
+                      className={`list-group ${snapshot.isDraggingOver && 'text-bg-dark'}`}
+                      ref={provided.innerRef}
+                    >
+                      {transacoes.map((x, i) => (
+                        <Draggable key={`${x.local}:${i}`} draggableId={`${x.local}:${i}`} index={i}>
+                          {(provided, snapshot) => (
+                            <li ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              style={provided.draggableProps.style} className={`list-group-item ${x.valor?.toNumber() ?? 'list-group-item-warning'} ${snapshot.isDragging && 'active'}`}>
+                              <div className="d-flex w-100 justify-content-between gap-3">
+                                <h5>{x.local}</h5>
+                                <div className="d-flex justify-content-between gap-3">
+                                  <small>{moment(x.data).format('DD/MM/YY')}</small>
+                                  <small className={x.tipo === TipoDeReceita.FIXO ? 'text-primary' : 'text-info'}>{x.tipo === TipoDeReceita.FIXO ? 'Fixo' : 'Variável'}</small>
+                                </div>
+                              </div>
+                              <div className="d-flex w-100 justify-content-between gap-3">
+                                <p>{x.valor?.toNumber() ? NumberUtil.toCurrency(x.valor) : 'sem valor'}</p>
+                                <div className="d-flex gap-3">
+                                  <button className="btn btn-secondary" onClick={e => setEditTransacao(x)}>Editar</button>
+                                  <button className="btn btn-danger" onClick={e => removerTransacao(x)}>Remover</button>
+                                </div>
+                              </div>
+                              <small>{x.comentario}</small>
+                            </li>
+                          )}
+                        </Draggable>
+                      ))}
+                    </ul>
+                    {provided.placeholder}
+                  </>
+                )}
+              </Droppable>
+            </DragDropContext>
             <div className="d-flex justify-content-center justify-content-lg-end">
               <div className="d-flex gap-3 flex-column flex-lg-row">
                 <div className="form-floating">
