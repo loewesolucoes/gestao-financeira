@@ -100,9 +100,25 @@ export class DbRepository {
     console.info("persistDb ok");
   }
 
-  public async save(tableName: TableNames, data: any) {
-    await Promise.resolve();
+  public async saveAll(tableName: TableNames, transacoes: Caixa[]) {
+    let allParams = {};
+    let fullCommand = '';
 
+    transacoes.forEach((x, i) => {
+      const { command, params } = this.createInsertCommand(tableName, x, `${i}`);
+
+      fullCommand = `${fullCommand};${command}`
+      allParams = { ...allParams, ...params }
+    })
+
+    console.info('saveAll', fullCommand, allParams)
+
+    this.db.exec(fullCommand, allParams);
+
+    await this.persistDb();
+  }
+
+  public async save(tableName: TableNames, data: any) {
     let result = {} as any;
 
     if (data?.id != null)
@@ -181,18 +197,22 @@ export class DbRepository {
   }
 
   private async insert(tableName: TableNames, data: any) {
-    const nextData = { ...data, createdDate: new Date() };
-    const { keys, params } = this.parseToCommand(nextData);
-    const command = `INSERT INTO ${tableName} (${keys.join(', ')}) VALUES (${keys.map(k => `$${k}`).join(', ')});SELECT LAST_INSERT_ROWID();`;
+    const { command, params, nextData } = this.createInsertCommand(tableName, data);
+    const fullCommand = `${command};SELECT LAST_INSERT_ROWID();`
 
-    console.log(command);
-    console.log(params);
-
-    const result = this.db.exec(command, params);
+    const result = this.db.exec(fullCommand, params);
 
     nextData.id = result[0].values[0][0];
 
     return nextData;
+  }
+
+  private createInsertCommand(tableName: TableNames, data: any, paramsPrefix: string = '') {
+    const nextData = { ...data, createdDate: new Date() };
+    const { keys, params } = this.parseToCommand(nextData, paramsPrefix);
+    const command = `INSERT INTO ${tableName} (${keys.join(', ')}) VALUES (${keys.map(k => `$${k}${paramsPrefix}`).join(', ')})`;
+
+    return { command, params, nextData }
   }
 
   private async update(tableName: TableNames, data: any) {
@@ -237,7 +257,7 @@ export class DbRepository {
     }, {} as any)));
   }
 
-  private parseToCommand(nextData: any) {
+  private parseToCommand(nextData: any, paramsPrefix: string = '') {
     const keys = Object.keys(nextData).filter(k => nextData[k] !== undefined);
     const params = keys.reduce((p, n) => {
       let value = nextData[n] || null;
@@ -250,10 +270,11 @@ export class DbRepository {
         value = value.toNumber();
       }
 
-      p[`$${n}`] = value;
+      p[`$${n}${paramsPrefix}`] = value;
 
       return p;
     }, {} as any);
+
     return { keys, params };
   }
 

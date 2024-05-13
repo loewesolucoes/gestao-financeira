@@ -2,13 +2,11 @@
 
 import { Layout } from "@/app/shared/layout";
 import "./page.scss";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import moment from "moment";
 import { useStorage } from "@/app/contexts/storage";
 import { useEffect, useState } from "react";
 import { Caixa, TableNames, TipoDeReceita } from "@/app/utils/db-repository";
-import { ListaCaixa } from "../components/lista-caixa";
-import { BalancoDoMes } from "../components/balanco-do-mes";
 import { Loader } from "@/app/components/loader";
 import { NumberUtil } from "@/app/utils/number";
 import { Input } from "@/app/components/input";
@@ -20,6 +18,7 @@ function CopiaCaixaPage() {
   const params = useSearchParams()
   const month = params.get('month');
   const momentMonth = moment(month, 'YYYY-MM');
+  const router = useRouter()
 
   const { isDbOk, repository } = useStorage();
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -53,7 +52,14 @@ function CopiaCaixaPage() {
   }
 
   async function save() {
-    console.log(yearAndMonth, transacoes);
+    setIsLoading(true);
+
+    if (!confirm('você tem certeza?'))
+      return;
+
+    await repository.saveAll(TableNames.TRANSACOES, [...transacoes]);
+    setIsLoading(false);
+    router.push('/caixa');
   }
 
   function removerTransacao(transacao: Caixa) {
