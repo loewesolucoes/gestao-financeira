@@ -83,7 +83,7 @@ function CopiaCaixaPage() {
 
   function trocarPosicao(drop: DropResult) {
     console.log(arguments);
-    
+
     const nextTransacoes = [...transacoes]
 
     const destIndex = drop.destination?.index as any
@@ -123,7 +123,7 @@ function CopiaCaixaPage() {
                             <li ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              style={provided.draggableProps.style} className={`list-group-item ${x.valor?.toNumber() ?? 'list-group-item-warning'} ${snapshot.isDragging && 'active'}`}>
+                              style={provided.draggableProps.style} className={`list-group-item ${!x.valor?.toNumber() && 'list-group-item-warning'} ${snapshot.isDragging && 'active'}`}>
                               <div className="d-flex w-100 justify-content-between gap-3">
                                 <h5>{x.local}</h5>
                                 <div className="d-flex justify-content-between gap-3">

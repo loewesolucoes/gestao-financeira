@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: "Nosso sistema de gestão financeira é uma solução abrangente e inteligente projetada para empresas e indivíduos. Com recursos avançados, como controle de caixa, balancetes automatizados, registro de notas fiscais e gerenciamento de investimentos, ajudamos você a manter suas finanças organizadas e tomar decisões informadas. Nossa interface amigável e segura permite que você acesse suas informações financeiras de qualquer lugar, garantindo eficiência e precisão. Escolha nossa plataforma para otimizar suas operações financeiras e alcançar seus objetivos.",
 };
 
+const basePath = process.env.BASE_PATH || ''
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,11 +34,11 @@ export default function RootLayout({
         <meta property="twitter:description" content={metadata.description as string} />
         <meta property="twitter:image" content="/site.png" />
 
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="manifest" href="/site.webmanifest" />
-        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <link rel="apple-touch-icon" sizes="180x180" href={`${basePath}/apple-touch-icon.png`} />
+        <link rel="icon" type="image/png" sizes="32x32" href={`${basePath}/favicon-32x32.png`} />
+        <link rel="icon" type="image/png" sizes="16x16" href={`${basePath}/favicon-16x16.png`} />
+        <link rel="manifest" href={`${basePath}/site.webmanifest`} />
+        <link rel="mask-icon" href={`${basePath}/safari-pinned-tab.svg`} color="#5bbad5" />
         <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="theme-color" content="#65a246" />
         <Script id="gtm" strategy="afterInteractive">
