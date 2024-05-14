@@ -28,6 +28,7 @@
     justify-content: center;
     align-items: center;
     max-width: 50%;
+    gap: 20px;
     
     @include media-breakpoint-up(lg) {
       max-width: 100%;

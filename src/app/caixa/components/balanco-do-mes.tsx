@@ -1,16 +1,17 @@
 "use client";
-import { Doughnut } from "react-chartjs-2";
-import { Caixa } from "../../utils/db-repository";
+import { Bar, Doughnut, Line } from "react-chartjs-2";
+import { Caixa, TransacoesAcumuladasPorMes } from "../../utils/db-repository";
 import { NumberUtil } from "../../utils/number";
 import BigNumber from "bignumber.js";
 
-export function BalancoDoMes({ periodo }: { periodo: Caixa[]; }) {
+export function BalancoDoMes({ periodo, transacoesAcumuladasPorMes }: { periodo: Caixa[], transacoesAcumuladasPorMes: any }) {
   const somaPeriodo = periodo.reduce((p, n) => p.plus(n.valor || 0), BigNumber(0));
 
   return <div className="totals">
     <h5>Balanço do mes</h5>
     <p>{NumberUtil.toCurrency(somaPeriodo)}</p>
     <small>{NumberUtil.extenso(somaPeriodo)}</small>
+    <GraficoAcumuladoDoMes transacoesAcumuladasPorMes={transacoesAcumuladasPorMes} />
     <GraficoBalancoDoMes periodo={periodo} />
   </div>;
 }
@@ -30,6 +31,36 @@ export function GraficoBalancoDoMes({ periodo }: { periodo: Caixa[] }) {
           '#dc3545',
         ],
         hoverOffset: 4,
+      },
+    ],
+  }} options={{
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+    }
+  }} />;
+}
+
+// export function AcumuladoMes({ periodo }: { periodo: TransacoesAcumuladasPorMes[]; }) {
+//   const somaPeriodo = periodo.reduce((p, n) => p.plus(n.valor || 0), BigNumber(0));
+
+//   return <div className="acumuladoMes">
+//     <h5>Restante em caixa por Mês</h5>
+//     <p>{NumberUtil.toCurrency(somaPeriodo)}</p>
+//     <small>{NumberUtil.extenso(somaPeriodo)}</small>
+//     <GraficoBalancoDoMes periodo={periodo} />
+//   </div>;
+// }
+
+export function GraficoAcumuladoDoMes({ transacoesAcumuladasPorMes }: any) {
+  return <Line data={{
+    labels: transacoesAcumuladasPorMes.map(x => x.mes),
+    datasets: [
+      {
+        label: 'acumulado até o mes (R$)',
+        data: transacoesAcumuladasPorMes.map(x => x.totalAcumulado),
       },
     ],
   }} options={{

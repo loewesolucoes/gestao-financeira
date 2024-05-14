@@ -28,6 +28,17 @@ export interface Caixa {
   updatedDate?: Date
 }
 
+export interface TransacoesAcumuladasPorMes {
+  mes: string;
+  totalAcumulado: BigNumber;
+  totalMes: BigNumber;
+}
+
+export interface TotaisCaixa {
+  valorEmCaixa?: BigNumber
+  transacoesAcumuladaPorMes: TransacoesAcumuladasPorMes[]
+}
+
 export enum PeriodoTransacoes {
   ULTIMO_MES,
   TRES_ULTIMOS_MESES,
@@ -143,28 +154,55 @@ export class DbRepository {
     return result;
   }
 
-  public async list(tableName: TableNames, periodo: PeriodoTransacoes): Promise<Caixa[]> {
+  public async totais(): Promise<TotaisCaixa> {
     await Promise.resolve();
 
-    let query = "data > DATETIME('now', '-30 day')"
+    const result = this.db.exec(`select SUM(t.valor) as valorEmCaixa FROM transacoes t`);
+
+    const { valorEmCaixa } = this.parseSqlResultToObj(result)[0][0] || {};
+
+    const query = `SELECT strftime('%Y-%m', t.data) AS mes,
+    SUM(t.valor) AS totalMes,
+    SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', t.data)) AS totalAcumulado
+    FROM transacoes t
+    GROUP BY strftime('%Y-%m', t.data)
+      `;
+
+    const result2 = this.db.exec(query);
+
+    const transacoesAcumuladaPorMes = this.parseSqlResultToObj(result2)[0] || [];
+
+    return { valorEmCaixa, transacoesAcumuladaPorMes }
+  }
+
+  private getQueryByPeriodo(periodo: PeriodoTransacoes) {
+    let query = "data > DATETIME('now', '-30 day')";
 
     switch (periodo) {
       case PeriodoTransacoes.TRES_ULTIMOS_MESES:
-        query = "data > DATETIME('now', '-3 month')"
+        query = "data > DATETIME('now', '-3 month')";
         break;
       case PeriodoTransacoes.SEIS_ULTIMOS_MESES:
-        query = "data > DATETIME('now', '-6 month')"
+        query = "data > DATETIME('now', '-6 month')";
         break;
       case PeriodoTransacoes.ULTIMO_ANO:
-        query = "data > DATETIME('now', '-12 month')"
+        query = "data > DATETIME('now', '-12 month')";
         break;
       case PeriodoTransacoes.TODO_HISTORICO:
-        query = "1=1"
+        query = "1=1";
         break;
 
       default:
         break;
     }
+
+    return query;
+  }
+
+  public async list(tableName: TableNames, periodo: PeriodoTransacoes): Promise<Caixa[]> {
+    await Promise.resolve();
+
+    let query = this.getQueryByPeriodo(periodo);
 
     const result = this.db.exec(`select * FROM ${tableName} where ${query}`);
 
