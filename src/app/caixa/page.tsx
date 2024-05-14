@@ -93,7 +93,7 @@ function CaixaPage() {
             ? <Loader className="align-self-center my-5" />
             : Object.keys(transacoes).map(key => {
               const periodo = transacoes[key] || [];
-              const acumulado = transacoesAcumuladaPorMes[key] || {};
+              const acumulado = transacoesAcumuladaPorMes[key] || {} as any;
               const dataAtual = moment(acumulado.mes, 'YYYY-MM')
               const dataAtualMenos5Meses = dataAtual.clone().add(-5, 'month')
 
