@@ -168,20 +168,20 @@ export class DbRepository {
     return result;
   }
 
-  public async totais(): Promise<TotaisHome> {
+  public async totais(yearAndMonth: Date): Promise<TotaisHome> {
     await Promise.resolve();
 
     const query = `
     select SUM(t.valor) as valorEmCaixa FROM transacoes t;
     select SUM(t.valor) as receitas FROM transacoes t
     WHERE t.valor >= 0
-    and strftime('%m', t.data) = '03' and strftime('%Y', t.data) = '2024';
+    and strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year;
     select SUM(t.valor) as receitas FROM transacoes t
     WHERE t.valor < 0
-    and strftime('%m', t.data) = '03' and strftime('%Y', t.data) = '2024';
+    and strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year;
     `;
 
-    const result = this.db.exec(query);
+    const result = this.db.exec(query, { "$month": moment(yearAndMonth).format('MM'), "$year": moment(yearAndMonth).format('YYYY') });
 
     console.info(result)
 

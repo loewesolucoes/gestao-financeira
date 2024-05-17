@@ -22,11 +22,11 @@ function Home() {
 
   useEffect(() => {
     isDbOk && load();
-  }, [isDbOk]);
+  }, [isDbOk, yearAndMonth]);
 
   async function load() {
     setIsLoading(true);
-    const result = await repository.totais();
+    const result = await repository.totais(yearAndMonth);
 
     console.log(result);
 
