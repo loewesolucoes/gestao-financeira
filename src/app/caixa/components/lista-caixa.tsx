@@ -1,13 +1,13 @@
 "use client";
 import { NumberUtil } from "@/app/utils/number";
-import { Caixa, TipoDeReceita } from "../../utils/db-repository";
+import { Transacoes, TipoDeReceita } from "../../utils/db-repository";
 import moment from "moment";
 import { useState } from "react";
 import { Modal } from "@/app/components/modal";
 import { TransacaoForm } from "./transacao-form";
 
-export function ListaCaixa({ periodo }: { periodo: Caixa[]; }) {
-  const [transaction, setTransaction] = useState<Caixa | null>(null);
+export function ListaCaixa({ periodo }: { periodo: Transacoes[]; }) {
+  const [transaction, setTransaction] = useState<Transacoes | null>(null);
 
   return <ul className="list-group">
     {periodo.map((x, i) => (

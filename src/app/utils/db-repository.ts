@@ -17,7 +17,7 @@ export enum TipoDeReceita {
   VARIAVEL = 1
 }
 
-export interface Caixa {
+export interface Transacoes {
   id: number
   valor?: BigNumber
   data: Date
@@ -112,7 +112,7 @@ export class DbRepository {
     console.info("persistDb ok");
   }
 
-  public async saveAll(tableName: TableNames, transacoes: Caixa[]) {
+  public async saveAll(tableName: TableNames, transacoes: Transacoes[]) {
     let allParams = {};
     let fullCommand = '';
 
@@ -207,7 +207,7 @@ export class DbRepository {
     return query;
   }
 
-  public async list(tableName: TableNames, periodo: PeriodoTransacoes): Promise<Caixa[]> {
+  public async list(tableName: TableNames, periodo: PeriodoTransacoes): Promise<Transacoes[]> {
     await Promise.resolve();
 
     let query = this.getQueryByPeriodo(periodo);
@@ -220,7 +220,7 @@ export class DbRepository {
     return this.parseSqlResultToObj(result, CAIXA_MAPPING)[0] || [];
   }
 
-  public async listByMonth(tableName: TableNames, month: string, year: string): Promise<Caixa[]> {
+  public async listByMonth(tableName: TableNames, month: string, year: string): Promise<Transacoes[]> {
     await Promise.resolve();
 
     const result = this.db.exec(`select * FROM ${tableName} where strftime('%m', data) = $month and strftime('%Y', data) = $year`, { "$month": month, "$year": year });

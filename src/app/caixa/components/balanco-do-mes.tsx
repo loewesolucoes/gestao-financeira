@@ -1,10 +1,10 @@
 "use client";
 import { Bar, Doughnut, Line } from "react-chartjs-2";
-import { Caixa, TransacoesAcumuladasPorMes } from "../../utils/db-repository";
+import { Transacoes, TransacoesAcumuladasPorMes } from "../../utils/db-repository";
 import { NumberUtil } from "../../utils/number";
 import BigNumber from "bignumber.js";
 
-export function BalancoDoMes({ periodo, transacoesAcumuladasPorMes }: { periodo: Caixa[], transacoesAcumuladasPorMes: any }) {
+export function BalancoDoMes({ periodo, transacoesAcumuladasPorMes }: { periodo: Transacoes[], transacoesAcumuladasPorMes: any }) {
   const somaPeriodo = periodo.reduce((p, n) => p.plus(n.valor || 0), BigNumber(0));
 
   return <div className="totals">
@@ -16,7 +16,7 @@ export function BalancoDoMes({ periodo, transacoesAcumuladasPorMes }: { periodo:
   </div>;
 }
 
-export function GraficoBalancoDoMes({ periodo }: { periodo: Caixa[] }) {
+export function GraficoBalancoDoMes({ periodo }: { periodo: Transacoes[] }) {
   const somaEntradas = periodo.filter(x => x.valor && x.valor?.toNumber() >= 0).reduce((p, n) => p.plus(n.valor || 0), BigNumber(0))
   const somaSaidas = periodo.filter(x => x.valor && x.valor?.toNumber() < 0).reduce((p, n) => p.plus(n.valor || 0), BigNumber(0))
 

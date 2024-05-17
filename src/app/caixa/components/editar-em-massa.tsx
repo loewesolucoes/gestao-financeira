@@ -2,7 +2,7 @@ import moment from "moment";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useStorage } from "@/app/contexts/storage";
 import { useEffect, useState } from "react";
-import { Caixa, TableNames, TipoDeReceita } from "@/app/utils/db-repository";
+import { Transacoes, TableNames, TipoDeReceita } from "@/app/utils/db-repository";
 import { Loader } from "@/app/components/loader";
 import { NumberUtil } from "@/app/utils/number";
 import { Input } from "@/app/components/input";
@@ -19,8 +19,8 @@ export function EditarEmMassa({ isCopy }: any) {
   const { isDbOk, repository } = useStorage();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [yearAndMonth, setYearAndMonth] = useState<Date>(new Date());
-  const [transacoes, setTransacoes] = useState<Caixa[]>([]);
-  const [editTransacao, setEditTransacao] = useState<Caixa | null>();
+  const [transacoes, setTransacoes] = useState<Transacoes[]>([]);
+  const [editTransacao, setEditTransacao] = useState<Transacoes | null>();
   const [isNewTransacaoOpen, setIsNewTransacaoOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -48,10 +48,10 @@ export function EditarEmMassa({ isCopy }: any) {
   }
 
   async function save() {
-    setIsLoading(true);
-
     if (!confirm('você tem certeza?'))
       return;
+
+    setIsLoading(true);
 
     const transacoesOk = [...transacoes];
 
@@ -67,7 +67,7 @@ export function EditarEmMassa({ isCopy }: any) {
     router.push('/caixa');
   }
 
-  function removerTransacao(transacao: Caixa) {
+  function removerTransacao(transacao: Transacoes) {
     const index = transacoes.indexOf(transacao);
 
     const nextTransacoes = [...transacoes];
@@ -76,7 +76,7 @@ export function EditarEmMassa({ isCopy }: any) {
     setTransacoes(nextTransacoes);
   }
 
-  function salvarTransacao(previousTransacao: Caixa, nextTransacao: Caixa) {
+  function salvarTransacao(previousTransacao: Transacoes, nextTransacao: Transacoes) {
     const index = transacoes.indexOf(previousTransacao);
 
     const nextTransacoes = [...transacoes];
@@ -85,7 +85,7 @@ export function EditarEmMassa({ isCopy }: any) {
     setTransacoes(nextTransacoes);
   }
 
-  function addTransacao(transacao: Caixa) {
+  function addTransacao(transacao: Transacoes) {
     const nextTransacoes = [...transacoes];
 
     nextTransacoes.push(transacao);

@@ -6,7 +6,7 @@ import { Layout } from "../shared/layout";
 import { useStorage } from "../contexts/storage";
 import { useEffect, useState } from "react";
 
-import { Caixa, PeriodoTransacoes, TableNames, TransacoesAcumuladasPorMes } from "../utils/db-repository";
+import { Transacoes, PeriodoTransacoes, TableNames, TransacoesAcumuladasPorMes } from "../utils/db-repository";
 import moment from "moment";
 import { Loader } from "../components/loader";
 import { PeriodoForm } from "./components/periodo-form";
@@ -22,7 +22,7 @@ function CaixaPage() {
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [valorEmCaixa, setValorEmCaixa] = useState<BigNumber>();
-  const [transacoes, setTransacoes] = useState<{ [key: string]: Caixa[] }>({});
+  const [transacoes, setTransacoes] = useState<{ [key: string]: Transacoes[] }>({});
   const [transacoesAcumuladaPorMes, setTransacoesAcumuladaPorMes] = useState<{ [key: string]: TransacoesAcumuladasPorMes }>({});
   const [periodo, setPeriodo] = useState<PeriodoTransacoes>(PeriodoTransacoes.ULTIMO_MES);
 
@@ -71,7 +71,7 @@ function CaixaPage() {
 
   return (
     <main className="caixa container mt-3">
-      <section className="d-flex justify-content-between">
+      <section className="d-flex justify-content-between flex-column flex-lg-row">
         <h1>Caixa</h1>
         <div className="d-flex justify-content-between gap-3">
           <h5>Valor em caixa: </h5>
@@ -105,7 +105,7 @@ function CaixaPage() {
 
               return (
                 <section key={key} className="card my-3">
-                  <div className="card-header d-flex justify-content-between align-items-center">
+                  <div className="card-header d-flex justify-content-between align-items-center flex-column flex-lg-row gap-3">
                     <h4 className="m-0">Periodo de: {moment(key, 'YYYY-MM').format('MMMM YYYY')}</h4>
                     <small>Valor em caixa no periodo: {NumberUtil.toCurrency(acumulado.totalAcumulado)}</small>
                     <div className="actions d-flex gap-3">

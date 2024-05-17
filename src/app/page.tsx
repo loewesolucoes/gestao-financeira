@@ -8,14 +8,14 @@ import { useEffect, useState } from "react";
 
 import { Layout } from "./shared/layout";
 import { useStorage } from "./contexts/storage";
-import { Caixa, PeriodoTransacoes, TableNames } from "./utils/db-repository";
+import { Transacoes, PeriodoTransacoes, TableNames } from "./utils/db-repository";
 import { Loader } from "./components/loader";
 
 function Home() {
   const { isDbOk, repository } = useStorage();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [simulacoes, setSimulacoes] = useState<Caixa[]>([]);
+  const [simulacoes, setSimulacoes] = useState<Transacoes[]>([]);
 
   useEffect(() => {
     isDbOk && load();

@@ -1,17 +1,17 @@
 "use client";
 
-import { Caixa, DbRepository, TableNames, TipoDeReceita } from "@/app/utils/db-repository";
+import { Transacoes, DbRepository, TableNames, TipoDeReceita } from "@/app/utils/db-repository";
 import { Input } from "../../components/input";
 import { useState } from "react";
 import BigNumber from "bignumber.js";
 import { useStorage } from "@/app/contexts/storage";
 
 interface CustomProps {
-  transacao?: Caixa
+  transacao?: Transacoes
   cleanStyle?: boolean
   onClose?: () => void
-  onCustomSubmit?: (transacao: Caixa) => void
-  onCustomDelete?: (transacao: Caixa) => void
+  onCustomSubmit?: (transacao: Transacoes) => void
+  onCustomDelete?: (transacao: Transacoes) => void
 }
 
 export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, onCustomDelete }: CustomProps) {
