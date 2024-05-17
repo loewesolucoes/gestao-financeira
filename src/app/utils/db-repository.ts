@@ -35,9 +35,15 @@ export interface TransacoesAcumuladasPorMes {
   totalMes: BigNumber;
 }
 
-export interface TotaisCaixa {
+export interface TotaisTransacoes {
   valorEmCaixa?: BigNumber
   transacoesAcumuladaPorMes: TransacoesAcumuladasPorMes[]
+}
+
+export interface TotaisHome {
+  valorEmCaixa: BigNumber
+  receitas: BigNumber
+  despesas: BigNumber
 }
 
 export enum PeriodoTransacoes {
@@ -162,7 +168,31 @@ export class DbRepository {
     return result;
   }
 
-  public async totais(): Promise<TotaisCaixa> {
+  public async totais(): Promise<TotaisHome> {
+    await Promise.resolve();
+
+    const query = `
+    select SUM(t.valor) as valorEmCaixa FROM transacoes t;
+    select SUM(t.valor) as receitas FROM transacoes t
+    WHERE t.valor >= 0
+    and strftime('%m', t.data) = '03' and strftime('%Y', t.data) = '2024';
+    select SUM(t.valor) as receitas FROM transacoes t
+    WHERE t.valor < 0
+    and strftime('%m', t.data) = '03' and strftime('%Y', t.data) = '2024';
+    `;
+
+    const result = this.db.exec(query);
+
+    console.info(result)
+
+    return {
+      valorEmCaixa: BigNumber(result[0].values[0] as any),
+      receitas: BigNumber(result[1].values[0] as any),
+      despesas: BigNumber(result[2].values[0] as any),
+    }
+  }
+
+  public async totaisCaixa(): Promise<TotaisTransacoes> {
     await Promise.resolve();
 
     const result = this.db.exec(`select SUM(t.valor) as valorEmCaixa FROM transacoes t`);

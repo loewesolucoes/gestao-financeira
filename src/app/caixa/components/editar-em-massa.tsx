@@ -124,13 +124,7 @@ export function EditarEmMassa({ isCopy }: any) {
         : (
           <>
             <div className="d-flex justify-content-between align-items-center align-items-lg-end flex-column flex-lg-row gap-3">
-              <div className="d-flex gap-3">
-                <h5>Balanço do mês</h5>
-                <div className="d-flex flex-column">
-                  <p>{NumberUtil.toCurrency(total)}</p>
-                  <small>{NumberUtil.extenso(total)}</small>
-                </div>
-              </div>
+              <BalancoMes total={total} />
               <div className="d-flex gap-3 flex-column flex-lg-row">
                 <button type="button" className="btn btn-dark" onClick={e => setIsNewTransacaoOpen(true)}>Adicionar nova</button>
               </div>
@@ -178,6 +172,7 @@ export function EditarEmMassa({ isCopy }: any) {
             </DragDropContext>
             <div className="d-flex justify-content-center justify-content-lg-end">
               <div className="d-flex gap-3 flex-column flex-lg-row">
+                <BalancoMes total={total} />
                 {isCopy && (
                   <div className="form-floating">
                     <Input type="month" className="form-control" id="data" placeholder="Mês a aplicar" value={yearAndMonth} onChange={x => setYearAndMonth(x)} />
@@ -202,3 +197,14 @@ export function EditarEmMassa({ isCopy }: any) {
     </>
   );
 }
+
+function BalancoMes({ total }: any) {
+  return <div className="d-flex gap-3">
+    <h5>Balanço do mês</h5>
+    <div className="d-flex flex-column">
+      <p className="m-0">{NumberUtil.toCurrency(total)}</p>
+      <small>{NumberUtil.extenso(total)}</small>
+    </div>
+  </div>;
+}
+

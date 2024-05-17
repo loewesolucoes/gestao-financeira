@@ -38,7 +38,7 @@ function CaixaPage() {
   }
 
   async function loadTotals() {
-    const result = await repository.totais();
+    const result = await repository.totaisCaixa();
 
     console.info('loadTotals', result);
 
