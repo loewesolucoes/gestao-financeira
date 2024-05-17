@@ -6,15 +6,15 @@ import { EditarEmMassa } from "../components/editar-em-massa";
 import { useSearchParams } from "next/navigation";
 import moment from "moment";
 
-function CopiaCaixaPage() {
+function EditarMesPage() {
   const params = useSearchParams();
   const month = params.get('month');
   const momentMonth = moment(month, 'YYYY-MM');
 
   return (
     <main className="caixa container mt-3 d-flex flex-column gap-3">
-      <h1>Copiar transações do mês: {momentMonth.format('MMMM YYYY')}</h1>
-      <EditarEmMassa isCopy={true} />
+      <h1>Editar mês: {momentMonth.format('MMMM YYYY')}</h1>
+      <EditarEmMassa isCopy={false} />
     </main>
   )
 }
@@ -22,7 +22,7 @@ function CopiaCaixaPage() {
 export default function Page() {
   return (
     <Layout>
-      <CopiaCaixaPage />
+      <EditarMesPage />
     </Layout>
   );
 }

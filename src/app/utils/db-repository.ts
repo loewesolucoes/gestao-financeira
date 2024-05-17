@@ -117,7 +117,14 @@ export class DbRepository {
     let fullCommand = '';
 
     transacoes.forEach((x, i) => {
-      const { command, params } = this.createInsertCommand(tableName, x, `${i}`);
+      let execution = {} as any;
+
+      if (x.id == null)
+        execution = this.createInsertCommand(tableName, x, `${i}`);
+      else
+        execution = this.createUpdateCommand(tableName, x, `${i}`);
+
+      const { command, params } = execution;
 
       fullCommand = `${fullCommand};${command}`
       allParams = { ...allParams, ...params }
@@ -213,10 +220,10 @@ export class DbRepository {
     return this.parseSqlResultToObj(result, CAIXA_MAPPING)[0] || [];
   }
 
-  public async listByMonth(tableName: TableNames, month: number, year: number): Promise<Caixa[]> {
+  public async listByMonth(tableName: TableNames, month: string, year: string): Promise<Caixa[]> {
     await Promise.resolve();
 
-    const result = this.db.exec(`select * FROM ${tableName} where strftime('%m', data) = $month and strftime('%Y', data) = $year`, { "$month": String(month).padStart(2, '0'), "$year": `${year}` });
+    const result = this.db.exec(`select * FROM ${tableName} where strftime('%m', data) = $month and strftime('%Y', data) = $year`, { "$month": month, "$year": year });
 
     if (!Array.isArray(result))
       throw new Error(`${tableName} não encontrado (a)`);
@@ -255,13 +262,19 @@ export class DbRepository {
   }
 
   private async update(tableName: TableNames, data: any) {
-    const nextData = { ...data, updatedDate: new Date() };
-    const { keys, params } = this.parseToCommand(nextData);
-    const command = `UPDATE ${tableName} SET ${keys.map(k => `${k}=$${k}`).join(', ')} WHERE id=$id`;
+    const { command, params } = this.createUpdateCommand(tableName, data);
 
     this.db.exec(command, params);
 
     return this.get(tableName, data.id);
+  }
+
+  private createUpdateCommand(tableName: TableNames, data: any, paramsPrefix: string = '') {
+    const nextData = { ...data, updatedDate: new Date() };
+    const { keys, params } = this.parseToCommand(nextData);
+    const command = `UPDATE ${tableName} SET ${keys.map(k => `${k}=$${k}${paramsPrefix}`).join(', ')} WHERE id=$id`;
+
+    return { command, params, nextData }
   }
 
   private parseSqlResultToObj(result: initSqlJs.QueryExecResult[], mapper?: { [key: string]: MapperTypes }) {

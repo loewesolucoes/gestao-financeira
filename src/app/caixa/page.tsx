@@ -105,10 +105,13 @@ function CaixaPage() {
 
               return (
                 <section key={key} className="card my-3">
-                  <div className="card-header d-flex justify-content-between">
+                  <div className="card-header d-flex justify-content-between align-items-center">
                     <h4 className="m-0">Periodo de: {moment(key, 'YYYY-MM').format('MMMM YYYY')}</h4>
                     <small>Valor em caixa no periodo: {NumberUtil.toCurrency(acumulado.totalAcumulado)}</small>
-                    <Link href={`/caixa/copia?month=${key}`} className="btn btn-dark">Copiar mês</Link>
+                    <div className="actions d-flex gap-3">
+                      <Link href={`/caixa/editar-mes?month=${key}`} className="btn btn-dark">Editar mês</Link>
+                      <Link href={`/caixa/copia?month=${key}`} className="btn btn-dark">Copiar mês</Link>
+                    </div>
                   </div>
                   <div className="card-body d-flex align-items-start flex-column-reverse flex-lg-row justify-content-lg-around">
                     <ListaCaixa periodo={periodo} />
