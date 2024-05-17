@@ -212,7 +212,7 @@ export class DbRepository {
 
     let query = this.getQueryByPeriodo(periodo);
 
-    const result = this.db.exec(`select * FROM ${tableName} where ${query} order by data, ordem desc`);
+    const result = this.db.exec(`select * FROM ${tableName} where ${query} order by data desc, ordem asc`);
 
     if (!Array.isArray(result))
       throw new Error(`${tableName} não encontrado (a)`);
@@ -271,8 +271,8 @@ export class DbRepository {
 
   private createUpdateCommand(tableName: TableNames, data: any, paramsPrefix: string = '') {
     const nextData = { ...data, updatedDate: new Date() };
-    const { keys, params } = this.parseToCommand(nextData);
-    const command = `UPDATE ${tableName} SET ${keys.map(k => `${k}=$${k}${paramsPrefix}`).join(', ')} WHERE id=$id`;
+    const { keys, params } = this.parseToCommand(nextData, paramsPrefix);
+    const command = `UPDATE ${tableName} SET ${keys.map(k => `${k}=$${k}${paramsPrefix}`).join(', ')} WHERE id=$id${paramsPrefix}`;
 
     return { command, params, nextData }
   }
@@ -381,20 +381,20 @@ export class DbRepository {
 
     const runnedMigrations = Object.keys(migrations).filter(x => migrations[x] === RUNNED_MIGRATION).reduce((p, n) => { p.push({ name: n, executedDate: new Date() }); return p; }, [])
 
-    console.log(runnedMigrations);
-
     let allParams = {};
     let fullCommand = '';
 
-    runnedMigrations.forEach((x, i) => {
-      const { keys, params } = this.parseToCommand(x, `${i}`);
-      const command = `INSERT INTO "migrations" (${keys.join(', ')}) VALUES (${keys.map(k => `$${k}${i}`).join(', ')})`;
+    if (runnedMigrations.length > 0) {
+      runnedMigrations.forEach((x, i) => {
+        const { keys, params } = this.parseToCommand(x, `${i}`);
+        const command = `INSERT INTO "migrations" (${keys.join(', ')}) VALUES (${keys.map(k => `$${k}${i}`).join(', ')})`;
 
-      fullCommand = `${fullCommand};${command}`
-      allParams = { ...allParams, ...params }
-    });
+        fullCommand = `${fullCommand};${command}`
+        allParams = { ...allParams, ...params }
+      });
 
-    this.db.exec(fullCommand, allParams);
+      this.db.exec(fullCommand, allParams);
+    }
 
     await this.persistDb();
   }
