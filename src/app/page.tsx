@@ -110,7 +110,7 @@ function Home() {
   );
 }
 
-export function GraficoAcumuladoDoMes({ transacoesAcumuladasPorMes }: any) {
+function GraficoAcumuladoDoMes({ transacoesAcumuladasPorMes }: any) {
   return <Line data={{
     labels: transacoesAcumuladasPorMes.map(x => x.mes),
     datasets: [
