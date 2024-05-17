@@ -94,7 +94,7 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
         </div>
         <div className="flex-grow-1">
           <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
-          <select className="form-select" id="tipoReceita" onChange={e => setTipo(e.target.value as any)} defaultValue={tipo}>
+          <select className="form-select" id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
             <option value={TipoDeReceita.VARIAVEL}>Variável</option>
             <option value={TipoDeReceita.FIXO}>Fixo</option>
           </select>

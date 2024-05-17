@@ -9,8 +9,10 @@ import { Input } from "@/app/components/input";
 import { Modal } from "@/app/components/modal";
 import { TransacaoForm } from "./transacao-form";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import BigNumber from "bignumber.js";
 
 export function EditarEmMassa({ isCopy }: any) {
+  const todayDate = new Date();
   const params = useSearchParams();
   const month = params.get('month');
   const momentMonth = moment(month, 'YYYY-MM');
@@ -18,7 +20,7 @@ export function EditarEmMassa({ isCopy }: any) {
 
   const { isDbOk, repository } = useStorage();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [yearAndMonth, setYearAndMonth] = useState<Date>(new Date());
+  const [yearAndMonth, setYearAndMonth] = useState<Date>(todayDate);
   const [transacoes, setTransacoes] = useState<Transacoes[]>([]);
   const [editTransacao, setEditTransacao] = useState<Transacoes | null>();
   const [isNewTransacaoOpen, setIsNewTransacaoOpen] = useState<boolean>(false);
@@ -39,7 +41,7 @@ export function EditarEmMassa({ isCopy }: any) {
         // @ts-ignore
         delete x.createdDate;
         delete x.updatedDate;
-        x.data = new Date();
+        x.data = todayDate;
       });
     }
 
@@ -54,6 +56,12 @@ export function EditarEmMassa({ isCopy }: any) {
     setIsLoading(true);
 
     const transacoesOk = [...transacoes];
+
+    if (isCopy) {
+      transacoesOk.forEach(x => {
+        x.data = x.data === todayDate ? yearAndMonth : x.data;
+      });
+    }
 
     transacoesOk.forEach((x, i) => {
       x.ordem = i;
@@ -81,7 +89,7 @@ export function EditarEmMassa({ isCopy }: any) {
 
     const nextTransacoes = [...transacoes];
 
-    nextTransacoes[index] = nextTransacao;
+    nextTransacoes[index] = { ...nextTransacao };
     setTransacoes(nextTransacoes);
   }
 
@@ -107,13 +115,22 @@ export function EditarEmMassa({ isCopy }: any) {
     setTransacoes(nextTransacoes);
   }
 
+  const total = transacoes.filter(x => x?.valor).reduce((p, n) => { return n.valor.plus(p); }, BigNumber(0));
+
   return (
     <>
       {isLoading
         ? <Loader className="align-self-center my-5" />
         : (
           <>
-            <div className="d-flex justify-content-center justify-content-lg-end">
+            <div className="d-flex justify-content-between align-items-center align-items-lg-end flex-column flex-lg-row gap-3">
+              <div className="d-flex gap-3">
+                <h5>Balanço do mês</h5>
+                <div className="d-flex flex-column">
+                  <p>{NumberUtil.toCurrency(total)}</p>
+                  <small>{NumberUtil.extenso(total)}</small>
+                </div>
+              </div>
               <div className="d-flex gap-3 flex-column flex-lg-row">
                 <button type="button" className="btn btn-dark" onClick={e => setIsNewTransacaoOpen(true)}>Adicionar nova</button>
               </div>
@@ -143,7 +160,7 @@ export function EditarEmMassa({ isCopy }: any) {
                               </div>
                               <div className="d-flex w-100 justify-content-between gap-3">
                                 <p>{x.valor?.toNumber() ? NumberUtil.toCurrency(x.valor) : 'sem valor'}</p>
-                                <div className="d-flex gap-3">
+                                <div className="d-flex gap-3 flex-column flex-lg-row">
                                   <button className="btn btn-secondary" onClick={e => setEditTransacao(x)}>Editar</button>
                                   <button className="btn btn-danger" onClick={e => removerTransacao(x)}>Remover</button>
                                 </div>

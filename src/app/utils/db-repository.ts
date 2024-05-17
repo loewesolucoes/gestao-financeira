@@ -223,7 +223,7 @@ export class DbRepository {
   public async listByMonth(tableName: TableNames, month: string, year: string): Promise<Transacoes[]> {
     await Promise.resolve();
 
-    const result = this.db.exec(`select * FROM ${tableName} where strftime('%m', data) = $month and strftime('%Y', data) = $year`, { "$month": month, "$year": year });
+    const result = this.db.exec(`select * FROM ${tableName} where strftime('%m', data) = $month and strftime('%Y', data) = $year order by data desc, ordem asc`, { "$month": month, "$year": year });
 
     if (!Array.isArray(result))
       throw new Error(`${tableName} não encontrado (a)`);
