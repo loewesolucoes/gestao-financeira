@@ -44,6 +44,7 @@ export interface TotaisHome {
   valorEmCaixa: BigNumber
   receitas: BigNumber
   despesas: BigNumber
+  transacoesAcumuladaPorMes: TransacoesAcumuladasPorMes[]
 }
 
 export enum PeriodoTransacoes {
@@ -173,22 +174,34 @@ export class DbRepository {
 
     const query = `
     select SUM(t.valor) as valorEmCaixa FROM transacoes t;
+    
     select SUM(t.valor) as receitas FROM transacoes t
     WHERE t.valor >= 0
     and strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year;
-    select SUM(t.valor) as receitas FROM transacoes t
+
+    select SUM(t.valor) as despesas FROM transacoes t
     WHERE t.valor < 0
     and strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year;
+
+    SELECT strftime('%Y-%m', t.data) AS mes,
+    SUM(t.valor) AS totalMes,
+    SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', t.data)) AS totalAcumulado
+    FROM transacoes t
+    GROUP BY strftime('%Y-%m', t.data);
     `;
 
     const result = this.db.exec(query, { "$month": moment(yearAndMonth).format('MM'), "$year": moment(yearAndMonth).format('YYYY') });
 
-    console.info(result)
+    const parsedResult = this.parseSqlResultToObj(result);
+
+    console.log(parsedResult);
+    
 
     return {
-      valorEmCaixa: BigNumber(result[0].values[0] as any),
-      receitas: BigNumber(result[1].values[0] as any),
-      despesas: BigNumber(result[2].values[0] as any),
+      valorEmCaixa: parsedResult[0][0]?.valorEmCaixa as any,
+      receitas: parsedResult[1][0]?.receitas as any,
+      despesas: parsedResult[2][0]?.despesas as any,
+      transacoesAcumuladaPorMes: parsedResult[3] as any,
     }
   }
 
@@ -396,8 +409,6 @@ export class DbRepository {
 
     const result = this.db.exec('select * from "migrations"');
     const migrations = (this.parseSqlResultToObj(result)[0] || []).reduce((p, n) => { p[n.name] = n; return p; }, {} as any);
-
-    console.log(migrations);
 
     if (migrations['transacoes'] == null) {
       this.db.exec(`CREATE TABLE IF NOT EXISTS "transacoes" ("id" INTEGER NOT NULL,"valor" REAL NULL DEFAULT NULL,"data" DATETIME NOT NULL,"tipo" INTEGER NULL DEFAULT NULL,"local" TEXT NULL DEFAULT NULL,"comentario" TEXT NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);

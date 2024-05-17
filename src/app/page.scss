@@ -24,18 +24,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 20px;
   // border: 1px solid;
+  @include media-breakpoint-up(lg) {
+    justify-content: space-around;
+    flex-direction: row;
+    gap: 0;
+  }
 }
 
-.cards {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 100%;
-  
-  @include media-breakpoint-up(lg) {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
+.card {
+  canvas {
+    @include media-breakpoint-up(sm) {
+      width: 30vw;
+    }
+
+    @include media-breakpoint-down(sm) {
+      max-width: 85vw;
+    }
   }
 }

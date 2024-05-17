@@ -3,15 +3,15 @@
 import "./page.scss";
 // import { add, multiply, divide, format } from "mathjs";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Layout } from "./shared/layout";
 import { useStorage } from "./contexts/storage";
-import { Transacoes, PeriodoTransacoes, TableNames, TotaisHome } from "./utils/db-repository";
+import { TotaisHome } from "./utils/db-repository";
 import { Loader } from "./components/loader";
 import { NumberUtil } from "./utils/number";
 import { Input } from "./components/input";
+import { Line } from "react-chartjs-2";
 
 function Home() {
   const { isDbOk, repository } = useStorage();
@@ -34,7 +34,7 @@ function Home() {
     setIsLoading(false);
   }
 
-  const { despesas, receitas, valorEmCaixa } = totais
+  const { despesas, receitas, valorEmCaixa, transacoesAcumuladaPorMes } = totais
   const sobra = receitas?.minus(despesas?.abs())
 
   return (
@@ -46,58 +46,87 @@ function Home() {
             Object.keys(totais).length === 0
               ? (<div className="alert alert-info" role="alert">Nenhum dado encontrado</div>)
               : (
-                <section className="d-flex flex-column gap-3">
-                  <section className="card border-primary">
-                    <h4 className="card-header">Caixa Geral</h4>
-                    <div className="card-body">
-                      <div className="d-flex gap-3">
-                        <h5>Valor em caixa</h5>
-                        <div className="d-flex flex-column">
-                          <p className="m-0">{NumberUtil.toCurrency(valorEmCaixa)}</p>
-                          <small>{NumberUtil.extenso(valorEmCaixa)}</small>
+                <>
+                  <section className="d-flex flex-column gap-3">
+                    <section className="card border-primary">
+                      <h4 className="card-header">Caixa Geral</h4>
+                      <div className="card-body">
+                        <div className="d-flex gap-3">
+                          <h5>Valor em caixa</h5>
+                          <div className="d-flex flex-column">
+                            <p className="m-0">{NumberUtil.toCurrency(valorEmCaixa)}</p>
+                            <small>{NumberUtil.extenso(valorEmCaixa)}</small>
+                          </div>
+                        </div>
+                        <div className="d-flex gap-3 mt-3">
+                          <h5>Mês atual</h5>
+                          <div className="form-floating">
+                            <Input type="month" className="form-control" id="data" placeholder="Mês a aplicar" value={yearAndMonth} onChange={x => setYearAndMonth(x)} />
+                            <label htmlFor="data" className="form-label">Mês a aplicar</label>
+                          </div>
                         </div>
                       </div>
-                      <div className="d-flex gap-3 mt-3">
-                        <h5>Mês atual</h5>
-                        <div className="form-floating">
-                          <Input type="month" className="form-control" id="data" placeholder="Mês a aplicar" value={yearAndMonth} onChange={x => setYearAndMonth(x)} />
-                          <label htmlFor="data" className="form-label">Mês a aplicar</label>
+                    </section>
+                    <section className="card border-dark">
+                      <h4 className="card-header">Caixa Mensal</h4>
+                      <div className="card-body">
+                        <div className="d-flex gap-3">
+                          <h5>Receitas:</h5>
+                          <div className="d-flex flex-column">
+                            <p className="m-0">{NumberUtil.toCurrency(receitas)}</p>
+                            <small>{NumberUtil.extenso(receitas)}</small>
+                          </div>
+                        </div>
+                        <div className="d-flex gap-3">
+                          <h5>Depesas:</h5>
+                          <div className="d-flex flex-column">
+                            <p className="m-0">{NumberUtil.toCurrency(despesas)}</p>
+                            <small>{NumberUtil.extenso(despesas)}</small>
+                          </div>
+                        </div>
+                        <div className="d-flex gap-3">
+                          <h5>Sobra:</h5>
+                          <div className="d-flex flex-column">
+                            <p className="m-0">{NumberUtil.toCurrency(sobra)}</p>
+                            <small>{NumberUtil.extenso(sobra)}</small>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </section>
                   </section>
-                  <section className="card border-dark">
-                    <h4 className="card-header">Caixa Mensal</h4>
-                    <div className="card-body">
-                      <div className="d-flex gap-3">
-                        <h5>Receitas:</h5>
-                        <div className="d-flex flex-column">
-                          <p className="m-0">{NumberUtil.toCurrency(receitas)}</p>
-                          <small>{NumberUtil.extenso(receitas)}</small>
-                        </div>
+                  <section className="d-flex flex-column gap-3">
+                    <section className="card border-info">
+                      <h4 className="card-header">Restante em caixa por Mês</h4>
+                      <div className="card-body">
+                        <GraficoAcumuladoDoMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                       </div>
-                      <div className="d-flex gap-3">
-                        <h5>Depesas:</h5>
-                        <div className="d-flex flex-column">
-                          <p className="m-0">{NumberUtil.toCurrency(despesas)}</p>
-                          <small>{NumberUtil.extenso(despesas)}</small>
-                        </div>
-                      </div>
-                      <div className="d-flex gap-3">
-                        <h5>Sobra:</h5>
-                        <div className="d-flex flex-column">
-                          <p className="m-0">{NumberUtil.toCurrency(sobra)}</p>
-                          <small>{NumberUtil.extenso(sobra)}</small>
-                        </div>
-                      </div>
-                    </div>
+                    </section>
                   </section>
-                </section>
+                </>
               )
           )}
       </section>
     </main>
   );
+}
+
+export function GraficoAcumuladoDoMes({ transacoesAcumuladasPorMes }: any) {
+  return <Line data={{
+    labels: transacoesAcumuladasPorMes.map(x => x.mes),
+    datasets: [
+      {
+        label: 'acumulado até o mes (R$)',
+        data: transacoesAcumuladasPorMes.map(x => x.totalAcumulado),
+      },
+    ],
+  }} options={{
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+    }
+  }} />;
 }
 
 
