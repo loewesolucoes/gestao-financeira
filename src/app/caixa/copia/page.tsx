@@ -57,7 +57,13 @@ function CopiaCaixaPage() {
     if (!confirm('você tem certeza?'))
       return;
 
-    await repository.saveAll(TableNames.TRANSACOES, [...transacoes]);
+    const transacoesOk = [...transacoes];
+
+    transacoes.forEach((x, i) => {
+      x.ordem = i;
+    });
+
+    await repository.saveAll(TableNames.TRANSACOES, transacoesOk);
     setIsLoading(false);
     router.push('/caixa');
   }

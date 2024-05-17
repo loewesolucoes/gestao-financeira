@@ -26,6 +26,7 @@ export interface Caixa {
   comentario?: string
   createdDate: Date
   updatedDate?: Date
+  ordem?: number
 }
 
 export interface TransacoesAcumuladasPorMes {
@@ -204,7 +205,7 @@ export class DbRepository {
 
     let query = this.getQueryByPeriodo(periodo);
 
-    const result = this.db.exec(`select * FROM ${tableName} where ${query} order by data desc`);
+    const result = this.db.exec(`select * FROM ${tableName} where ${query} order by data, ordem desc`);
 
     if (!Array.isArray(result))
       throw new Error(`${tableName} não encontrado (a)`);
