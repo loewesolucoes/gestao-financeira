@@ -204,7 +204,7 @@ export class DbRepository {
 
     let query = this.getQueryByPeriodo(periodo);
 
-    const result = this.db.exec(`select * FROM ${tableName} where ${query}`);
+    const result = this.db.exec(`select * FROM ${tableName} where ${query} order by data desc`);
 
     if (!Array.isArray(result))
       throw new Error(`${tableName} não encontrado (a)`);
@@ -344,7 +344,43 @@ export class DbRepository {
   }
 
   private async runMigrations() {
-    this.db.exec(`CREATE TABLE IF NOT EXISTS "transacoes" ("id" INTEGER NOT NULL,"valor" REAL NULL DEFAULT NULL,"data" DATETIME NOT NULL,"tipo" INTEGER NULL DEFAULT NULL,"local" TEXT NULL DEFAULT NULL,"comentario" TEXT NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
+    await Promise.resolve();
+
+    const RUNNED_MIGRATION = 'runned';
+
+    this.db.exec(`CREATE TABLE IF NOT EXISTS "migrations" ("id" INTEGER NOT NULL,"name" TEXT NULL DEFAULT NULL,"executedDate" DATETIME NULL,PRIMARY KEY ("id"));`);
+
+    const result = this.db.exec('select * from "migrations"');
+    const migrations = (this.parseSqlResultToObj(result)[0] || []).reduce((p, n) => { p[n.name] = n; return p; }, {} as any);
+
+    console.log(migrations);
+
+    if (migrations['transacoes'] == null) {
+      this.db.exec(`CREATE TABLE IF NOT EXISTS "transacoes" ("id" INTEGER NOT NULL,"valor" REAL NULL DEFAULT NULL,"data" DATETIME NOT NULL,"tipo" INTEGER NULL DEFAULT NULL,"local" TEXT NULL DEFAULT NULL,"comentario" TEXT NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
+      migrations['transacoes'] = RUNNED_MIGRATION;
+    }
+
+    if (migrations['transacoes_campo_ordem'] == null) {
+      this.db.exec(`ALTER TABLE "transacoes" ADD COLUMN "ordem" INTEGER NULL;`);
+      migrations['transacoes_campo_ordem'] = RUNNED_MIGRATION;
+    }
+
+    const runnedMigrations = Object.keys(migrations).filter(x => migrations[x] === RUNNED_MIGRATION).reduce((p, n) => { p.push({ name: n, executedDate: new Date() }); return p; }, [])
+
+    console.log(runnedMigrations);
+
+    let allParams = {};
+    let fullCommand = '';
+
+    runnedMigrations.forEach((x, i) => {
+      const { keys, params } = this.parseToCommand(x, `${i}`);
+      const command = `INSERT INTO "migrations" (${keys.join(', ')}) VALUES (${keys.map(k => `$${k}${i}`).join(', ')})`;
+
+      fullCommand = `${fullCommand};${command}`
+      allParams = { ...allParams, ...params }
+    });
+
+    this.db.exec(fullCommand, allParams);
 
     await this.persistDb();
   }
