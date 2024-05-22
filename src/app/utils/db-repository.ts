@@ -420,6 +420,11 @@ export class DbRepository {
       migrations['transacoes_campo_ordem'] = RUNNED_MIGRATION;
     }
 
+    if (migrations['saldos'] == null) {
+      this.db.exec(`CREATE TABLE IF NOT EXISTS "saldos" ("id" INTEGER NOT NULL,"valor" REAL NULL DEFAULT NULL,"data" DATETIME NOT NULL,"local" TEXT NULL DEFAULT NULL,"comentario" TEXT NULL DEFAULT NULL, "ordem" INTEGER NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
+      migrations['saldos'] = RUNNED_MIGRATION;
+    }
+
     const runnedMigrations = Object.keys(migrations).filter(x => migrations[x] === RUNNED_MIGRATION).reduce((p, n) => { p.push({ name: n, executedDate: new Date() }); return p; }, [])
 
     let allParams = {};

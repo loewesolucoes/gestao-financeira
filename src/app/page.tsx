@@ -43,7 +43,7 @@ function Home() {
         {isLoading
           ? (<section className="cards"><Loader /></section>)
           : (
-            Object.keys(totais).length === 0
+            valorEmCaixa == null
               ? (<div className="alert alert-info" role="alert">Nenhum dado encontrado</div>)
               : (
                 <>
@@ -112,11 +112,11 @@ function Home() {
 
 function GraficoAcumuladoDoMes({ transacoesAcumuladasPorMes }: any) {
   return <Line data={{
-    labels: transacoesAcumuladasPorMes.map(x => x.mes),
+    labels: transacoesAcumuladasPorMes?.map(x => x.mes),
     datasets: [
       {
         label: 'acumulado até o mes (R$)',
-        data: transacoesAcumuladasPorMes.map(x => x.totalAcumulado),
+        data: transacoesAcumuladasPorMes?.map(x => x.totalAcumulado),
       },
     ],
   }} options={{
