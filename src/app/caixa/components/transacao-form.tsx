@@ -12,11 +12,10 @@ interface CustomProps {
   onClose?: () => void
   onCustomSubmit?: (transacao: Transacoes) => void
   onCustomDelete?: (transacao: Transacoes) => void
+  tableName?: TableNames
 }
 
-export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, onCustomDelete }: CustomProps) {
-  console.log("transacao", transacao);
-
+export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, onCustomDelete, tableName: tn }: CustomProps) {
   const { isDbOk, repository, refresh } = useStorage();
   //@ts-ignore
   const [valor, setValor] = useState<BigNumber>(transacao?.valor || BigNumber());
@@ -26,14 +25,20 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
   const [comentario, setComentario] = useState(transacao?.comentario);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const tableName = tn || TableNames.TRANSACOES
+
   async function onSubmitForm(event: import('react').ChangeEvent<any>) {
     event.preventDefault();
     setIsLoading(true);
 
     const updatedTransaction = { ...transacao, valor, data, tipo, local, comentario }
 
+    if (tableName === TableNames.SALDOS)
+      delete updatedTransaction.tipo;
+
+
     if (onCustomSubmit == null) {
-      const result = await repository.save(TableNames.TRANSACOES, updatedTransaction);
+      const result = await repository.save(tableName, updatedTransaction);
 
       console.info('onSubmitForm', result);
 
@@ -53,7 +58,7 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
     if (transacao == null) throw new Error("transacao invalida");
 
     if (onCustomDelete == null) {
-      const result = await repository.delete(TableNames.TRANSACOES, transacao.id);
+      const result = await repository.delete(tableName, transacao.id);
 
       console.info('onDelete', result);
 
@@ -92,13 +97,16 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
           <label htmlFor="data" className="form-label">Data</label>
           <Input type="date" className="form-control" id="data" onChange={x => setData(x)} value={data} />
         </div>
-        <div className="flex-grow-1">
-          <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
-          <select className="form-select" id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
-            <option value={TipoDeReceita.VARIAVEL}>Variável</option>
-            <option value={TipoDeReceita.FIXO}>Fixo</option>
-          </select>
-        </div>
+        {tableName !== TableNames.SALDOS
+          ? (
+            <div className="flex-grow-1">
+              <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
+              <select className="form-select" id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
+                <option value={TipoDeReceita.VARIAVEL}>Variável</option>
+                <option value={TipoDeReceita.FIXO}>Fixo</option>
+              </select>
+            </div>
+          ) : null}
       </div>
       <FormButtons isAllLoading={isAllLoading} transacao={transacao} onClose={onClose} onDelete={onDelete} />
     </div>

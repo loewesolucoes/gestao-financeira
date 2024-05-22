@@ -4,21 +4,21 @@ import { Transacoes, TransacoesAcumuladasPorMes } from "../../utils/db-repositor
 import { NumberUtil } from "../../utils/number";
 import BigNumber from "bignumber.js";
 
-export function BalancoDoMes({ periodo, transacoesAcumuladasPorMes }: { periodo: Transacoes[], transacoesAcumuladasPorMes: any }) {
-  const somaPeriodo = periodo.reduce((p, n) => p.plus(n.valor || 0), BigNumber(0));
+export function BalancoDoMes({ transacoesDoPeriodo, transacoesAcumuladasPorMes }: { transacoesDoPeriodo: Transacoes[], transacoesAcumuladasPorMes: any }) {
+  const somaPeriodo = transacoesDoPeriodo.reduce((p, n) => p.plus(n.valor || 0), BigNumber(0));
 
   return <div className="totals">
     <h5>Balanço do mes</h5>
     <p>{NumberUtil.toCurrency(somaPeriodo)}</p>
     <small>{NumberUtil.extenso(somaPeriodo)}</small>
     <GraficoAcumuladoDoMes transacoesAcumuladasPorMes={transacoesAcumuladasPorMes} />
-    <GraficoBalancoDoMes periodo={periodo} />
+    <GraficoBalancoDoMes transacoesDoPeriodo={transacoesDoPeriodo} />
   </div>;
 }
 
-export function GraficoBalancoDoMes({ periodo }: { periodo: Transacoes[] }) {
-  const somaEntradas = periodo.filter(x => x.valor && x.valor?.toNumber() >= 0).reduce((p, n) => p.plus(n.valor || 0), BigNumber(0))
-  const somaSaidas = periodo.filter(x => x.valor && x.valor?.toNumber() < 0).reduce((p, n) => p.plus(n.valor || 0), BigNumber(0))
+export function GraficoBalancoDoMes({ transacoesDoPeriodo }: { transacoesDoPeriodo: Transacoes[] }) {
+  const somaEntradas = transacoesDoPeriodo.filter(x => x.valor && x.valor?.toNumber() >= 0).reduce((p, n) => p.plus(n.valor || 0), BigNumber(0))
+  const somaSaidas = transacoesDoPeriodo.filter(x => x.valor && x.valor?.toNumber() < 0).reduce((p, n) => p.plus(n.valor || 0), BigNumber(0))
 
   return <Doughnut data={{
     labels: ['Entradas', 'Saidas'],

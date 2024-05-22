@@ -5,11 +5,6 @@ import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Gestão financeira",
-  description: "Nosso sistema de gestão financeira é uma solução abrangente e inteligente projetada para empresas e indivíduos. Com recursos avançados, como controle de caixa, balancetes automatizados, registro de notas fiscais e gerenciamento de investimentos, ajudamos você a manter suas finanças organizadas e tomar decisões informadas. Nossa interface amigável e segura permite que você acesse suas informações financeiras de qualquer lugar, garantindo eficiência e precisão. Escolha nossa plataforma para otimizar suas operações financeiras e alcançar seus objetivos.",
-};
-
 const basePath = process.env.BASE_PATH || ''
 
 export default function RootLayout({
@@ -20,20 +15,6 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <head>
-        <meta name="title" content={metadata.title as string} />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://loewesolucoes.github.io/gestao-financeira" />
-        <meta property="og:title" content={metadata.title as string} />
-        <meta property="og:description" content={metadata.description as string} />
-        <meta property="og:image" content="/site.png" />
-
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://loewesolucoes.github.io/gestao-financeira" />
-        <meta property="twitter:title" content={metadata.title as string} />
-        <meta property="twitter:description" content={metadata.description as string} />
-        <meta property="twitter:image" content="/site.png" />
-
         <link rel="apple-touch-icon" sizes="180x180" href={`${basePath}/apple-touch-icon.png`} />
         <link rel="icon" type="image/png" sizes="32x32" href={`${basePath}/favicon-32x32.png`} />
         <link rel="icon" type="image/png" sizes="16x16" href={`${basePath}/favicon-16x16.png`} />
@@ -57,4 +38,32 @@ export default function RootLayout({
       </body>
     </html>
   );
+}
+
+
+export async function generateMetadata({ params }): Promise<Metadata> {
+  const title = "Gestão financeira";
+  const description = "Nosso sistema de gestão financeira é uma solução abrangente e inteligente projetada para empresas e indivíduos. Com recursos avançados, como controle de caixa, balancetes automatizados, registro de notas fiscais e gerenciamento de investimentos, ajudamos você a manter suas finanças organizadas e tomar decisões informadas. Nossa interface amigável e segura permite que você acesse suas informações financeiras de qualquer lugar, garantindo eficiência e precisão. Escolha nossa plataforma para otimizar suas operações financeiras e alcançar seus objetivos.";
+  const url = "https://loewesolucoes.github.io/gestao-financeira";
+  const image = "https://loewesolucoes.github.io/gestao-financeira/site.png";
+
+  return {
+    title: title,
+    description: description,
+    creator: 'Érico de Souza Loewe',
+    openGraph: {
+      title: title,
+      description: description,
+      type: "website",
+      url: url,
+      images: image
+    },
+    twitter: {
+      title: title,
+      description: description,
+      card: "summary_large_image",
+      site: url,
+      images: image
+    },
+  }
 }

@@ -6,11 +6,11 @@ import { useState } from "react";
 import { Modal } from "@/app/components/modal";
 import { TransacaoForm } from "./transacao-form";
 
-export function ListaCaixa({ periodo }: { periodo: Transacoes[]; }) {
+export function ListaCaixa({ transacoesDoPeriodo }: { transacoesDoPeriodo: Transacoes[]; }) {
   const [transaction, setTransaction] = useState<Transacoes | null>(null);
 
   return <ul className="list-group">
-    {periodo.map((x, i) => (
+    {transacoesDoPeriodo.map((x, i) => (
       <li key={`${x.local}:${i}`} className={`list-group-item ${x.valor ?? 'list-group-item-warning'}`}>
         <div className="d-flex w-100 justify-content-between gap-3">
           <h5>{x.local}</h5>

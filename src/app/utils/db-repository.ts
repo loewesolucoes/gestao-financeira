@@ -29,6 +29,17 @@ export interface Transacoes {
   ordem?: number
 }
 
+export interface Saldos {
+  id: number
+  valor?: BigNumber
+  data: Date
+  local?: string
+  comentario?: string
+  ordem?: number
+  createdDate: Date
+  updatedDate?: Date
+}
+
 export interface TransacoesAcumuladasPorMes {
   mes: string;
   totalAcumulado: BigNumber;
@@ -56,7 +67,8 @@ export enum PeriodoTransacoes {
 }
 
 export enum TableNames {
-  TRANSACOES = "transacoes"
+  TRANSACOES = "transacoes",
+  SALDOS = "SALDOS",
 }
 
 const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthButton } from "../components/auth-button";
 import { Layout } from "../shared/layout";
 import "./page.scss";
@@ -13,6 +13,10 @@ function Configuracoes() {
   const { isDbOk, exportOriginalDumpToFileAndDownload, importOriginalDumpFromFile } = useStorage();
   const { aplicationName } = useEnv()
   const [file, setFile] = useState<File>()
+
+  useEffect(() => {
+    document.title = `Configurações | ${document.title}`
+  }, []);
 
   function handleChange(event: any) {
     setFile(event.target.files[0])
