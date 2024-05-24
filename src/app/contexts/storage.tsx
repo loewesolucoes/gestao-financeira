@@ -112,7 +112,9 @@ export function StorageProvider(props: any) {
     if (!isAuthOk)
       throw new Error('you must login on gdrive')
 
-    updateGDrive();
+    await updateGDrive();
+
+    alert('Dados salvos no Google Drive');
 
     console.log('doGDriveSave end');
     setIsGDriveSaveLoading(false);
@@ -126,6 +128,7 @@ export function StorageProvider(props: any) {
 
     await loadGDrive();
     console.log('doGDriveLoad end');
+    alert('Dados carregados do Google Drive');
     await refresh();
     setIsGDriveLoadLoading(false);
   }
