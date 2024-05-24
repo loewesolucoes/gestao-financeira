@@ -128,8 +128,8 @@ export function StorageProvider(props: any) {
 
     await loadGDrive();
     console.log('doGDriveLoad end');
-    alert('Dados carregados do Google Drive');
     await refresh();
+    alert('Dados carregados do Google Drive');
     setIsGDriveLoadLoading(false);
   }
 
