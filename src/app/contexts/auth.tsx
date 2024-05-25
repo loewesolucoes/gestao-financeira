@@ -29,6 +29,8 @@ const SCOPES = 'https://www.googleapis.com/auth/drive';
 const COOKIE_NAME = 'gdriveauth';
 
 let tokenClient: any;
+let isApiLoaded = false;
+let isClientLoaded = false;
 
 export function AuthProvider(props: any) {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
@@ -36,11 +38,13 @@ export function AuthProvider(props: any) {
   const [isLoadingGapi, setIsLoadingGapi] = useState(true);
   const [isLoadingGis, setIsLoadingGis] = useState(true);
   const [authError, setAuthError] = useState<any>(null);
-  const [gload, setGLoad] = useState({ api: false, client: false });
+  const [gload, setGLoad] = useState({ api: isApiLoaded, client: isClientLoaded });
 
   useEffect(() => {
-    if (gload.api && gload.client)
+    if (gload.api && gload.client) {
       createGDrive();
+      isApiLoaded = isClientLoaded = true;
+    }
   }, [gload]);
 
   useEffect(() => {
