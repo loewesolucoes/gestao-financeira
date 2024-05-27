@@ -16,9 +16,10 @@ interface CustomProps {
   isCopy?: boolean
 }
 
+const todayDate = new Date();
+
 export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
   const tableName = tn || TableNames.TRANSACOES
-  const todayDate = new Date();
   const params = useSearchParams();
   const month = params.get('month');
   const momentMonth = moment(month, 'YYYY-MM');
@@ -59,7 +60,7 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
   }
 
   async function save() {
-    if (!confirm('você tem certeza?'))
+    if (!confirm('Você tem certeza?'))
       return;
 
     setIsLoading(true);
@@ -76,7 +77,7 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
       x.ordem = i;
     });
 
-    await Promise.all(transacoesRemovidas.map(x => repository.delete(tableName, x.id)))
+    await Promise.all(transacoesRemovidas.filter(x => x.id).map(x => repository.delete(tableName, x.id)))
     await repository.saveAll(tableName, transacoesOk);
 
     setIsLoading(false);
@@ -158,7 +159,9 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
                                 <h5>{x.local}</h5>
                                 <div className="d-flex justify-content-between gap-3">
                                   <small>{moment(x.data).format('DD/MM/YY')}</small>
-                                  <small className={x.tipo === TipoDeReceita.FIXO ? 'text-primary' : 'text-info'}>{x.tipo === TipoDeReceita.FIXO ? 'Fixo' : 'Variável'}</small>
+                                  {x.tipo !== undefined && (
+                                    <small className={x.tipo === TipoDeReceita.FIXO ? 'text-primary' : 'text-info'}>{x.tipo === TipoDeReceita.FIXO ? 'Fixo' : 'Variável'}</small>
+                                  )}
                                 </div>
                               </div>
                               <div className="d-flex w-100 justify-content-between gap-3">
