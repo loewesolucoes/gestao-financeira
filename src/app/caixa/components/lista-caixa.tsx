@@ -16,7 +16,9 @@ export function ListaCaixa({ transacoesDoPeriodo }: { transacoesDoPeriodo: Trans
           <h5>{x.local}</h5>
           <div className="d-flex justify-content-between gap-3">
             <small>{moment(x.data).format('DD/MM/YY')}</small>
-            <small className={x.tipo === TipoDeReceita.FIXO ? 'text-primary' : 'text-info'}>{x.tipo === TipoDeReceita.FIXO ? 'Fixo' : 'Variável'}</small>
+            {x.tipo !== undefined && (
+              <small className={x.tipo === TipoDeReceita.FIXO ? 'text-primary' : 'text-info'}>{x.tipo === TipoDeReceita.FIXO ? 'Fixo' : 'Variável'}</small>
+            )}
           </div>
         </div>
         <div className="d-flex w-100 justify-content-between gap-3">
