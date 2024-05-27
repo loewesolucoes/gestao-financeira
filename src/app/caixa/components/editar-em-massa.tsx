@@ -11,7 +11,13 @@ import { TransacaoForm } from "./transacao-form";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import BigNumber from "bignumber.js";
 
-export function EditarEmMassa({ isCopy }: any) {
+interface CustomProps {
+  tableName?: TableNames
+  isCopy?: boolean
+}
+
+export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
+  const tableName = tn || TableNames.TRANSACOES
   const todayDate = new Date();
   const params = useSearchParams();
   const month = params.get('month');
@@ -32,7 +38,7 @@ export function EditarEmMassa({ isCopy }: any) {
   async function load() {
     setIsLoading(true);
 
-    const result = await repository.listByMonth(TableNames.TRANSACOES, momentMonth.format('MM'), momentMonth.format('YYYY'));
+    const result = await repository.listByMonth(tableName, momentMonth.format('MM'), momentMonth.format('YYYY'));
 
     if (isCopy) {
       result.forEach(x => {
@@ -70,7 +76,7 @@ export function EditarEmMassa({ isCopy }: any) {
     console.log(transacoesOk);
 
 
-    await repository.saveAll(TableNames.TRANSACOES, transacoesOk);
+    await repository.saveAll(tableName, transacoesOk);
     setIsLoading(false);
     router.push('/caixa');
   }

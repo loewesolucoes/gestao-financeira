@@ -50,6 +50,9 @@ export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName
   }
 
   const keysTransacoes = Object.keys(transacoes);
+  const isSaldos = tableName === TableNames.SALDOS;
+
+  const path = isSaldos ? 'saldos' : 'caixa';
 
   return <section className="periodos">
     {isLoading
@@ -66,13 +69,13 @@ export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName
                 <h4 className="m-0">Periodo de: {moment(key, 'YYYY-MM').format('MMMM YYYY')}</h4>
                 <small>Valor em caixa no periodo: {NumberUtil.toCurrency(acumulado.totalAcumulado)}</small>
                 <div className="actions d-flex gap-3">
-                  <Link href={`/caixa/editar-mes?month=${key}`} className="btn btn-dark">Editar mês</Link>
-                  <Link href={`/caixa/copia?month=${key}`} className="btn btn-dark">Copiar mês</Link>
+                  <Link href={`/${path}/editar-mes?month=${key}`} className="btn btn-dark">Editar mês</Link>
+                  <Link href={`/${path}/copia?month=${key}`} className="btn btn-dark">Copiar mês</Link>
                 </div>
               </div>
               <div className="card-body d-flex align-items-start flex-column-reverse flex-lg-row justify-content-lg-around">
                 <ListaCaixa transacoesDoPeriodo={transacoesDoPeriodo} />
-                {tableName !== TableNames.SALDOS && (
+                {!isSaldos && (
                   <BalancoDoMes transacoesDoPeriodo={transacoesDoPeriodo} transacoesAcumuladasPorMes={acumuladoAteOMes} />
                 )}
               </div>
