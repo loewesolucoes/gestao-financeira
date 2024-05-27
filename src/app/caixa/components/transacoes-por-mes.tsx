@@ -17,7 +17,7 @@ interface CustomProps {
 }
 
 export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName: tn }: CustomProps) {
-  const { isDbOk, repository } = useStorage();
+  const { isDbOk, repository, refresh } = useStorage();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [transacoes, setTransacoes] = useState<{ [key: string]: Transacoes[] }>({});
@@ -50,6 +50,14 @@ export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName
     setTransacoes(dict);
   }
 
+  async function removeMonthAndSave(momentPeriod: moment.Moment) {
+    if (!confirm('Você tem certeza que deseja remover o mês?'))
+      return;
+
+    await repository.deletePeriod(tableName, momentPeriod.format('MM'), momentPeriod.format('YYYY'))
+    await refresh();
+  }
+
   const keysTransacoes = Object.keys(transacoes);
   const isSaldos = tableName === TableNames.SALDOS;
 
@@ -64,13 +72,15 @@ export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName
           const transacoesDoPeriodo = transacoes[key] || [];
           const { acumulado, acumuladoAteOMes } = filterAcumulados(transacoesAcumuladaPorMes, key);
           const somaPeriodo = transacoesDoPeriodo.map(x => x.valor).filter(Boolean).reduce((p, n) => p.plus(n), BigNumber(0))
+          const momentPeriod = moment(key, 'YYYY-MM');
 
           return (
             <section key={key} className="card my-3">
               <div className="card-header d-flex justify-content-between align-items-center flex-column flex-lg-row gap-3">
-                <h4 className="m-0">Periodo de: {moment(key, 'YYYY-MM').format('MMMM YYYY')}</h4>
+                <h4 className="m-0">Periodo de: {momentPeriod.format('MMMM YYYY')}</h4>
                 {acumulado?.totalAcumulado && (<small>Valor em caixa no periodo: {NumberUtil.toCurrency(acumulado.totalAcumulado)}</small>)}
                 <div className="actions d-flex gap-3">
+                  <button type="button" className="btn btn-danger" onClick={() => removeMonthAndSave(momentPeriod)}>Remover Mês</button>
                   <Link href={`/${path}/editar-mes?month=${key}`} className="btn btn-dark">Editar mês</Link>
                   <Link href={`/${path}/copia?month=${key}`} className="btn btn-dark">Copiar mês</Link>
                 </div>
