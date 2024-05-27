@@ -31,6 +31,8 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
   const [editTransacao, setEditTransacao] = useState<Transacoes | null>();
   const [isNewTransacaoOpen, setIsNewTransacaoOpen] = useState<boolean>(false);
 
+  const isSaldos = tableName === TableNames.SALDOS;
+
   useEffect(() => {
     isDbOk && load();
   }, [isDbOk]);
@@ -73,12 +75,11 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
       x.ordem = i;
     });
 
-    console.log(transacoesOk);
-
-
+    await repository.deletePeriod(tableName, momentMonth.format('MM'), momentMonth.format('YYYY'))
     await repository.saveAll(tableName, transacoesOk);
+    
     setIsLoading(false);
-    router.push('/caixa');
+    router.push(isSaldos ? '/saldos' : '/caixa');
   }
 
   function removerTransacao(transacao: Transacoes) {

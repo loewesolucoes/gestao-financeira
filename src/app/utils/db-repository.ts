@@ -156,6 +156,12 @@ export class DbRepository {
     await this.persistDb();
   }
 
+  public async deletePeriod(tableName: TableNames, month: string, year: string) {
+    this.db.exec(`delete from ${tableName} where strftime('%m', data) = $month and strftime('%Y', data) = $year`, { "$month": month, "$year": year })
+
+    await this.persistDb();
+  }
+
   public async save(tableName: TableNames, data: any) {
     let result = {} as any;
 
@@ -170,8 +176,6 @@ export class DbRepository {
   }
 
   public async delete(tableName: TableNames, id: number) {
-    await Promise.resolve();
-
     let result = {} as any;
 
     this.db.exec(`delete from ${tableName} where id = $id`, { "$id": id })
@@ -207,7 +211,7 @@ export class DbRepository {
     const parsedResult = this.parseSqlResultToObj(result);
 
     console.log(parsedResult);
-    
+
 
     return {
       valorEmCaixa: parsedResult[0][0]?.valorEmCaixa as any,
