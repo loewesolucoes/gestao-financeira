@@ -28,6 +28,7 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [yearAndMonth, setYearAndMonth] = useState<Date>(todayDate);
   const [transacoes, setTransacoes] = useState<Transacoes[]>([]);
+  const [transacoesDeletadas, setTransacoesDeletadas] = useState<Transacoes[]>([]);
   const [editTransacao, setEditTransacao] = useState<Transacoes | null>();
   const [isNewTransacaoOpen, setIsNewTransacaoOpen] = useState<boolean>(false);
 
@@ -75,9 +76,9 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
       x.ordem = i;
     });
 
-    await repository.deletePeriod(tableName, momentMonth.format('MM'), momentMonth.format('YYYY'))
+    await Promise.all(transacoesDeletadas.map(x => repository.delete(tableName, x.id)))
     await repository.saveAll(tableName, transacoesOk);
-    
+
     setIsLoading(false);
     router.push(isSaldos ? '/saldos' : '/caixa');
   }
@@ -89,6 +90,7 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
 
     nextTransacoes.splice(index, 1);
     setTransacoes(nextTransacoes);
+    setTransacoesDeletadas([...transacoesDeletadas, transacao]);
   }
 
   function salvarTransacao(previousTransacao: Transacoes, nextTransacao: Transacoes) {
