@@ -82,7 +82,7 @@ export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName
                 )}
                 {isSaldos && (
                   <div className="totals">
-                    <h5>Balanço do mes</h5>
+                    <h5>Soma de todos os saldos</h5>
                     <p>{NumberUtil.toCurrency(somaPeriodo)}</p>
                     <small>{NumberUtil.extenso(somaPeriodo)}</small>
                   </div>
