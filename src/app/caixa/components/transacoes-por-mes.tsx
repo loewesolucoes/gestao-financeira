@@ -80,9 +80,9 @@ export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName
                 <h4 className="m-0">Periodo de: {momentPeriod.format('MMMM YYYY')}</h4>
                 {acumulado?.totalAcumulado && (<small>Valor em caixa no periodo: {NumberUtil.toCurrency(acumulado.totalAcumulado)}</small>)}
                 <div className="actions d-flex gap-3">
-                  <button type="button" className="btn btn-danger" onClick={() => removeMonthAndSave(momentPeriod)}>Remover Mês</button>
-                  <Link href={`/${path}/editar-mes?month=${key}`} className="btn btn-dark">Editar mês</Link>
-                  <Link href={`/${path}/copia?month=${key}`} className="btn btn-dark">Copiar mês</Link>
+                  <button type="button" className="btn btn-danger btn-sm" onClick={() => removeMonthAndSave(momentPeriod)}>Remover Mês</button>
+                  <Link href={`/${path}/editar-mes?month=${key}`} className="btn btn-dark btn-sm">Editar mês</Link>
+                  <Link href={`/${path}/copia?month=${key}`} className="btn btn-dark btn-sm">Copiar mês</Link>
                 </div>
               </div>
               <div className="card-body d-flex align-items-center align-items-lg-start flex-column-reverse flex-lg-row justify-content-lg-around">
