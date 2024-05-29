@@ -14,7 +14,7 @@ export function ListaCaixa({ transacoesDoPeriodo }: { transacoesDoPeriodo: Trans
       <li key={`${x.local}:${i}`} className={`list-group-item ${x.valor ?? 'list-group-item-warning'}`}>
         <div className="d-flex w-100 justify-content-between gap-3">
           <h5>{x.local}</h5>
-          <div className="d-flex justify-content-between gap-3">
+          <div className="d-flex justify-content-between gap-3 flex-column flex-lg-row">
             <small>{moment(x.data).format('DD/MM/YY')}</small>
             {x.tipo !== undefined && (
               <small className={x.tipo === TipoDeReceita.FIXO ? 'text-primary' : 'text-info'}>{x.tipo === TipoDeReceita.FIXO ? 'Fixo' : 'Variável'}</small>

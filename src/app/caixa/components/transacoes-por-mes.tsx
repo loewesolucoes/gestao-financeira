@@ -85,7 +85,7 @@ export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName
                   <Link href={`/${path}/copia?month=${key}`} className="btn btn-dark">Copiar mês</Link>
                 </div>
               </div>
-              <div className="card-body d-flex align-items-start flex-column-reverse flex-lg-row justify-content-lg-around">
+              <div className="card-body d-flex align-items-center align-items-lg-start flex-column-reverse flex-lg-row justify-content-lg-around">
                 <ListaCaixa transacoesDoPeriodo={transacoesDoPeriodo} />
                 {!isSaldos && (
                   <BalancoDoMes transacoesDoPeriodo={transacoesDoPeriodo} transacoesAcumuladasPorMes={acumuladoAteOMes} />
