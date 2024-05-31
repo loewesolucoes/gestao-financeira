@@ -10,6 +10,7 @@ export enum MapperTypes {
   DATE,
   DATE_TIME,
   NUMBER,
+  IGNORE,
 }
 
 export enum TipoDeReceita {
@@ -71,7 +72,7 @@ export enum TableNames {
   PATRIMONIO = "patrimonio",
 }
 
-const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER };
+const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
 
 const BUFFER_TYPE = 'base64';
 
@@ -271,7 +272,7 @@ export class DbRepository {
 
     let query = this.getQueryByPeriodo(periodo);
 
-    const result = this.db.exec(`select * FROM ${tableName} where ${query} order by data desc, ordem asc`);
+    const result = this.db.exec(`SELECT strftime('%Y-%m', data) AS monthYear, * FROM ${tableName} where ${query} order by monthYear desc, ordem ASC`);
 
     if (!Array.isArray(result))
       throw new Error(`${tableName} não encontrado (a)`);
@@ -351,6 +352,8 @@ export class DbRepository {
             original = false;
           } else if (mapper[n] === MapperTypes.NUMBER) {
             p[n] = value;
+            original = false;
+          } else if (mapper[n] === MapperTypes.IGNORE) {
             original = false;
           }
         }
