@@ -124,6 +124,9 @@ export function StorageProvider(props: any) {
   }
 
   async function doGDriveLoad() {
+    if (!confirm('Você tem certeza que deseja carregar do drive?'))
+      return;
+
     setIsGDriveLoadLoading(true);
     console.log('doGDriveLoad start');
     if (!isAuthOk)
