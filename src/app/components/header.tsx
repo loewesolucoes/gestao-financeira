@@ -24,6 +24,10 @@ const pages = [
     path: '/notas'
   },
   {
+    name: 'Empréstimo',
+    path: '/emprestimos'
+  },
+  {
     name: 'Relatórios',
     path: '/relatorios'
   },
