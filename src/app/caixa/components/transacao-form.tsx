@@ -33,7 +33,7 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
 
     const updatedTransaction = { ...transacao, valor, data, tipo, local, comentario }
 
-    if (tableName === TableNames.SALDOS)
+    if (tableName === TableNames.PATRIMONIO)
       delete updatedTransaction.tipo;
 
 
@@ -97,7 +97,7 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
           <label htmlFor="data" className="form-label">Data</label>
           <Input type="date" className="form-control" id="data" onChange={x => setData(x)} value={data} />
         </div>
-        {tableName !== TableNames.SALDOS
+        {tableName !== TableNames.PATRIMONIO
           ? (
             <div className="flex-grow-1">
               <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>

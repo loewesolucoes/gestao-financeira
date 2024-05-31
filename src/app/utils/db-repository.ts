@@ -29,7 +29,7 @@ export interface Transacoes {
   ordem?: number
 }
 
-export interface Saldos {
+export interface Patrimonio {
   id: number
   valor?: BigNumber
   data: Date
@@ -68,7 +68,7 @@ export enum PeriodoTransacoes {
 
 export enum TableNames {
   TRANSACOES = "transacoes",
-  SALDOS = "SALDOS",
+  PATRIMONIO = "patrimonio",
 }
 
 const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER };
@@ -439,6 +439,11 @@ export class DbRepository {
     if (migrations['saldos'] == null) {
       this.db.exec(`CREATE TABLE IF NOT EXISTS "saldos" ("id" INTEGER NOT NULL,"valor" REAL NULL DEFAULT NULL,"data" DATETIME NOT NULL,"local" TEXT NULL DEFAULT NULL,"comentario" TEXT NULL DEFAULT NULL, "ordem" INTEGER NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
       migrations['saldos'] = RUNNED_MIGRATION;
+    }
+
+    if (migrations['rename_saldos_to_patrimonio'] == null) {
+      this.db.exec(`ALTER TABLE 'saldos' RENAME TO 'patrimonio'`);
+      migrations['rename_saldos_to_patrimonio'] = RUNNED_MIGRATION;
     }
 
     const runnedMigrations = Object.keys(migrations).filter(x => migrations[x] === RUNNED_MIGRATION).reduce((p, n) => { p.push({ name: n, executedDate: new Date() }); return p; }, [])

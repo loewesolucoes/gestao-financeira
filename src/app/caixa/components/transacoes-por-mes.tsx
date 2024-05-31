@@ -59,9 +59,9 @@ export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName
   }
 
   const keysTransacoes = Object.keys(transacoes);
-  const isSaldos = tableName === TableNames.SALDOS;
+  const isPatrimonio = tableName === TableNames.PATRIMONIO;
 
-  const path = isSaldos ? 'saldos' : 'caixa';
+  const path = isPatrimonio ? 'patrimonio' : 'caixa';
 
   return <section className="periodos">
     {isLoading
@@ -87,10 +87,10 @@ export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName
               </div>
               <div className="card-body d-flex align-items-center align-items-lg-start flex-column-reverse flex-lg-row justify-content-lg-around">
                 <ListaCaixa tableName={tableName} transacoesDoPeriodo={transacoesDoPeriodo} />
-                {!isSaldos && (
+                {!isPatrimonio && (
                   <BalancoDoMes transacoesDoPeriodo={transacoesDoPeriodo} transacoesAcumuladasPorMes={acumuladoAteOMes} />
                 )}
-                {isSaldos && (
+                {isPatrimonio && (
                   <div className="totals">
                     <h5>Soma de todos os saldos</h5>
                     <p>{NumberUtil.toCurrency(somaPeriodo)}</p>

@@ -16,8 +16,8 @@ const pages = [
     path: '/caixa'
   },
   {
-    name: 'Saldos',
-    path: '/saldos'
+    name: 'Património',
+    path: '/patrimonio'
   },
   {
     name: 'Notas',

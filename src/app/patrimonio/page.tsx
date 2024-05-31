@@ -9,23 +9,23 @@ import { PeriodoTransacoes, TableNames } from "../utils/db-repository";
 import { useEffect, useState } from "react";
 import { TransacoesPorMes } from "../caixa/components/transacoes-por-mes";
 
-function Saldos() {
+function Patrimonio() {
   const [periodo, setPeriodo] = useState<PeriodoTransacoes>(PeriodoTransacoes.ULTIMO_MES);
 
   useEffect(() => {
-    document.title = `Saldos | ${document.title}`
+    document.title = `Património | ${document.title}`
   }, []);
 
   return (
-    <main className="saldos container mt-3">
-      <h1>Saldos</h1>
+    <main className="patrimonio container mt-3">
+      <h1>Património</h1>
       <article className="transacoes">
         <section className="forms">
           <PeriodoForm onChange={(x: PeriodoTransacoes) => setPeriodo(x)} value={periodo} />
-          <TransacaoForm tableName={TableNames.SALDOS} />
+          <TransacaoForm tableName={TableNames.PATRIMONIO} />
         </section>
 
-        <TransacoesPorMes tableName={TableNames.SALDOS} periodo={periodo} />
+        <TransacoesPorMes tableName={TableNames.PATRIMONIO} periodo={periodo} />
       </article>
     </main>
   );
@@ -34,7 +34,7 @@ function Saldos() {
 export default function Page() {
   return (
     <Layout>
-      <Saldos />
+      <Patrimonio />
     </Layout>
   );
 }

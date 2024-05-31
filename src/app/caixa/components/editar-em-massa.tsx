@@ -33,7 +33,7 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
   const [editTransacao, setEditTransacao] = useState<Transacoes | null>();
   const [isNewTransacaoOpen, setIsNewTransacaoOpen] = useState<boolean>(false);
 
-  const isSaldos = tableName === TableNames.SALDOS;
+  const isPatrimonio = tableName === TableNames.PATRIMONIO;
 
   useEffect(() => {
     isDbOk && load();
@@ -81,7 +81,7 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
     await repository.saveAll(tableName, transacoesOk);
 
     setIsLoading(false);
-    router.push(isSaldos ? '/saldos' : '/caixa');
+    router.push(isPatrimonio ? '/patrimonio' : '/caixa');
   }
 
   function removerTransacao(transacao: Transacoes) {
