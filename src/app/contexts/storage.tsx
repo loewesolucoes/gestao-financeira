@@ -106,6 +106,9 @@ export function StorageProvider(props: any) {
   }
 
   async function doGDriveSave() {
+    if (!confirm('Você tem certeza que deseja salvar no drive?'))
+      return;
+
     setIsGDriveSaveLoading(true);
     console.log('doGDriveSave start');
 
