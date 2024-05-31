@@ -16,6 +16,7 @@ interface CustomProps {
 }
 
 export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, onCustomDelete, tableName: tn }: CustomProps) {
+  const tableName = tn || TableNames.TRANSACOES
   const { isDbOk, repository, refresh } = useStorage();
   //@ts-ignore
   const [valor, setValor] = useState<BigNumber>(transacao?.valor || BigNumber());
@@ -25,7 +26,6 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
   const [comentario, setComentario] = useState(transacao?.comentario);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const tableName = tn || TableNames.TRANSACOES
 
   async function onSubmitForm(event: import('react').ChangeEvent<any>) {
     event.preventDefault();

@@ -20,6 +20,10 @@ const pages = [
     path: '/saldos'
   },
   {
+    name: 'Notas',
+    path: '/notas'
+  },
+  {
     name: 'Relatórios',
     path: '/relatorios'
   },

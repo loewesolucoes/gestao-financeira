@@ -1,12 +1,18 @@
 "use client";
 import { NumberUtil } from "@/app/utils/number";
-import { Transacoes, TipoDeReceita } from "../../utils/db-repository";
+import { Transacoes, TipoDeReceita, TableNames } from "../../utils/db-repository";
 import moment from "moment";
 import { useState } from "react";
 import { Modal } from "@/app/components/modal";
 import { TransacaoForm } from "./transacao-form";
 
-export function ListaCaixa({ transacoesDoPeriodo }: { transacoesDoPeriodo: Transacoes[]; }) {
+interface CustomProps {
+  transacoesDoPeriodo: Transacoes[]
+  tableName?: TableNames
+}
+
+export function ListaCaixa({ transacoesDoPeriodo, tableName: tn }: CustomProps) {
+  const tableName = tn || TableNames.TRANSACOES
   const [transaction, setTransaction] = useState<Transacoes | null>(null);
 
   return <ul className="list-group">
@@ -30,7 +36,7 @@ export function ListaCaixa({ transacoesDoPeriodo }: { transacoesDoPeriodo: Trans
     ))}
     {transaction && (
       <Modal hideFooter={true} onClose={() => setTransaction(null)} title={`Detalhes da transação: ${transaction?.local}`}>
-        <TransacaoForm transacao={transaction} cleanStyle={true} onClose={() => setTransaction(null)} />
+        <TransacaoForm tableName={tableName} transacao={transaction} cleanStyle={true} onClose={() => setTransaction(null)} />
       </Modal>
     )}
   </ul>;

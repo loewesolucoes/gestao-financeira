@@ -198,12 +198,12 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
         )}
       {editTransacao && (
         <Modal hideFooter={true} onClose={() => setEditTransacao(null)} title={`Detalhes da transação: ${editTransacao?.local}`}>
-          <TransacaoForm transacao={editTransacao} cleanStyle={true} onClose={() => setEditTransacao(null)} onCustomSubmit={x => salvarTransacao(editTransacao, x)} onCustomDelete={x => removerTransacao(editTransacao)} />
+          <TransacaoForm tableName={tableName} transacao={editTransacao} cleanStyle={true} onClose={() => setEditTransacao(null)} onCustomSubmit={x => salvarTransacao(editTransacao, x)} onCustomDelete={x => removerTransacao(editTransacao)} />
         </Modal>
       )}
       {isNewTransacaoOpen && (
         <Modal hideFooter={true} onClose={() => setIsNewTransacaoOpen(false)} title={`Adicionar transação`}>
-          <TransacaoForm cleanStyle={true} onClose={() => setIsNewTransacaoOpen(false)} onCustomSubmit={x => addTransacao(x)} onCustomDelete={x => setIsNewTransacaoOpen(false)} />
+          <TransacaoForm tableName={tableName} cleanStyle={true} onClose={() => setIsNewTransacaoOpen(false)} onCustomSubmit={x => addTransacao(x)} onCustomDelete={x => setIsNewTransacaoOpen(false)} />
         </Modal>
       )}
     </>
