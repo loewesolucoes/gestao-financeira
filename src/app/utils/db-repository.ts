@@ -371,7 +371,7 @@ export class DbRepository {
   private parseToCommand(nextData: any, paramsPrefix: string = '') {
     const keys = Object.keys(nextData).filter(k => nextData[k] !== undefined);
     const params = keys.reduce((p, n) => {
-      let value = nextData[n] || null;
+      let value = nextData[n] ?? null;
 
       if (value instanceof Date) {
         value = moment(value).format();

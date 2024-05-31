@@ -111,8 +111,6 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
   }
 
   function trocarPosicao(drop: DropResult) {
-    console.log(arguments);
-
     const nextTransacoes = [...transacoes];
 
     const destIndex = drop.destination?.index as any;
