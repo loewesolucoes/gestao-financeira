@@ -4,7 +4,7 @@ import "./page.scss";
 
 import { Layout } from "../shared/layout";
 import ArrowIcon from './arrow.svg'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const qea = [
   {
@@ -39,6 +39,10 @@ const qea = [
 
 function FAQ() {
   const [opened, setOpened] = useState<any>({});
+
+  useEffect(() => {
+    document.title = `Perguntas frequentes | ${process.env.NEXT_PUBLIC_TITLE}`
+  }, []);
 
   return (
     <main className="faq container mt-3">

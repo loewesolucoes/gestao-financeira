@@ -21,6 +21,10 @@ function Home() {
   const [totais, setTotais] = useState<TotaisHome>({} as any);
 
   useEffect(() => {
+    document.title = `Início | ${process.env.NEXT_PUBLIC_TITLE}`
+  }, []);
+
+  useEffect(() => {
     isDbOk && load();
   }, [isDbOk, yearAndMonth]);
 

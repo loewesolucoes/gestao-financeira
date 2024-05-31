@@ -42,28 +42,23 @@ export default function RootLayout({
 
 
 export async function generateMetadata({ params }): Promise<Metadata> {
-  const title = "Gestão financeira";
-  const description = "Nosso sistema de gestão financeira é uma solução abrangente e inteligente projetada para empresas e indivíduos. Com recursos avançados, como controle de caixa, balancetes automatizados, registro de notas fiscais e gerenciamento de investimentos, ajudamos você a manter suas finanças organizadas e tomar decisões informadas. Nossa interface amigável e segura permite que você acesse suas informações financeiras de qualquer lugar, garantindo eficiência e precisão. Escolha nossa plataforma para otimizar suas operações financeiras e alcançar seus objetivos.";
-  const url = "https://loewesolucoes.github.io/gestao-financeira";
-  const image = "https://loewesolucoes.github.io/gestao-financeira/site.png";
-
   return {
-    title: title,
-    description: description,
-    creator: 'Érico de Souza Loewe',
+    title: process.env.NEXT_PUBLIC_TITLE,
+    description: process.env.NEXT_PUBLIC_DESCRIPTION,
+    creator: process.env.NEXT_PUBLIC_CREATOR,
     openGraph: {
-      title: title,
-      description: description,
+      title: process.env.NEXT_PUBLIC_TITLE,
+      description: process.env.NEXT_PUBLIC_DESCRIPTION,
       type: "website",
-      url: url,
-      images: image
+      url: process.env.NEXT_PUBLIC_URL,
+      images: process.env.NEXT_PUBLIC_IMAGE,
     },
     twitter: {
-      title: title,
-      description: description,
+      title: process.env.NEXT_PUBLIC_TITLE,
+      description: process.env.NEXT_PUBLIC_DESCRIPTION,
       card: "summary_large_image",
-      site: url,
-      images: image
+      site: process.env.NEXT_PUBLIC_URL,
+      images: process.env.NEXT_PUBLIC_IMAGE,
     },
   }
 }

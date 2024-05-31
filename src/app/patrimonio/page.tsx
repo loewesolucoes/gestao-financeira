@@ -13,12 +13,12 @@ function Patrimonio() {
   const [periodo, setPeriodo] = useState<PeriodoTransacoes>(PeriodoTransacoes.ULTIMO_MES);
 
   useEffect(() => {
-    document.title = `Património | ${document.title}`
+    document.title = `Patrimônio | ${process.env.NEXT_PUBLIC_TITLE}`
   }, []);
 
   return (
     <main className="patrimonio container mt-3">
-      <h1>Património</h1>
+      <h1>Patrimônio</h1>
       <article className="transacoes">
         <section className="forms">
           <PeriodoForm onChange={(x: PeriodoTransacoes) => setPeriodo(x)} value={periodo} />

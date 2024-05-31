@@ -24,7 +24,7 @@ function CaixaPage() {
   const [transacoesAcumuladaPorMes, setTransacoesAcumuladaPorMes] = useState<{ [key: string]: TransacoesAcumuladasPorMes }>({});
 
   useEffect(() => {
-    document.title = `Caixa | ${document.title}`
+    document.title = `Caixa | ${process.env.NEXT_PUBLIC_TITLE}`
   }, []);
 
   useEffect(() => {

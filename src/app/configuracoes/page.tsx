@@ -15,7 +15,7 @@ function Configuracoes() {
   const [file, setFile] = useState<File>()
 
   useEffect(() => {
-    document.title = `Configurações | ${document.title}`
+    document.title = `Configurações | ${process.env.NEXT_PUBLIC_TITLE}`
   }, []);
 
   function handleChange(event: any) {
