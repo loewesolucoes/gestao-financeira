@@ -7,14 +7,18 @@ import { useEffect, useState } from "react";
 
 import { Layout } from "./shared/layout";
 import { useStorage } from "./contexts/storage";
-import { TotaisHome } from "./utils/db-repository";
+import { TotaisHome, TransacoesAcumuladasPorMesHome } from "./utils/db-repository";
 import { Loader } from "./components/loader";
 import { NumberUtil } from "./utils/number";
 import { Input } from "./components/input";
-import { Line } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
+import { useEnv } from "./contexts/env";
+
+const MOBILE_TRANSACOES_POR_MES = 6;
 
 function Home() {
   const { isDbOk, repository } = useStorage();
+  const { isMobile } = useEnv();
 
   const [yearAndMonth, setYearAndMonth] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -26,13 +30,16 @@ function Home() {
 
   useEffect(() => {
     isDbOk && load();
-  }, [isDbOk, yearAndMonth]);
+  }, [isDbOk, isMobile, yearAndMonth]);
 
   async function load() {
     setIsLoading(true);
     const result = await repository.totais(yearAndMonth);
 
-    console.log(result);
+    console.info('load', result);
+
+    if (isMobile && result.transacoesAcumuladaPorMes.length > MOBILE_TRANSACOES_POR_MES * 1.5)
+      result.transacoesAcumuladaPorMes.splice(0, result.transacoesAcumuladaPorMes.length - MOBILE_TRANSACOES_POR_MES);
 
     setTotais(result);
     setIsLoading(false);
@@ -100,9 +107,15 @@ function Home() {
                   </section>
                   <section className="d-flex flex-column gap-3">
                     <section className="card border-info">
-                      <h4 className="card-header">Restante em caixa por Mês</h4>
+                      <h4 className="card-header">Caixa acumulado mês a mês</h4>
                       <div className="card-body">
-                        <GraficoAcumuladoDoMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
+                        <GraficoCaixaAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
+                      </div>
+                    </section>
+                    <section className="card border-info">
+                      <h4 className="card-header">Balanço mês a mês</h4>
+                      <div className="card-body">
+                        <GraficoBalancoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                       </div>
                     </section>
                   </section>
@@ -114,13 +127,40 @@ function Home() {
   );
 }
 
-function GraficoAcumuladoDoMes({ transacoesAcumuladasPorMes }: any) {
+interface CustomProps {
+  transacoesAcumuladasPorMes: TransacoesAcumuladasPorMesHome[]
+}
+
+function GraficoCaixaAcumuladoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
   return <Line data={{
     labels: transacoesAcumuladasPorMes?.map(x => x.mes),
     datasets: [
       {
         label: 'acumulado até o mes (R$)',
         data: transacoesAcumuladasPorMes?.map(x => x.totalAcumulado),
+      },
+    ],
+  }} options={{
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+    }
+  }} />;
+}
+
+function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
+  return <Bar data={{
+    labels: transacoesAcumuladasPorMes?.map(x => x.mes),
+    datasets: [
+      {
+        label: 'receitas (R$)',
+        data: transacoesAcumuladasPorMes?.map(x => x.receitasMes),
+      },
+      {
+        label: 'despesas (-R$)',
+        data: transacoesAcumuladasPorMes?.map(x => x.despesasMes.abs()),
       },
     ],
   }} options={{

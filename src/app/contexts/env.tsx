@@ -7,6 +7,7 @@ const { version: packageVersion, name: packageName } = require('../../../package
 
 const EnvContext = createContext({
   isDev: false,
+  isMobile: false,
   logLevel: 'info',
   version: '',
   aplicationName: '',
@@ -14,6 +15,7 @@ const EnvContext = createContext({
 
 export function EnvProvider(props: any) {
   const [isDev, setIsDev] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   const [logLevel, setLogLevel] = useState('info');
   const [version, setVersion] = useState(packageVersion);
   const [aplicationName, setAplicationName] = useState(packageName);
@@ -25,10 +27,24 @@ export function EnvProvider(props: any) {
     setAplicationName(packageName);
   }, [process.env]);
 
+
+  function handleWindowSizeChange() {
+    setIsMobile(window.innerWidth < 1200);
+  }
+
+  useEffect(() => {
+    handleWindowSizeChange();
+    window.addEventListener('resize', handleWindowSizeChange);
+    return () => {
+      window.removeEventListener('resize', handleWindowSizeChange);
+    }
+  }, []);
+
   return (
     <EnvContext.Provider
       value={{
         isDev,
+        isMobile,
         logLevel,
         version,
         aplicationName,

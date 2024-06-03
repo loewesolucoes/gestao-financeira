@@ -47,6 +47,14 @@ export interface TransacoesAcumuladasPorMes {
   totalMes: BigNumber;
 }
 
+export interface TransacoesAcumuladasPorMesHome {
+  mes: string;
+  receitasMes: BigNumber;
+  despesasMes: BigNumber;
+  totalAcumulado: BigNumber;
+  totalMes: BigNumber;
+}
+
 export interface TotaisTransacoes {
   valorEmCaixa?: BigNumber
   transacoesAcumuladaPorMes: TransacoesAcumuladasPorMes[]
@@ -56,7 +64,7 @@ export interface TotaisHome {
   valorEmCaixa: BigNumber
   receitas: BigNumber
   despesas: BigNumber
-  transacoesAcumuladaPorMes: TransacoesAcumuladasPorMes[]
+  transacoesAcumuladaPorMes: TransacoesAcumuladasPorMesHome[]
 }
 
 export enum PeriodoTransacoes {
@@ -201,6 +209,8 @@ export class DbRepository {
     and strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year;
 
     SELECT strftime('%Y-%m', t.data) AS mes,
+    SUM(CASE WHEN t.valor >= 0 THEN t.valor ELSE 0 END) AS receitasMes,
+    SUM(CASE WHEN t.valor < 0 THEN t.valor ELSE 0 END) AS despesasMes,
     SUM(t.valor) AS totalMes,
     SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', t.data)) AS totalAcumulado
     FROM transacoes t
@@ -210,9 +220,6 @@ export class DbRepository {
     const result = this.db.exec(query, { "$month": moment(yearAndMonth).format('MM'), "$year": moment(yearAndMonth).format('YYYY') });
 
     const parsedResult = this.parseSqlResultToObj(result);
-
-    console.log(parsedResult);
-
 
     return {
       valorEmCaixa: parsedResult[0][0]?.valorEmCaixa as any,
