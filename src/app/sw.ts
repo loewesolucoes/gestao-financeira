@@ -7,7 +7,8 @@ declare const self: ServiceWorkerGlobalScope & {
 };
 
 const revision = crypto.randomUUID();
-
+// https://serwist.pages.dev/
+// https://medium.com/@uriser/building-a-progressive-web-app-pwa-in-next-js-with-serwist-next-pwa-successor-94e05cb418d7
 installSerwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
