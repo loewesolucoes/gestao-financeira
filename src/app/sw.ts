@@ -6,6 +6,8 @@ declare const self: ServiceWorkerGlobalScope & {
   __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
 };
 
+const cache = process.env.NODE_ENV === 'development' ? [] : defaultCache
+
 const revision = crypto.randomUUID();
 // https://serwist.pages.dev/
 // https://medium.com/@uriser/building-a-progressive-web-app-pwa-in-next-js-with-serwist-next-pwa-successor-94e05cb418d7
@@ -14,7 +16,7 @@ installSerwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: defaultCache,
+  runtimeCaching: cache,
   fallbacks: {
     entries: [
       {
