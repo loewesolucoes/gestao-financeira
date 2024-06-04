@@ -14,7 +14,8 @@
 /out/
 public/sql-wasm.wasm
 public/worker.sql-wasm.js
-public/pwa
+public/sw.js
+public/workbox*
 
 # production
 /build
