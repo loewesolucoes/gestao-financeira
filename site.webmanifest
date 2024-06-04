@@ -1,6 +1,7 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "Gestão financeira",
+    "short_name": "Gestão financeira",
+    "start_url": "/gestao-financeira",
     "icons": [
         {
             "src": "./android-chrome-192x192.png",
