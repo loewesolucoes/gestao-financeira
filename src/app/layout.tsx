@@ -46,6 +46,13 @@ export async function generateMetadata({ params }): Promise<Metadata> {
     title: process.env.NEXT_PUBLIC_TITLE,
     description: process.env.NEXT_PUBLIC_DESCRIPTION,
     creator: process.env.NEXT_PUBLIC_CREATOR,
+    applicationName: process.env.NEXT_PUBLIC_TITLE,
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'black-translucent',
+      title: process.env.NEXT_PUBLIC_TITLE,
+      startupImage: process.env.NEXT_PUBLIC_IMAGE,
+    },
     openGraph: {
       title: process.env.NEXT_PUBLIC_TITLE,
       description: process.env.NEXT_PUBLIC_DESCRIPTION,
