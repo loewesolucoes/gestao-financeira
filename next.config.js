@@ -47,17 +47,11 @@ const nextConfig = {
     return config;
   }
 }
+const withSerwistInit = require('@serwist/next').default
 
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  disable: isDev,
-  fallbacks: {
-    image: `${basePath}/logo.png`,
-    // document: '/other-offline',  // if you want to fallback to a custom page other than /_offline
-    // font: '/static/font/fallback.woff2',
-    // audio: ...,
-    // video: ...,
-  }
-})
+const withSerwist = withSerwistInit({
+  swSrc: 'src/app/sw.ts', // where the service worker src is
+  swDest: 'public/sw.js', // where the service worker code will end up
+});
 
-module.exports = withPWA(nextConfig);
+module.exports = withSerwist(nextConfig);
