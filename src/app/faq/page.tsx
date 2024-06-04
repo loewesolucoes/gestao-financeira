@@ -57,9 +57,9 @@ function FAQ() {
             <span className="fs-5 fw-semibold text-primary text-uppercase">POSSUI ALGUMA DÚVIDA?</span>
             <h1 className="mt-3 mb-0">Perguntas frequentes</h1>
           </div>
-          <ul className="mb-3">
+          <ul className="questions mb-3">
             {qea.map(x => (
-              <li key={x.question} className={opened[x.question] && 'show'}>
+              <li key={x.question} className={`question ${opened[x.question] && 'show'}`}>
                 <button className="btn p-4 mb-2 w-100 bg-white fw-medium text-start lh-base rounded-4 border border-primary" onClick={e => setOpened({ ...opened, [x.question]: !opened[x.question] })}>
                   <div className="d-flex justify-content-between">
                     <div>
@@ -69,7 +69,7 @@ function FAQ() {
                       <ArrowIcon className="arrow" />
                     </div>
                   </div>
-                  {x.answer}
+                  <span className="answer">{x.answer}</span>
                 </button>
               </li>
             ))}

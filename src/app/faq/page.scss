@@ -4,17 +4,17 @@
     height: 9px;
   }
 
-  ul {
+  .questions {
     padding-left: 0;
     list-style: none;
 
-    li {
-      p {
+    .question {
+      .answer {
         display: none;
       }
 
       &.show {
-        p {
+        .answer {
           display: flex;
         }
       }
