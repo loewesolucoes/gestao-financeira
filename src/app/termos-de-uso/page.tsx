@@ -18,12 +18,12 @@ function Offline() {
         <li>usar os materiais para qualquer finalidade comercial ou para exibição pública (comercial ou não comercial);&nbsp;</li>
         <li>tentar descompilar ou fazer engenharia reversa de qualquer software contido no site Gestão financeira;&nbsp;</li>
         <li>remover quaisquer direitos autorais ou outras notações de propriedade dos materiais; ou&nbsp;</li>
-        <li>transferir os materiais para outra pessoa ou 'espelhe' os materiais em qualquer outro servidor.</li>
+        <li>transferir os materiais para outra pessoa ou &apos;espelhe&apos; os materiais em qualquer outro servidor.</li>
       </ol>
       <p>Esta licença será automaticamente rescindida se você violar alguma dessas restrições e poderá ser rescindida por Gestão financeira a qualquer momento. Ao encerrar a visualização desses materiais ou após o término desta licença, você deve apagar todos os materiais baixados em sua posse, seja em formato eletrónico ou impresso.</p>
       <h2>3. Isenção de responsabilidade</h2>
       <ol>
-        <li>Os materiais no site da Gestão financeira são fornecidos 'como estão'. Gestão financeira não oferece garantias, expressas ou implícitas, e, por este meio, isenta e nega todas as outras garantias, incluindo, sem limitação, garantias implícitas ou condições de comercialização, adequação a um fim específico ou não violação de propriedade intelectual ou outra violação de direitos.</li>
+        <li>Os materiais no site da Gestão financeira são fornecidos &apos;como estão&apos;. Gestão financeira não oferece garantias, expressas ou implícitas, e, por este meio, isenta e nega todas as outras garantias, incluindo, sem limitação, garantias implícitas ou condições de comercialização, adequação a um fim específico ou não violação de propriedade intelectual ou outra violação de direitos.</li>
         <li>Além disso, o Gestão financeira não garante ou faz qualquer representação relativa à precisão, aos resultados prováveis ​​ou à confiabilidade do uso dos materiais em seu site ou de outra forma relacionado a esses materiais ou em sites vinculados a este site.</li>
       </ol>
       <h2>4. Limitações</h2>
