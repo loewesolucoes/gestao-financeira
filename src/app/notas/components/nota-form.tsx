@@ -85,7 +85,7 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
           <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
           <select className={`form-select bg-${EnumUtil.keyFromValue(TipoDeNota, tipo)}`.toLowerCase()} id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
             {EnumUtil.values(TipoDeNota).map(x => (
-              <option value={TipoDeNota[x]}>{x}</option>
+              <option key={x} value={TipoDeNota[x]}>{x}</option>
             ))}
           </select>
         </div>
