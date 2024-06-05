@@ -119,34 +119,30 @@ function FormButtons({ isAllLoading, transacao, onClose, onDelete }: any) {
   if (transacao != null)
     title = 'Salvar'
 
+  const loadingState = <>
+    <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+    <span role="status">{" "}...</span>
+  </>;
+
   return (
     <div className="d-flex gap-2 justify-content-end">
       {onClose && (
         <button type="button" onClick={onClose} className="btn btn-secondary align-self-end mt-2" disabled={isAllLoading}>
           {isAllLoading
-            ? <>
-              <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
-              <span role="status">{" "}Carregando...</span>
-            </>
+            ? loadingState
             : 'Fechar'}
         </button>
       )}
       {transacao && onDelete && (
         <button type="button" onClick={onDelete} className="btn btn-danger align-self-end mt-2" disabled={isAllLoading}>
           {isAllLoading
-            ? <>
-              <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
-              <span role="status">{" "}Carregando...</span>
-            </>
+            ? loadingState
             : 'Remover'}
         </button>
       )}
       <button type="submit" className="btn btn-primary align-self-end mt-2" disabled={isAllLoading}>
         {isAllLoading
-          ? <>
-            <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
-            <span role="status">{" "}Carregando...</span>
-          </>
+          ? loadingState
           : title}
       </button>
     </div>

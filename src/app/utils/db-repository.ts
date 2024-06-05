@@ -41,6 +41,14 @@ export interface Patrimonio {
   updatedDate?: Date
 }
 
+export interface Notas {
+  id: number
+  data: Date
+  descricao?: string
+  createdDate: Date
+  updatedDate?: Date
+}
+
 export interface TransacoesAcumuladasPorMes {
   mes: string;
   totalAcumulado: BigNumber;
@@ -78,8 +86,10 @@ export enum PeriodoTransacoes {
 export enum TableNames {
   TRANSACOES = "transacoes",
   PATRIMONIO = "patrimonio",
+  NOTAS = "notas",
 }
 
+const DEFAULT_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, monthYear: MapperTypes.IGNORE };
 const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
 
 const BUFFER_TYPE = 'base64';
@@ -275,7 +285,18 @@ export class DbRepository {
     return query;
   }
 
-  public async list(tableName: TableNames, periodo: PeriodoTransacoes): Promise<Transacoes[]> {
+  public async list<T>(tableName: TableNames): Promise<T[]> {
+    await Promise.resolve();
+
+    const result = this.db.exec(`SELECT strftime('%Y-%m', data) AS monthYear, * FROM ${tableName} order by data desc`);
+
+    if (!Array.isArray(result))
+      throw new Error(`${tableName} não encontrado (a)`);
+
+    return this.parseSqlResultToObj(result, DEFAULT_MAPPING)[0] || [];
+  }
+
+  public async listCaixaOrPatrimonio(tableName: TableNames, periodo: PeriodoTransacoes): Promise<Transacoes[]> {
     await Promise.resolve();
 
     let query = this.getQueryByPeriodo(periodo);
@@ -455,6 +476,11 @@ export class DbRepository {
     if (migrations['rename_saldos_to_patrimonio'] == null) {
       this.db.exec(`ALTER TABLE 'saldos' RENAME TO 'patrimonio'`);
       migrations['rename_saldos_to_patrimonio'] = RUNNED_MIGRATION;
+    }
+
+    if (migrations['notas'] == null) {
+      this.db.exec(`CREATE TABLE IF NOT EXISTS "notas" ("id" INTEGER NOT NULL,"data" DATETIME NOT NULL,"descricao" TEXT NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
+      migrations['notas'] = RUNNED_MIGRATION;
     }
 
     const runnedMigrations = Object.keys(migrations).filter(x => migrations[x] === RUNNED_MIGRATION).reduce((p, n) => { p.push({ name: n, executedDate: new Date() }); return p; }, [])

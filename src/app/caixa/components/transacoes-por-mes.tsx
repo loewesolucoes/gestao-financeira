@@ -35,7 +35,7 @@ export function TransacoesPorMes({ periodo, transacoesAcumuladaPorMes, tableName
   }
 
   async function loadTransactions() {
-    const result = await repository.list(tableName, periodo);
+    const result = await repository.listCaixaOrPatrimonio(tableName, periodo);
 
     const dict = result.reduce((previous, next) => {
       const period = moment(next.data).format('YYYY-MM');
