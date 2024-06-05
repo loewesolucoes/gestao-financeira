@@ -39,8 +39,9 @@ function NotasPage() {
 
 
   return (
-    <main className="notas container mt-3">
+    <main className="notas container mt-3 d-flex flex-column gap-3">
       <h1>Notas</h1>
+      <NotaForm />
       {isLoading
         ? <Loader className="align-self-center my-5" />
         : notas.length === 0
