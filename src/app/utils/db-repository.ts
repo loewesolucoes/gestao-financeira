@@ -214,7 +214,8 @@ export class DbRepository {
     SUM(t.valor) AS totalMes,
     SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', t.data)) AS totalAcumulado
     FROM transacoes t
-    GROUP BY strftime('%Y-%m', t.data);
+    GROUP BY strftime('%Y-%m', t.data)
+    LIMIT -1 OFFSET 1;
     `;
 
     const result = this.db.exec(query, { "$month": moment(yearAndMonth).format('MM'), "$year": moment(yearAndMonth).format('YYYY') });
