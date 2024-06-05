@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useStorage } from "@/app/contexts/storage";
 import { useEffect, useState } from "react";
 import { Transacoes, TableNames, TipoDeReceita } from "@/app/utils/db-repository";
@@ -10,6 +10,7 @@ import { Modal } from "@/app/components/modal";
 import { TransacaoForm } from "./transacao-form";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import BigNumber from "bignumber.js";
+import { useLocation } from "@/app/contexts/location";
 
 interface CustomProps {
   tableName?: TableNames
@@ -20,7 +21,7 @@ const todayDate = new Date();
 
 export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
   const tableName = tn || TableNames.TRANSACOES
-  const params = useSearchParams();
+  const { params } = useLocation();
   const month = params.get('month');
   const momentMonth = moment(month, 'YYYY-MM');
   const router = useRouter();

@@ -3,11 +3,11 @@
 import { Layout } from "@/app/shared/layout";
 import "./page.scss";
 import { EditarEmMassa } from "../components/editar-em-massa";
-import { useSearchParams } from "next/navigation";
 import moment from "moment";
+import { useLocation } from "@/app/contexts/location";
 
 function EditarMesPage() {
-  const params = useSearchParams();
+  const { params } = useLocation();
   const month = params.get('month');
   const momentMonth = moment(month, 'YYYY-MM');
 

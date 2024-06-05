@@ -3,12 +3,12 @@
 import { Layout } from "@/app/shared/layout";
 import "./page.scss";
 import { EditarEmMassa } from "../../caixa/components/editar-em-massa";
-import { useSearchParams } from "next/navigation";
 import moment from "moment";
 import { TableNames } from "@/app/utils/db-repository";
+import { useLocation } from "@/app/contexts/location";
 
 function CopiaPatrimonioPage() {
-  const params = useSearchParams();
+  const { params } = useLocation();
   const month = params.get('month');
   const momentMonth = moment(month, 'YYYY-MM');
 
