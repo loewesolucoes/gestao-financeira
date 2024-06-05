@@ -45,6 +45,8 @@ export interface Notas {
   id: number
   data: Date
   descricao?: string
+  comentario?: string
+  tipo?: TipoDeNota
   createdDate: Date
   updatedDate?: Date
 }
@@ -83,6 +85,18 @@ export enum PeriodoTransacoes {
   TODO_HISTORICO,
 }
 
+export enum TipoDeNota {
+  NORMAL = 0,
+  PRIMARY = 1,
+  SECONDARY = 2,
+  INFO = 3,
+  SUCCESS = 4,
+  WARNING = 5,
+  DANGER = 6,
+  LIGHT = 7,
+  DARK = 8,
+}
+
 export enum TableNames {
   TRANSACOES = "transacoes",
   PATRIMONIO = "patrimonio",
@@ -90,7 +104,8 @@ export enum TableNames {
 }
 
 const DEFAULT_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, monthYear: MapperTypes.IGNORE };
-const CAIXA_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
+const CAIXA_MAPPING = { ...DEFAULT_MAPPING, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
+const NOTA_MAPPING = { ...DEFAULT_MAPPING, tipo: MapperTypes.NUMBER };
 
 const BUFFER_TYPE = 'base64';
 
@@ -293,7 +308,7 @@ export class DbRepository {
     if (!Array.isArray(result))
       throw new Error(`${tableName} não encontrado (a)`);
 
-    return this.parseSqlResultToObj(result, DEFAULT_MAPPING)[0] || [];
+    return this.parseSqlResultToObj(result, NOTA_MAPPING)[0] || [];
   }
 
   public async listCaixaOrPatrimonio(tableName: TableNames, periodo: PeriodoTransacoes): Promise<Transacoes[]> {
@@ -481,6 +496,11 @@ export class DbRepository {
     if (migrations['notas'] == null) {
       this.db.exec(`CREATE TABLE IF NOT EXISTS "notas" ("id" INTEGER NOT NULL,"data" DATETIME NOT NULL,"descricao" TEXT NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
       migrations['notas'] = RUNNED_MIGRATION;
+    }
+
+    if (migrations['notas_campo_comentario_e_tipo'] == null) {
+      this.db.exec(`ALTER TABLE "notas" ADD COLUMN "tipo" INTEGER NULL; ALTER TABLE "notas" ADD COLUMN "comentario" TEXT NULL;`);
+      migrations['notas_campo_comentario_e_tipo'] = RUNNED_MIGRATION;
     }
 
     const runnedMigrations = Object.keys(migrations).filter(x => migrations[x] === RUNNED_MIGRATION).reduce((p, n) => { p.push({ name: n, executedDate: new Date() }); return p; }, [])

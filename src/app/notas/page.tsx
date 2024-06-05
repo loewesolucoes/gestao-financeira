@@ -6,10 +6,11 @@ import { Layout } from "../shared/layout";
 import { useEffect, useState } from "react";
 import { useStorage } from "../contexts/storage";
 import { Loader } from "../components/loader";
-import { Notas, TableNames } from "../utils/db-repository";
+import { Notas, TableNames, TipoDeNota } from "../utils/db-repository";
 import moment from "moment";
 import { Modal } from "../components/modal";
 import { NotaForm } from "./components/nota-form";
+import { EnumUtil } from "../utils/enum";
 
 function NotasPage() {
   const { isDbOk, repository } = useStorage();
@@ -50,9 +51,12 @@ function NotasPage() {
             <>
               <ul className="list-group">
                 {notas.map((x, i) => (
-                  <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao ?? 'list-group-item-warning'}`}>
+                  <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao ?? 'list-group-item-warning'} list-group-item-${EnumUtil.keyFromValue(TipoDeNota, x.tipo)}`.toLowerCase()}>
                     <div className="d-flex w-100 justify-content-between gap-3">
-                      <h5>{x.descricao}</h5>
+                      <div className="d-flex flex-column gap-3">
+                        <h5>{x.descricao}</h5>
+                        <p>{x.comentario}</p>
+                      </div>
                       <div className="d-flex flex-column gap-3">
                         <small>{moment(x.data).format('DD/MM/YY')}</small>
                         <button className="btn btn-secondary" onClick={e => setNotaAEditar(x)}>Editar</button>

@@ -16,6 +16,7 @@ export function Input(props: CustomProps) {
   const isInputNumber = props.type === 'number' || isNumber;
   const isInputDate = props.type === 'date';
   const isInputMonth = props.type === 'month';
+  const isTextArea = props.type === 'textarea';
 
   function onChangeInput(event: any) {
     const { value } = event.target;
@@ -35,7 +36,7 @@ export function Input(props: CustomProps) {
   }
 
   const inputValue = parseInputValue(value, isInputNumber, isInputDate, isInputMonth, isPercent);
-  const input = <input className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps} />;
+  const input = isTextArea ? <textarea className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps as any} /> : <input className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps} />;
 
   return groupSymbolLeft || groupSymbolRight ? (
     <div className="input-group mb-3">

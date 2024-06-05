@@ -1,9 +1,10 @@
 "use client";
 
-import { TableNames, Notas } from "@/app/utils/db-repository";
+import { TableNames, Notas, TipoDeNota } from "@/app/utils/db-repository";
 import { Input } from "../../components/input";
 import { useState } from "react";
 import { useStorage } from "@/app/contexts/storage";
+import { EnumUtil } from "@/app/utils/enum";
 
 interface CustomProps {
   nota?: Notas
@@ -18,6 +19,9 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
   //@ts-ignore
   const [data, setData] = useState<Date>(nota?.data || new Date());
   const [descricao, setDescricao] = useState(nota?.descricao);
+  const [comentario, setComentario] = useState(nota?.comentario);
+  const [tipo, setTipo] = useState<TipoDeNota>(nota?.tipo);
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
@@ -25,7 +29,7 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
     event.preventDefault();
     setIsLoading(true);
 
-    const updatedTransaction = { ...nota, data, descricao }
+    const updatedTransaction = { ...nota, data, descricao, comentario, tipo }
 
     if (onCustomSubmit == null) {
       const result = await repository.save(TableNames.NOTAS, updatedTransaction);
@@ -70,12 +74,26 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
     <div className="d-flex flex-column px-3 py-2 gap-3">
       <div className="d-flex gap-3 flex-column flex-md-row w-100">
         <div className="flex-grow-1">
-          <label htmlFor="local" className="form-label">Local</label>
-          <Input type="text" className="form-control" id="local" onChange={x => setDescricao(x)} value={descricao} placeholder="Local" />
+          <label htmlFor="descricao" className="form-label">Descrição</label>
+          <Input type="text" className="form-control" id="descricao" onChange={x => setDescricao(x)} value={descricao} placeholder="Descrição" />
         </div>
-        <div className="flex-grow-1">
+        <div>
           <label htmlFor="data" className="form-label">Data</label>
           <Input type="date" className="form-control" id="data" onChange={x => setData(x)} value={data} />
+        </div>
+        <div>
+          <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
+          <select className={`form-select bg-${EnumUtil.keyFromValue(TipoDeNota, tipo)}`.toLowerCase()} id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
+            {EnumUtil.values(TipoDeNota).map(x => (
+              <option value={TipoDeNota[x]}>{x}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div className="d-flex gap-3 flex-column flex-md-row w-100">
+        <div className="flex-grow-1">
+          <label htmlFor="comentario" className="form-label">Comentário</label>
+          <Input type="textarea" className="form-control" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentário" />
         </div>
       </div>
       <FormButtons isAllLoading={isAllLoading} nota={nota} onClose={onClose} onDelete={onDelete} />
