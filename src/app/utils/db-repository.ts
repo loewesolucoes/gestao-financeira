@@ -51,6 +51,16 @@ export interface Notas {
   updatedDate?: Date
 }
 
+export interface Metas {
+  id: number
+  data: Date
+  descricao?: string
+  comentario?: string
+  tipo?: TipoDeMeta
+  createdDate: Date
+  updatedDate?: Date
+}
+
 export interface TransacoesAcumuladasPorMes {
   mes: string;
   totalAcumulado: BigNumber;
@@ -97,15 +107,22 @@ export enum TipoDeNota {
   DARK = 8,
 }
 
+export enum TipoDeMeta {
+  PESSOAL = 0,
+  FINANCEIRA = 1,
+}
+
 export enum TableNames {
   TRANSACOES = "transacoes",
   PATRIMONIO = "patrimonio",
   NOTAS = "notas",
+  METAS = "metas",
 }
 
 const DEFAULT_MAPPING = { data: MapperTypes.DATE_TIME, createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME, monthYear: MapperTypes.IGNORE };
 const CAIXA_MAPPING = { ...DEFAULT_MAPPING, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
 const NOTA_MAPPING = { ...DEFAULT_MAPPING, tipo: MapperTypes.NUMBER };
+const META_MAPPING = { ...DEFAULT_MAPPING, tipo: MapperTypes.NUMBER };
 
 const BUFFER_TYPE = 'base64';
 
@@ -501,6 +518,11 @@ export class DbRepository {
     if (migrations['notas_campo_comentario_e_tipo'] == null) {
       this.db.exec(`ALTER TABLE "notas" ADD COLUMN "tipo" INTEGER NULL; ALTER TABLE "notas" ADD COLUMN "comentario" TEXT NULL;`);
       migrations['notas_campo_comentario_e_tipo'] = RUNNED_MIGRATION;
+    }
+
+    if (migrations['metas'] == null) {
+      this.db.exec(`CREATE TABLE IF NOT EXISTS "metas" ("id" INTEGER NOT NULL,"data" DATETIME NOT NULL,"descricao" TEXT NULL DEFAULT NULL, "comentario" TEXT NULL, "tipo" INTEGER NULL, "done" INTEGER NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
+      migrations['metas'] = RUNNED_MIGRATION;
     }
 
     const runnedMigrations = Object.keys(migrations).filter(x => migrations[x] === RUNNED_MIGRATION).reduce((p, n) => { p.push({ name: n, executedDate: new Date() }); return p; }, [])

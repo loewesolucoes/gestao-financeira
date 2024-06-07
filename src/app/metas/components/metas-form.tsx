@@ -1,26 +1,26 @@
 "use client";
 
-import { TableNames, Notas, TipoDeNota } from "@/app/utils/db-repository";
+import { TableNames, Metas, TipoDeMeta } from "@/app/utils/db-repository";
 import { Input } from "../../components/input";
 import { useState } from "react";
 import { useStorage } from "@/app/contexts/storage";
 import { EnumUtil } from "@/app/utils/enum";
 
 interface CustomProps {
-  nota?: Notas
+  meta?: Metas
   cleanStyle?: boolean
   onClose?: () => void
-  onCustomSubmit?: (nota: Notas) => void
-  onCustomDelete?: (nota: Notas) => void
+  onCustomSubmit?: (meta: Metas) => void
+  onCustomDelete?: (meta: Metas) => void
 }
 
-export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDelete, }: CustomProps) {
+export function MetasForm({ meta, cleanStyle, onClose, onCustomSubmit, onCustomDelete, }: CustomProps) {
   const { isDbOk, repository, refresh } = useStorage();
   //@ts-ignore
-  const [data, setData] = useState<Date>(nota?.data || new Date());
-  const [descricao, setDescricao] = useState(nota?.descricao);
-  const [comentario, setComentario] = useState(nota?.comentario);
-  const [tipo, setTipo] = useState<TipoDeNota>(nota?.tipo);
+  const [data, setData] = useState<Date>(meta?.data || new Date());
+  const [descricao, setDescricao] = useState(meta?.descricao);
+  const [comentario, setComentario] = useState(meta?.comentario);
+  const [tipo, setTipo] = useState<TipoDeMeta>(meta?.tipo || TipoDeMeta.PESSOAL);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -29,10 +29,10 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
     event.preventDefault();
     setIsLoading(true);
 
-    const updatedTransaction = { ...nota, data, descricao, comentario, tipo }
+    const updatedTransaction = { ...meta, data, descricao, comentario, tipo }
 
     if (onCustomSubmit == null) {
-      const result = await repository.save(TableNames.NOTAS, updatedTransaction);
+      const result = await repository.save(TableNames.METAS, updatedTransaction);
 
       console.info('onSubmitForm', result);
 
@@ -49,16 +49,16 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
   async function onDelete() {
     setIsLoading(true);
 
-    if (nota == null) throw new Error("nota invalida");
+    if (meta == null) throw new Error("meta invalida");
 
     if (onCustomDelete == null) {
-      const result = await repository.delete(TableNames.NOTAS, nota.id);
+      const result = await repository.delete(TableNames.METAS, meta.id);
 
       console.info('onDelete', result);
 
       refresh();
     } else {
-      onCustomDelete(nota);
+      onCustomDelete(meta);
     }
 
     setIsLoading(false);
@@ -68,7 +68,7 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
 
   const isAllLoading = !isDbOk || isLoading
 
-  return <form className={`nota-form w-100 ${!cleanStyle && 'card'}`} onSubmit={onSubmitForm}>
+  return <form className={`meta-form w-100 ${!cleanStyle && 'card'}`} onSubmit={onSubmitForm}>
     {!cleanStyle && (<h5 className="card-header">Adicionar novo(a)</h5>)}
 
     <div className="d-flex flex-column px-3 py-2 gap-3">
@@ -78,14 +78,14 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
           <Input type="text" className="form-control" id="descricao" onChange={x => setDescricao(x)} value={descricao} placeholder="Descrição" />
         </div>
         <div>
-          <label htmlFor="data" className="form-label">Data</label>
-          <Input type="date" className="form-control" id="data" onChange={x => setData(x)} value={data} />
+          <label htmlFor="data" className="form-label">Data de conclusão</label>
+          <Input type="month" className="form-control" id="data" onChange={x => setData(x)} value={data} />
         </div>
         <div>
-          <label htmlFor="tipoNota" className="form-label">Tipo de nota</label>
-          <select className={`form-select bg-${EnumUtil.keyFromValue(TipoDeNota, tipo)}`.toLowerCase()} id="tipoNota" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
-            {EnumUtil.values(TipoDeNota).map(x => (
-              <option key={x} value={TipoDeNota[x]}>{x}</option>
+          <label htmlFor="tipoReceita" className="form-label">Tipo de meta</label>
+          <select className="form-select" id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
+            {EnumUtil.values(TipoDeMeta).map(x => (
+              <option key={x} value={TipoDeMeta[x]}>{x}</option>
             ))}
           </select>
         </div>
@@ -96,15 +96,15 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
           <Input type="textarea" className="form-control" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentário" />
         </div>
       </div>
-      <FormButtons isAllLoading={isAllLoading} nota={nota} onClose={onClose} onDelete={onDelete} />
+      <FormButtons isAllLoading={isAllLoading} meta={meta} onClose={onClose} onDelete={onDelete} />
     </div>
   </form>;
 }
 
-function FormButtons({ isAllLoading, nota, onClose, onDelete }: any) {
+function FormButtons({ isAllLoading, meta, onClose, onDelete }: any) {
   let title = 'Adicionar';
 
-  if (nota != null)
+  if (meta != null)
     title = 'Salvar'
 
   const loadingState = <>
@@ -121,7 +121,7 @@ function FormButtons({ isAllLoading, nota, onClose, onDelete }: any) {
             : 'Fechar'}
         </button>
       )}
-      {nota && onDelete && (
+      {meta && onDelete && (
         <button type="button" onClick={onDelete} className="btn btn-danger align-self-end mt-2" disabled={isAllLoading}>
           {isAllLoading
             ? loadingState
