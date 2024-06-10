@@ -7,12 +7,13 @@ import { useEffect, useState } from "react";
 
 import { Layout } from "./shared/layout";
 import { useStorage } from "./contexts/storage";
-import { TotaisHome, TransacoesAcumuladasPorMesHome } from "./utils/db-repository";
+import { TipoDeMeta, TotaisHome, TransacoesAcumuladasPorMesHome } from "./utils/db-repository";
 import { Loader } from "./components/loader";
 import { NumberUtil } from "./utils/number";
 import { Input } from "./components/input";
 import { Bar, Line } from "react-chartjs-2";
 import { useEnv } from "./contexts/env";
+import moment from "moment";
 
 const MOBILE_TRANSACOES_POR_MES = 6;
 
@@ -45,12 +46,12 @@ function Home() {
     setIsLoading(false);
   }
 
-  const { despesas, receitas, valorEmCaixa, transacoesAcumuladaPorMes } = totais
+  const { despesas, receitas, valorEmCaixa, transacoesAcumuladaPorMes, metas } = totais
   const sobra = receitas?.minus(despesas?.abs())
 
   return (
     <main className="main container">
-      <section className="home m-5">
+      <section className="home m-5 row">
         {isLoading
           ? (<section className="cards"><Loader /></section>)
           : (
@@ -58,7 +59,7 @@ function Home() {
               ? (<div className="alert alert-info" role="alert">Nenhum dado encontrado</div>)
               : (
                 <>
-                  <section className="d-flex flex-column gap-3">
+                  <section className="col-5">
                     <section className="card border-primary">
                       <h4 className="card-header">Caixa Geral</h4>
                       <div className="card-body">
@@ -78,7 +79,7 @@ function Home() {
                         </div>
                       </div>
                     </section>
-                    <section className="card border-dark">
+                    <section className="card border-dark mt-3">
                       <h4 className="card-header">Caixa Mensal</h4>
                       <div className="card-body">
                         <div className="d-flex gap-3">
@@ -104,15 +105,16 @@ function Home() {
                         </div>
                       </div>
                     </section>
+                    <MetasCard metas={metas} />
                   </section>
-                  <section className="d-flex flex-column gap-3">
+                  <section className="col">
                     <section className="card border-info">
                       <h4 className="card-header">Caixa acumulado mês a mês</h4>
                       <div className="card-body">
                         <GraficoCaixaAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                       </div>
                     </section>
-                    <section className="card border-info">
+                    <section className="card border-info mt-3">
                       <h4 className="card-header">Balanço mês a mês</h4>
                       <div className="card-body">
                         <GraficoBalancoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
@@ -125,6 +127,29 @@ function Home() {
       </section>
     </main>
   );
+}
+
+function MetasCard({ metas }: any) {
+  return <section className="card border-primary mt-3">
+    <h4 className="card-header">Metas</h4>
+    <div className="card-body">
+      <ul className="list-group">
+        {metas.map((x, i) => (
+          <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao ?? 'list-group-item-info'} ${x.tipo === TipoDeMeta.PESSOAL ? 'list-group-item-success' : ''}  ${x.tipo === TipoDeMeta.FINANCEIRA ? 'list-group-item-warning' : ''}`}>
+            <div className="d-flex w-100 justify-content-between gap-3">
+              <div className="d-flex flex-column gap-3">
+                <h5>{x.descricao}</h5>
+                <p>{x.comentario}</p>
+              </div>
+              <div className="d-flex flex-column gap-3">
+                <small>{moment(x.data).format('MMMM YYYY')}</small>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>;
 }
 
 interface CustomProps {

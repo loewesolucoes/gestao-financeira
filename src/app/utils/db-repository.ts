@@ -85,6 +85,7 @@ export interface TotaisHome {
   receitas: BigNumber
   despesas: BigNumber
   transacoesAcumuladaPorMes: TransacoesAcumuladasPorMesHome[]
+  metas: Metas[]
 }
 
 export enum PeriodoTransacoes {
@@ -258,6 +259,9 @@ export class DbRepository {
     FROM transacoes t
     GROUP BY strftime('%Y-%m', t.data)
     LIMIT -1 OFFSET 1;
+
+    SELECT * FROM metas m
+    WHERE strftime('%Y', m.data) = $year;
     `;
 
     const result = this.db.exec(query, { "$month": moment(yearAndMonth).format('MM'), "$year": moment(yearAndMonth).format('YYYY') });
@@ -269,6 +273,7 @@ export class DbRepository {
       receitas: parsedResult[1][0]?.receitas as any,
       despesas: parsedResult[2][0]?.despesas as any,
       transacoesAcumuladaPorMes: parsedResult[3] as any,
+      metas: (parsedResult[4] as any).map(x => { x.tipo = x.tipo.toNumber(); return x; }),
     }
   }
 
