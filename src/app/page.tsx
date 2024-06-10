@@ -108,12 +108,13 @@ function Home() {
                     <section className="card border-primary">
                       <h4 className="card-header">Metas</h4>
                       <div className="card-body">
+                        {metas.length === 0 && (<div className="alert alert-info" role="alert">Nenhum meta cadastrada</div>)}
                         <ul className="list-group">
                           {metas.map((x, i) => (
                             <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao ?? 'list-group-item-info'} ${x.tipo === TipoDeMeta.PESSOAL ? 'list-group-item-success' : ''}  ${x.tipo === TipoDeMeta.FINANCEIRA ? 'list-group-item-warning' : ''}`}>
                               <div className="d-flex w-100 justify-content-between gap-3">
                                 <div className="d-flex flex-column gap-3">
-                                  <h5>{x.descricao}</h5>
+                                  <h6>{x.descricao}</h6>
                                 </div>
                                 <div className="d-flex flex-column gap-3">
                                   <small>{moment(x.data).format('MMMM YYYY')}</small>

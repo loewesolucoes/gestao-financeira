@@ -273,7 +273,7 @@ export class DbRepository {
       receitas: parsedResult[1][0]?.receitas as any,
       despesas: parsedResult[2][0]?.despesas as any,
       transacoesAcumuladaPorMes: parsedResult[3] as any,
-      metas: (parsedResult[4] as any).map(x => { x.tipo = x.tipo.toNumber(); return x; }),
+      metas: (parsedResult[4] as any)?.map(x => { x.tipo = x.tipo.toNumber(); return x; }),
     }
   }
 
