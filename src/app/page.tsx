@@ -51,7 +51,7 @@ function Home() {
 
   return (
     <main className="main container">
-      <section className="home m-5 row">
+      <section className="home my-3">
         {isLoading
           ? (<section className="cards"><Loader /></section>)
           : (
@@ -59,7 +59,7 @@ function Home() {
               ? (<div className="alert alert-info" role="alert">Nenhum dado encontrado</div>)
               : (
                 <>
-                  <section className="col-5">
+                  <section className="d-flex flex-column gap-3">
                     <section className="card border-primary">
                       <h4 className="card-header">Caixa Geral</h4>
                       <div className="card-body">
@@ -79,7 +79,7 @@ function Home() {
                         </div>
                       </div>
                     </section>
-                    <section className="card border-dark mt-3">
+                    <section className="card border-dark">
                       <h4 className="card-header">Caixa Mensal</h4>
                       <div className="card-body">
                         <div className="d-flex gap-3">
@@ -105,16 +105,34 @@ function Home() {
                         </div>
                       </div>
                     </section>
-                    <MetasCard metas={metas} />
+                    <section className="card border-primary">
+                      <h4 className="card-header">Metas</h4>
+                      <div className="card-body">
+                        <ul className="list-group">
+                          {metas.map((x, i) => (
+                            <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao ?? 'list-group-item-info'} ${x.tipo === TipoDeMeta.PESSOAL ? 'list-group-item-success' : ''}  ${x.tipo === TipoDeMeta.FINANCEIRA ? 'list-group-item-warning' : ''}`}>
+                              <div className="d-flex w-100 justify-content-between gap-3">
+                                <div className="d-flex flex-column gap-3">
+                                  <h5>{x.descricao}</h5>
+                                </div>
+                                <div className="d-flex flex-column gap-3">
+                                  <small>{moment(x.data).format('MMMM YYYY')}</small>
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </section>
                   </section>
-                  <section className="col">
+                  <section className="d-flex flex-column gap-3">
                     <section className="card border-info">
                       <h4 className="card-header">Caixa acumulado mês a mês</h4>
                       <div className="card-body">
                         <GraficoCaixaAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                       </div>
                     </section>
-                    <section className="card border-info mt-3">
+                    <section className="card border-info">
                       <h4 className="card-header">Balanço mês a mês</h4>
                       <div className="card-body">
                         <GraficoBalancoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
@@ -127,29 +145,6 @@ function Home() {
       </section>
     </main>
   );
-}
-
-function MetasCard({ metas }: any) {
-  return <section className="card border-primary mt-3">
-    <h4 className="card-header">Metas</h4>
-    <div className="card-body">
-      <ul className="list-group">
-        {metas.map((x, i) => (
-          <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao ?? 'list-group-item-info'} ${x.tipo === TipoDeMeta.PESSOAL ? 'list-group-item-success' : ''}  ${x.tipo === TipoDeMeta.FINANCEIRA ? 'list-group-item-warning' : ''}`}>
-            <div className="d-flex w-100 justify-content-between gap-3">
-              <div className="d-flex flex-column gap-3">
-                <h5>{x.descricao}</h5>
-                <p>{x.comentario}</p>
-              </div>
-              <div className="d-flex flex-column gap-3">
-                <small>{moment(x.data).format('MMMM YYYY')}</small>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </section>;
 }
 
 interface CustomProps {

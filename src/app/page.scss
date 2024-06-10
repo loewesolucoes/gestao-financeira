@@ -21,6 +21,17 @@
 }
 
 .home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  // border: 1px solid;
+  @include media-breakpoint-up(lg) {
+    justify-content: space-around;
+    flex-direction: row;
+    gap: 0;
+  }
 }
 
 .card {
