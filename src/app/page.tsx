@@ -71,7 +71,7 @@ function Home() {
                           </div>
                         </div>
                         <div className="d-flex gap-3 mt-3">
-                          <h5>Mês atual</h5>
+                          <h5>Escolha um mês</h5>
                           <div className="form-floating">
                             <Input type="month" className="form-control" id="data" placeholder="Mês a aplicar" value={yearAndMonth} onChange={x => setYearAndMonth(x)} />
                             <label htmlFor="data" className="form-label">Mês a aplicar</label>
@@ -80,37 +80,43 @@ function Home() {
                       </div>
                     </section>
                     <section className="card border-dark">
-                      <h4 className="card-header">Caixa Mensal</h4>
+                      <h4 className="card-header">Caixa do mês: {moment(yearAndMonth).format('MMMM YYYY')}</h4>
                       <div className="card-body">
-                        <div className="d-flex gap-3">
-                          <h5>Receitas:</h5>
-                          <div className="d-flex flex-column">
-                            <p className="m-0">{NumberUtil.toCurrency(receitas)}</p>
-                            <small>{NumberUtil.extenso(receitas)}</small>
-                          </div>
-                        </div>
-                        <div className="d-flex gap-3">
-                          <h5>Depesas:</h5>
-                          <div className="d-flex flex-column">
-                            <p className="m-0">{NumberUtil.toCurrency(despesas)}</p>
-                            <small>{NumberUtil.extenso(despesas)}</small>
-                          </div>
-                        </div>
-                        <div className="d-flex gap-3">
-                          <h5>Sobra:</h5>
-                          <div className="d-flex flex-column">
-                            <p className="m-0">{NumberUtil.toCurrency(sobra)}</p>
-                            <small>{NumberUtil.extenso(sobra)}</small>
-                          </div>
-                        </div>
+                        {sobra == null
+                          ? (<div className="alert alert-info" role="alert">Mês sem dados</div>)
+                          : (
+                            <>
+                              <div className="d-flex gap-3">
+                                <h5>Receitas:</h5>
+                                <div className="d-flex flex-column">
+                                  <p className="m-0">{NumberUtil.toCurrency(receitas)}</p>
+                                  <small>{NumberUtil.extenso(receitas)}</small>
+                                </div>
+                              </div>
+                              <div className="d-flex gap-3">
+                                <h5>Depesas:</h5>
+                                <div className="d-flex flex-column">
+                                  <p className="m-0">{NumberUtil.toCurrency(despesas)}</p>
+                                  <small>{NumberUtil.extenso(despesas)}</small>
+                                </div>
+                              </div>
+                              <div className="d-flex gap-3">
+                                <h5>Sobra:</h5>
+                                <div className="d-flex flex-column">
+                                  <p className="m-0">{NumberUtil.toCurrency(sobra)}</p>
+                                  <small>{NumberUtil.extenso(sobra)}</small>
+                                </div>
+                              </div>
+                            </>
+                          )}
                       </div>
                     </section>
                     <section className="card border-primary">
                       <h4 className="card-header">Metas</h4>
                       <div className="card-body">
-                        {metas.length === 0 && (<div className="alert alert-info" role="alert">Nenhum meta cadastrada</div>)}
+                        {(metas == null || metas.length === 0) && (<div className="alert alert-info" role="alert">Nenhuma meta cadastrada</div>)}
                         <ul className="list-group">
-                          {metas.map((x, i) => (
+                          {metas?.map((x, i) => (
                             <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao ?? 'list-group-item-info'} ${x.tipo === TipoDeMeta.PESSOAL ? 'list-group-item-success' : ''}  ${x.tipo === TipoDeMeta.FINANCEIRA ? 'list-group-item-warning' : ''}`}>
                               <div className="d-flex w-100 justify-content-between gap-3">
                                 <div className="d-flex flex-column gap-3">
