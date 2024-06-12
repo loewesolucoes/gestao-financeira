@@ -38,7 +38,7 @@ export function BottomNavbar() {
     isMobile
       ? (
         <header className="bottom-navbar navbar fixed-bottom p-0" >
-          <div id="buttonGroup" className="btn-group selectors rounded-0 w-100" role="group" aria-label="Basic example">
+          <div id="buttonGroup" className="btn-group selectors rounded-0 w-100 pb-3 bg-light" role="group" aria-label="Basic example">
             {pages.map(x => (
               <Link key={x.path} id="home" href={x.path} className={`btn btn-light rounded-0 ${pathname == x.path ? 'active' : ''}`}>
                 <div className="d-flex flex-column">
