@@ -4,6 +4,7 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    "id": "gestao-financeira",
     "name": process.env.NEXT_PUBLIC_TITLE,
     "short_name": process.env.NEXT_PUBLIC_TITLE,
     "start_url": `${process.env.BASE_PATH}/`,
@@ -21,6 +22,7 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     "theme_color": "#65a246",
     "background_color": "#65a246",
-    "display": "standalone"
+    "display": "standalone",
+    "lang": "pt-br",
   };
 }
