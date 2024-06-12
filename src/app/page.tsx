@@ -39,7 +39,9 @@ function Home() {
 
     console.info('load', result);
 
-    if (isMobile && Array.isArray(result.transacoesAcumuladaPorMes) && result.transacoesAcumuladaPorMes.length > MOBILE_TRANSACOES_POR_MES * 1.5)
+    const hasALotOFTransacoes = Array.isArray(result.transacoesAcumuladaPorMes) && result.transacoesAcumuladaPorMes.length > MOBILE_TRANSACOES_POR_MES * 1.5;
+
+    if (isMobile && hasALotOFTransacoes)
       result.transacoesAcumuladaPorMes.splice(0, result.transacoesAcumuladaPorMes.length - MOBILE_TRANSACOES_POR_MES);
 
     setTotais(result);
