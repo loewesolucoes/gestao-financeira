@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useEnv } from "../contexts/env";
 import { usePathname } from "next/navigation";
 
+// icons from https://icons.getbootstrap.com/
 import HouseFillIcon from "../../../public/house-fill.svg";
 import CardListIcon from "../../../public/card-list.svg";
 import GraphUpArrowIcon from "../../../public/graph-up-arrow.svg";
