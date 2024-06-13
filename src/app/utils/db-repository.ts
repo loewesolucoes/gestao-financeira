@@ -299,7 +299,7 @@ export class DbRepository {
   }
 
   private getQueryByPeriodo(periodo: PeriodoTransacoes) {
-    let query = "data > DATETIME('now', '-30 day')";
+    let query = "strftime('%Y-%m', data) = strftime('%Y-%m', DATETIME('now'))";
 
     switch (periodo) {
       case PeriodoTransacoes.TRES_ULTIMOS_MESES:
