@@ -73,7 +73,16 @@ export interface TransacoesAcumuladasPorMesHome {
   despesasMes: BigNumber;
   totalAcumulado: BigNumber;
   totalMes: BigNumber;
-  variacaoPercentual: BigNumber;
+  variacaoMes: BigNumber;
+  variacaoPercentualMes: BigNumber;
+  variacaoTrimestral: BigNumber;
+  variacaoPercentualTrimestral: BigNumber;
+  variacaoSemestral: BigNumber;
+  variacaoPercentualSemestral: BigNumber;
+  variacaoAnual: BigNumber;
+  variacaoPercentualAnual: BigNumber;
+  variacaoTresAnos: BigNumber;
+  variacaoPercentualTresAnos: BigNumber;
 }
 
 export interface TotaisTransacoes {
@@ -253,20 +262,29 @@ export class DbRepository {
     and strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year;
 
     WITH Totais AS (
-        SELECT strftime('%Y-%m', t.data) AS mes,
-            SUM(CASE WHEN t.valor >= 0 THEN t.valor ELSE 0 END) AS receitasMes,
-            SUM(CASE WHEN t.valor < 0 THEN t.valor ELSE 0 END) AS despesasMes,
-            SUM(t.valor) AS totalMes,
-            SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', data)) AS totalAcumulado
-        FROM transacoes t
-        GROUP BY mes
+      SELECT strftime('%Y-%m', t.data) AS mes,
+          SUM(CASE WHEN t.valor >= 0 THEN t.valor ELSE 0 END) AS receitasMes,
+          SUM(CASE WHEN t.valor < 0 THEN t.valor ELSE 0 END) AS despesasMes,
+          SUM(t.valor) AS totalMes,
+          SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', data)) AS totalAcumulado
+      FROM transacoes t
+      GROUP BY mes
     )
     SELECT mes,
-        receitasMes,
-        despesasMes,
-          totalAcumulado,
-          totalMes,
-          (totalAcumulado - LAG(totalAcumulado, 1, 0) OVER (ORDER BY mes)) / LAG(totalAcumulado, 1, 1) OVER (ORDER BY mes) * 100 AS variacaoPercentual
+      receitasMes,
+      despesasMes,
+        totalAcumulado,
+        totalMes,
+        totalAcumulado - LAG(totalAcumulado, 1, 0) OVER (ORDER BY mes) AS variacaoMes,
+        (totalAcumulado - LAG(totalAcumulado, 1, 0) OVER (ORDER BY mes)) / LAG(totalAcumulado, 1, 1) OVER (ORDER BY mes) * 100 AS variacaoPercentualMes,
+        totalAcumulado - LAG(totalAcumulado, 3, 0) OVER (ORDER BY mes) AS variacaoTrimestral,
+        (totalAcumulado - LAG(totalAcumulado, 3, 0) OVER (ORDER BY mes)) / LAG(totalAcumulado, 3, 1) OVER (ORDER BY mes) * 100 AS variacaoPercentualTrimestral,
+        totalAcumulado - LAG(totalAcumulado, 6, 0) OVER (ORDER BY mes) AS variacaoSemestral,
+        (totalAcumulado - LAG(totalAcumulado, 6, 0) OVER (ORDER BY mes)) / LAG(totalAcumulado, 6, 1) OVER (ORDER BY mes) * 100 AS variacaoPercentualSemestral,
+        totalAcumulado - LAG(totalAcumulado, 12, 0) OVER (ORDER BY mes) AS variacaoAnual,
+        (totalAcumulado - LAG(totalAcumulado, 12, 0) OVER (ORDER BY mes)) / LAG(totalAcumulado, 12, 1) OVER (ORDER BY mes) * 100 AS variacaoPercentualAnual,
+        totalAcumulado - LAG(totalAcumulado, 36, 0) OVER (ORDER BY mes) AS variacaoTresAnos,
+        (totalAcumulado - LAG(totalAcumulado, 36, 0) OVER (ORDER BY mes)) / LAG(totalAcumulado, 36, 1) OVER (ORDER BY mes) * 100 AS variacaoPercentualTresAnos
     FROM Totais
     ORDER BY mes
     LIMIT -1 OFFSET 1;

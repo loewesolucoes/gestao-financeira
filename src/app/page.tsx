@@ -51,6 +51,8 @@ function Home() {
   const { despesas, receitas, valorEmCaixa, transacoesAcumuladaPorMes, metas } = totais
   const sobra = receitas?.minus(despesas?.abs())
 
+  const ultimaTransacao: TransacoesAcumuladasPorMesHome = (transacoesAcumuladaPorMes ?? []).length == 0 ? {} : transacoesAcumuladaPorMes[transacoesAcumuladaPorMes.length - 1] as any
+
   return (
     <main className="main container">
       <section className="home my-3">
@@ -150,6 +152,51 @@ function Home() {
                       <GraficoCaixaVariacaoAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                     </div>
                   </section>
+                  <section className="card border-dark card-chart">
+                    <h4 className="card-header">Variações percentual até o mês</h4>
+                    <div className="card-body">
+                      {ultimaTransacao == null
+                        ? (<div className="alert alert-info" role="alert">Mês sem dados</div>)
+                        : (
+                          <>
+                            <div className="d-flex gap-3">
+                              <h5>Variação mês:</h5>
+                              <div className="d-flex flex-column">
+                                <p>
+                                  {NumberUtil.toPercent(ultimaTransacao.variacaoPercentualMes)} 
+                                  {/* Valor: 
+                                  <small>{NumberUtil.toCurrency(ultimaTransacao.variacaoMes)}</small> */}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="d-flex gap-3">
+                              <h5>Variação trimestral:</h5>
+                              <div className="d-flex flex-column">
+                                <p>{NumberUtil.toPercent(ultimaTransacao.variacaoPercentualTrimestral)}</p>
+                              </div>
+                            </div>
+                            <div className="d-flex gap-3">
+                              <h5>Variação semestral:</h5>
+                              <div className="d-flex flex-column">
+                                <p>{NumberUtil.toPercent(ultimaTransacao.variacaoPercentualSemestral)}</p>
+                              </div>
+                            </div>
+                            <div className="d-flex gap-3">
+                              <h5>Variação anual:</h5>
+                              <div className="d-flex flex-column">
+                                <p>{NumberUtil.toPercent(ultimaTransacao.variacaoPercentualAnual)}</p>
+                              </div>
+                            </div>
+                            <div className="d-flex gap-3">
+                              <h5>Variação 3 anos:</h5>
+                              <div className="d-flex flex-column">
+                                <p>{NumberUtil.toPercent(ultimaTransacao.variacaoPercentualTresAnos)}</p>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                    </div>
+                  </section>
                 </>
               )
           )}
@@ -233,8 +280,23 @@ function GraficoCaixaVariacaoAcumuladoMesAMes({ transacoesAcumuladasPorMes }: Cu
     labels: transacoesAcumuladasPorMes?.map(x => x.mes),
     datasets: [
       {
-        label: 'acumulado até o mes (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentual),
+        label: 'variação mensal (%)',
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualMes),
+      },
+      {
+        label: 'variação trimestral (%)',
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualTrimestral.toNumber() > 1000 ? 0 : x.variacaoPercentualTrimestral),
+        hidden: true,
+      },
+      {
+        label: 'variação semestral (%)',
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualSemestral.toNumber() > 1000 ? 0 : x.variacaoPercentualSemestral),
+        hidden: true,
+      },
+      {
+        label: 'variação anual (%)',
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualAnual.toNumber() > 1000 ? 0 : x.variacaoPercentualAnual),
+        hidden: true,
       },
     ],
   }} options={{
