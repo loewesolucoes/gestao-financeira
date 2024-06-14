@@ -56,7 +56,7 @@ function Home() {
     <main className="main container">
       <section className="home my-3">
         {isLoading
-          ? (<section className="cards"><Loader /></section>)
+          ? (<div className="home-loader py-5"><Loader /></div>)
           : (
             valorEmCaixa == null
               ? (<div className="alert alert-info" role="alert">Nenhum dado encontrado</div>)
@@ -157,7 +157,6 @@ function Home() {
                       <GraficoCaixaVariacaoPercentualAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                     </div>
                   </section>
-                  <UltimaVariacao transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                 </>
               )
           )}

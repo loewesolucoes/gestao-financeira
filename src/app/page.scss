@@ -45,6 +45,13 @@
     }
   }
 
+  .home-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-column: 1 / 8;
+  }
+
   .card-chart {
     .card-body {
       min-height: 200px;
