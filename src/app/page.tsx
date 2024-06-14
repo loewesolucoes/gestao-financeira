@@ -7,13 +7,14 @@ import { useEffect, useState } from "react";
 
 import { Layout } from "./shared/layout";
 import { useStorage } from "./contexts/storage";
-import { TipoDeMeta, TotaisHome, TransacoesAcumuladasPorMesHome } from "./utils/db-repository";
+import { TipoDeMeta, TotaisHome } from "./utils/db-repository";
 import { Loader } from "./components/loader";
 import { NumberUtil } from "./utils/number";
 import { Input } from "./components/input";
-import { Bar, Line } from "react-chartjs-2";
 import { useEnv } from "./contexts/env";
 import moment from "moment";
+import { UltimaVariacao } from "./components/home/ultima-variacao-home";
+import { GraficoCaixaAcumuladoMesAMes, GraficoBalancoMesAMes, GraficoCaixaVariacaoAcumuladoMesAMes, GraficoCaixaVariacaoPercentualAcumuladoMesAMes } from "./components/home/graficos-home";
 
 const MOBILE_TRANSACOES_POR_MES = 6;
 
@@ -50,8 +51,6 @@ function Home() {
 
   const { despesas, receitas, valorEmCaixa, transacoesAcumuladaPorMes, metas } = totais
   const sobra = receitas?.minus(despesas?.abs())
-
-  const ultimaTransacao: TransacoesAcumuladasPorMesHome = (transacoesAcumuladaPorMes ?? []).length == 0 ? {} : transacoesAcumuladaPorMes[transacoesAcumuladaPorMes.length - 1] as any
 
   return (
     <main className="main container">
@@ -147,56 +146,18 @@ function Home() {
                     </div>
                   </section>
                   <section className="card border-info card-chart">
-                    <h4 className="card-header">Variação do caixa acumulado mês a mês</h4>
+                    <h4 className="card-header">Variação (R$) do caixa acumulado mês a mês</h4>
                     <div className="card-body">
                       <GraficoCaixaVariacaoAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                     </div>
                   </section>
-                  <section className="card border-dark card-chart">
-                    <h4 className="card-header">Variações percentual até o mês</h4>
+                  <section className="card border-info card-chart">
+                    <h4 className="card-header">Variação percentual do caixa acumulado mês a mês</h4>
                     <div className="card-body">
-                      {ultimaTransacao == null
-                        ? (<div className="alert alert-info" role="alert">Mês sem dados</div>)
-                        : (
-                          <>
-                            <div className="d-flex gap-3">
-                              <h5>Variação mês:</h5>
-                              <div className="d-flex flex-column">
-                                <p>
-                                  {NumberUtil.toPercent(ultimaTransacao.variacaoPercentualMes)} 
-                                  {/* Valor: 
-                                  <small>{NumberUtil.toCurrency(ultimaTransacao.variacaoMes)}</small> */}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="d-flex gap-3">
-                              <h5>Variação trimestral:</h5>
-                              <div className="d-flex flex-column">
-                                <p>{NumberUtil.toPercent(ultimaTransacao.variacaoPercentualTrimestral)}</p>
-                              </div>
-                            </div>
-                            <div className="d-flex gap-3">
-                              <h5>Variação semestral:</h5>
-                              <div className="d-flex flex-column">
-                                <p>{NumberUtil.toPercent(ultimaTransacao.variacaoPercentualSemestral)}</p>
-                              </div>
-                            </div>
-                            <div className="d-flex gap-3">
-                              <h5>Variação anual:</h5>
-                              <div className="d-flex flex-column">
-                                <p>{NumberUtil.toPercent(ultimaTransacao.variacaoPercentualAnual)}</p>
-                              </div>
-                            </div>
-                            <div className="d-flex gap-3">
-                              <h5>Variação 3 anos:</h5>
-                              <div className="d-flex flex-column">
-                                <p>{NumberUtil.toPercent(ultimaTransacao.variacaoPercentualTresAnos)}</p>
-                              </div>
-                            </div>
-                          </>
-                        )}
+                      <GraficoCaixaVariacaoPercentualAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                     </div>
                   </section>
+                  <UltimaVariacao transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                 </>
               )
           )}
@@ -204,122 +165,6 @@ function Home() {
     </main>
   );
 }
-
-interface CustomProps {
-  transacoesAcumuladasPorMes: TransacoesAcumuladasPorMesHome[]
-}
-
-function GraficoCaixaAcumuladoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
-  return <Line data={{
-    labels: transacoesAcumuladasPorMes?.map(x => x.mes),
-    datasets: [
-      {
-        label: 'acumulado até o mes (R$)',
-        data: transacoesAcumuladasPorMes?.map(x => x.totalAcumulado),
-      },
-    ],
-  }} options={{
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-    },
-    scales: {
-      y: {
-        ticks: {
-          // Include a dollar sign in the ticks
-          callback: function (value, index, values) {
-            return NumberUtil.toCurrency(value);
-          }
-        }
-      }
-    }
-  }} />;
-}
-
-function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
-  return <Bar data={{
-    labels: transacoesAcumuladasPorMes?.map(x => x.mes),
-    datasets: [
-      {
-        label: 'receitas (R$)',
-        data: transacoesAcumuladasPorMes?.map(x => x.receitasMes),
-      },
-      {
-        label: 'despesas (-R$)',
-        data: transacoesAcumuladasPorMes?.map(x => x.despesasMes.abs()),
-      },
-    ],
-  }} options={{
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-    },
-    scales: {
-      y: {
-        ticks: {
-          // Include a dollar sign in the ticks
-          callback: function (value, index, values) {
-            return NumberUtil.toCurrency(value);
-          }
-        }
-      },
-    }
-  }} />;
-}
-
-interface CustomProps {
-  transacoesAcumuladasPorMes: TransacoesAcumuladasPorMesHome[]
-}
-
-function GraficoCaixaVariacaoAcumuladoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
-  return <Line data={{
-    labels: transacoesAcumuladasPorMes?.map(x => x.mes),
-    datasets: [
-      {
-        label: 'variação mensal (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualMes),
-      },
-      {
-        label: 'variação trimestral (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualTrimestral.toNumber() > 1000 ? 0 : x.variacaoPercentualTrimestral),
-        hidden: true,
-      },
-      {
-        label: 'variação semestral (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualSemestral.toNumber() > 1000 ? 0 : x.variacaoPercentualSemestral),
-        hidden: true,
-      },
-      {
-        label: 'variação anual (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualAnual.toNumber() > 1000 ? 0 : x.variacaoPercentualAnual),
-        hidden: true,
-      },
-    ],
-  }} options={{
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-    },
-    scales: {
-      y: {
-        ticks: {
-          // Include a dollar sign in the ticks
-          callback: function (value, index, values) {
-            return '% ' + value;
-          }
-        }
-      }
-    }
-  }} />;
-}
-
-
 
 export default function Page() {
   return (
