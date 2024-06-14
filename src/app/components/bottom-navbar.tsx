@@ -15,7 +15,7 @@ const pages = [
   {
     name: 'Início',
     path: '/',
-    icon: <HouseFillIcon style={{ width: 27 }} />,
+    icon: <HouseFillIcon style={{ width: 22 }} />,
   },
   // {
   //   name: 'Caixa',
@@ -25,12 +25,12 @@ const pages = [
   {
     name: 'Notas',
     path: '/notas',
-    icon: <CardListIcon style={{ width: 27 }} />,
+    icon: <CardListIcon style={{ width: 22 }} />,
   },
   {
     name: 'Metas',
     path: '/metas',
-    icon: <GraphUpArrowIcon style={{ width: 27 }} />,
+    icon: <GraphUpArrowIcon style={{ width: 22 }} />,
   },
 ]
 
@@ -56,7 +56,7 @@ export function BottomNavbar() {
               ))}
               <button type="button" className={`btn btn-light rounded-0`} aria-expanded="false" aria-label="Toggle navigation" onClick={e => setShow(!show)}>
                 <div className="d-flex flex-column align-items-center justify-content-center">
-                  <ThreeDotsIcon style={{ width: 27 }} />
+                  <ThreeDotsIcon style={{ width: 22 }} />
                   <span>Mais</span>
                 </div>
               </button>
