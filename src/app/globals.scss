@@ -48,8 +48,13 @@ header {
 
 .logo-link {
   > svg {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
+
+    @include media-breakpoint-up(lg) {
+      width: 30px;
+      height: 30px;
+    }
   }
 }
 
