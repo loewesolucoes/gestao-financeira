@@ -73,6 +73,7 @@ export interface TransacoesAcumuladasPorMesHome {
   despesasMes: BigNumber;
   totalAcumulado: BigNumber;
   totalMes: BigNumber;
+  variacaoPercentual: BigNumber;
 }
 
 export interface TotaisTransacoes {
@@ -251,13 +252,23 @@ export class DbRepository {
     WHERE t.valor < 0
     and strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year;
 
-    SELECT strftime('%Y-%m', t.data) AS mes,
-    SUM(CASE WHEN t.valor >= 0 THEN t.valor ELSE 0 END) AS receitasMes,
-    SUM(CASE WHEN t.valor < 0 THEN t.valor ELSE 0 END) AS despesasMes,
-    SUM(t.valor) AS totalMes,
-    SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', t.data)) AS totalAcumulado
-    FROM transacoes t
-    GROUP BY strftime('%Y-%m', t.data)
+    WITH Totais AS (
+        SELECT strftime('%Y-%m', t.data) AS mes,
+            SUM(CASE WHEN t.valor >= 0 THEN t.valor ELSE 0 END) AS receitasMes,
+            SUM(CASE WHEN t.valor < 0 THEN t.valor ELSE 0 END) AS despesasMes,
+            SUM(t.valor) AS totalMes,
+            SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', data)) AS totalAcumulado
+        FROM transacoes t
+        GROUP BY mes
+    )
+    SELECT mes,
+        receitasMes,
+        despesasMes,
+          totalAcumulado,
+          totalMes,
+          (totalAcumulado - LAG(totalAcumulado, 1, 0) OVER (ORDER BY mes)) / LAG(totalAcumulado, 1, 1) OVER (ORDER BY mes) * 100 AS variacaoPercentual
+    FROM Totais
+    ORDER BY mes
     LIMIT -1 OFFSET 1;
 
     SELECT * FROM metas m

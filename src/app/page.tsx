@@ -144,6 +144,12 @@ function Home() {
                       <GraficoBalancoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                     </div>
                   </section>
+                  <section className="card border-info card-chart">
+                    <h4 className="card-header">Variação do caixa acumulado mês a mês</h4>
+                    <div className="card-body">
+                      <GraficoCaixaVariacaoAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
+                    </div>
+                  </section>
                 </>
               )
           )}
@@ -171,6 +177,16 @@ function GraficoCaixaAcumuladoMesAMes({ transacoesAcumuladasPorMes }: CustomProp
       legend: {
         position: 'bottom',
       },
+    },
+    scales: {
+      y: {
+        ticks: {
+          // Include a dollar sign in the ticks
+          callback: function (value, index, values) {
+            return NumberUtil.toCurrency(value);
+          }
+        }
+      }
     }
   }} />;
 }
@@ -194,6 +210,49 @@ function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
       legend: {
         position: 'bottom',
       },
+    },
+    scales: {
+      y: {
+        ticks: {
+          // Include a dollar sign in the ticks
+          callback: function (value, index, values) {
+            return NumberUtil.toCurrency(value);
+          }
+        }
+      },
+    }
+  }} />;
+}
+
+interface CustomProps {
+  transacoesAcumuladasPorMes: TransacoesAcumuladasPorMesHome[]
+}
+
+function GraficoCaixaVariacaoAcumuladoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
+  return <Line data={{
+    labels: transacoesAcumuladasPorMes?.map(x => x.mes),
+    datasets: [
+      {
+        label: 'acumulado até o mes (%)',
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentual),
+      },
+    ],
+  }} options={{
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+    },
+    scales: {
+      y: {
+        ticks: {
+          // Include a dollar sign in the ticks
+          callback: function (value, index, values) {
+            return '% ' + value;
+          }
+        }
+      }
     }
   }} />;
 }
