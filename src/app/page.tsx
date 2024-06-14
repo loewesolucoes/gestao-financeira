@@ -152,7 +152,7 @@ function Home() {
                     </div>
                   </section>
                   <section className="card border-info card-chart">
-                    <h4 className="card-header">Variação percentual do caixa acumulado mês a mês</h4>
+                    <h4 className="card-header">Variação percentual (%) do caixa acumulado mês a mês</h4>
                     <div className="card-body">
                       <GraficoCaixaVariacaoPercentualAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                     </div>
