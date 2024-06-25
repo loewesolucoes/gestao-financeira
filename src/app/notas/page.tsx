@@ -51,7 +51,7 @@ function NotasPage() {
             <>
               <ul className="list-group">
                 {notas.map((x, i) => (
-                  <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao ?? 'list-group-item-warning'} list-group-item-${EnumUtil.keyFromValue(TipoDeNota, x.tipo)}`.toLowerCase()}>
+                  <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao == null ? 'list-group-item-warning' : ''} list-group-item-${EnumUtil.keyFromValue(TipoDeNota, x.tipo)}`.toLowerCase()}>
                     <div className="d-flex w-100 justify-content-between gap-3">
                       <div className="d-flex flex-column gap-3">
                         <h5>{x.descricao}</h5>
