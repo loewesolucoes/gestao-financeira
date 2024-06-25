@@ -61,7 +61,7 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
     await refresh();
   }
 
-  const keysTransacoes = Object.keys(transacoes).reverse();
+  const keysTransacoes = Object.keys(transacoes);
   const isPatrimonio = tableName === TableNames.PATRIMONIO;
 
   const path = isPatrimonio ? 'patrimonio' : 'caixa';
