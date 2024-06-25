@@ -25,7 +25,7 @@ function Patrimonio() {
           <TransacaoForm tableName={TableNames.PATRIMONIO} />
         </section>
 
-        <TransacoesPorMes tableName={TableNames.PATRIMONIO} periodo={periodo} />
+        <TransacoesPorMes tableName={TableNames.PATRIMONIO} periodo={periodo} groupByDay={true}/>
       </article>
     </main>
   );
