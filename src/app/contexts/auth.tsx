@@ -15,13 +15,9 @@ const AuthContext = createContext({
 
 // TODO(developer): Set to client ID and API key from the Developer Console
 const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID || '';
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
 
-if (!CLIENT_ID || !API_KEY)
+if (!CLIENT_ID)
   throw new Error("You must set env variables")
-
-// Discovery doc URL for APIs used by the quickstart
-const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
 
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
@@ -83,10 +79,7 @@ export function AuthProvider(props: any) {
   async function initializeGapiClient() {
     console.info("initializeGapiClient");
 
-    await gapi.client.init({
-      apiKey: API_KEY,
-      discoveryDocs: [DISCOVERY_DOC],
-    });
+    await gapi.client.load('drive', 'v3');
     setIsLoadingGapi(false);
   }
 
