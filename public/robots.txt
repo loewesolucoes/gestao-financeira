@@ -1,0 +1,3 @@
+User-agent: *
+
+Sitemap: https://loewesolucoes.github.io/gestao-financeira/sitemap.xml
