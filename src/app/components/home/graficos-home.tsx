@@ -46,7 +46,7 @@ export function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProp
       },
       {
         label: 'despesas (-R$)',
-        data: transacoesAcumuladasPorMes?.map(x => x.despesasMes.abs()),
+        data: transacoesAcumuladasPorMes?.map(x => x.despesasMes?.abs()),
       },
     ],
   }} options={{
