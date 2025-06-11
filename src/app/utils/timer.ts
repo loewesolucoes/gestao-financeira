@@ -104,7 +104,7 @@ export class TimerUtil {
         root.cancelAnimationFrame(timerId);
         return root.requestAnimationFrame(pendingFunc);
       }
-      // eslint-disable-next-line @typescript-eslint/no-implied-eval
+      // eslint-disable-next-line
       return setTimeout(pendingFunc, milliseconds);
     }
 
