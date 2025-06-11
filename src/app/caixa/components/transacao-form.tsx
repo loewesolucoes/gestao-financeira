@@ -136,7 +136,7 @@ function ComentarioInput({ setComentario, comentario }: { setComentario: (value:
   return (
     <div className="flex-grow-1 d-flex flex-column">
       <label htmlFor="comentario" className="form-label">Comentario (OBS)</label>
-      <Input type="textarea" className="form-control h-100" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentario (OBS)" />
+      <Input type="mdtextarea" className="form-control h-100" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentario (OBS)" />
     </div>
   );
 }

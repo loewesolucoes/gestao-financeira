@@ -20,6 +20,9 @@
 @import "../../node_modules/bootstrap/scss/modal";
 @import "../../node_modules/bootstrap/scss/close";
 
+
+@import "../../node_modules/easymde/dist/easymde.min.css";
+
 body,
 #root {
   min-height: 100vh;

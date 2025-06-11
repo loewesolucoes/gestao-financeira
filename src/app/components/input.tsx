@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 import moment from 'moment';
 import Stackedit from 'stackedit-js';
 import { useEffect, useRef } from 'react';
+import EasyMDE from 'easymde';
 
 interface CustomProps extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   isNumber?: boolean,
@@ -19,6 +20,7 @@ export function Input(props: CustomProps) {
   const isInputDate = props.type === 'date';
   const isInputMonth = props.type === 'month';
   const isTextArea = props.type === 'textarea';
+  const isMDTextArea = props.type === 'mdtextarea';
 
   function onChangeInput(event: any) {
     const { value } = event.target;
@@ -38,7 +40,12 @@ export function Input(props: CustomProps) {
   }
 
   const inputValue = parseInputValue(value, isInputNumber, isInputDate, isInputMonth, isPercent);
-  const input = isTextArea ? <TextArea onChangeInput={onChangeInput} inputValue={inputValue} otherProps={otherProps} /> : <input className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps} />;
+
+  let input = isTextArea ? <textarea className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps as any} /> : <input className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps} />;
+
+  if (isMDTextArea) {
+    input = <TextArea onChangeInput={onChangeInput} inputValue={inputValue} otherProps={otherProps} />;
+  }
 
   return groupSymbolLeft || groupSymbolRight ? (
     <div className="input-group">
@@ -51,31 +58,50 @@ export function Input(props: CustomProps) {
 
 function TextArea({ onChangeInput, inputValue, otherProps }) {
   const ref = useRef<HTMLTextAreaElement>(null);
+  const easyMDERef = useRef<EasyMDE | null>(null);
 
   // const stackedit = new Stackedit();
-  // useEffect(() => {
-  // }, []);
-  function openEditor() {
-    const stackedit = new Stackedit();
-
-    stackedit.openFile({
-      name: 'New Document',
-      content: {
-        text: ref.current?.value || '',
-      },
+  useEffect(() => {
+    easyMDERef.current = new EasyMDE({
+      element: ref.current,
+      spellChecker: false,
+      autoDownloadFontAwesome: false,
+      maxHeight: ref.current?.offsetHeight || 200 as any,
+      toolbar: [
+        { name: "bold", action: EasyMDE.toggleBold, text: "N", title: "Negrito" },
+        { name: "italic", action: EasyMDE.toggleItalic, text: "I", title: "Itálico" },
+        { name: "heading", action: EasyMDE.toggleHeadingSmaller, text: "H", title: "Título" },
+        "|",
+        { name: "quote", action: EasyMDE.toggleBlockquote, text: "❝", title: "Citação" },
+        { name: "unordered-list", action: EasyMDE.toggleUnorderedList, text: "UL", title: "Lista não ordenada" },
+        { name: "ordered-list", action: EasyMDE.toggleOrderedList, text: "OL", title: "Lista ordenada" },
+        "|",
+        { name: "link", action: EasyMDE.drawLink, text: "🔗", title: "Inserir link" },
+        { name: "image", action: EasyMDE.drawImage, text: "🌆", title: "Inserir imagem" },
+        { name: "table", action: EasyMDE.drawTable, text: "⏹️", title: "Inserir tabela" },
+        "|",
+        { name: "horizontal-rule", action: EasyMDE.drawHorizontalRule, text: "↔️", title: "Inserir linha horizontal" },
+        { name: "side-by-side", action: EasyMDE.toggleSideBySide, text: "🔀", title: "Lado a lado" },
+        { name: "fullscreen", action: EasyMDE.toggleFullScreen, text: "⛶", title: "Tela cheia" },
+        "|",
+      ] as any,
     });
 
-    stackedit.on('fileChange', (file) => {
-      ref.current!.value = file.content.text;
+    easyMDERef.current.value(inputValue);
+
+    easyMDERef.current.codemirror.on("change", () => {
+      onChangeInput({
+        target: { value: easyMDERef.current?.value() || '' }
+      });
     });
-  }
 
-  return <span style={{ position: 'relative' }}>
-    <textarea ref={ref} className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps as any} />
-    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={openEditor} style={{ position: 'absolute', bottom: 5, right: 20 }} title="Pressione para abrir o editor completo">📝</button>
-  </span>
+    return () => {
+      easyMDERef.current?.toTextArea();
+      easyMDERef.current = null;
+    }
+  }, []);
 
-  // return <div ref={ref} id="editor" {...otherProps}></div>
+  return <textarea ref={ref} className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps as any} />
 }
 
 function parseInputValue(value: any, isInputNumber?: boolean, isInputDate?: boolean, isInputMonth?: boolean, isPercent?: boolean) {
