@@ -1,9 +1,7 @@
 "use client";
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
-import Stackedit from 'stackedit-js';
 import { useEffect, useRef } from 'react';
-import EasyMDE from 'easymde';
 
 interface CustomProps extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   isNumber?: boolean,
@@ -58,10 +56,11 @@ export function Input(props: CustomProps) {
 
 function TextArea({ onChangeInput, inputValue, otherProps }) {
   const ref = useRef<HTMLTextAreaElement>(null);
-  const easyMDERef = useRef<EasyMDE | null>(null);
+  const easyMDERef = useRef<any>(null);
 
-  // const stackedit = new Stackedit();
   useEffect(() => {
+    const EasyMDE = require('easymde'); // Import EasyMDE dynamically to avoid SSR issues
+    // import EasyMDE from 'easymde';
     easyMDERef.current = new EasyMDE({
       element: ref.current,
       spellChecker: false,
