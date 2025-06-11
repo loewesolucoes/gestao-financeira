@@ -23,4 +23,13 @@ export class PatrimonioRepository extends DefaultRepository {
 
     return this.parseSqlResultToObj(result, this.PATRIMONIO_MAPPING)[0] || [];
   }
+
+  public async listByMonth(month: string, year: string): Promise<Patrimonio[]> {
+    const result = await this.db.exec(`select strftime('%Y-%m', data) AS monthYear, * FROM ${TableNames.PATRIMONIO} where strftime('%m', data) = $month and strftime('%Y', data) = $year order by monthYear desc, ordem asc`, { "$month": month, "$year": year });
+
+    if (!Array.isArray(result))
+      throw new Error(`${TableNames.PATRIMONIO} não encontrado (a)`);
+
+    return this.parseSqlResultToObj(result, this.PATRIMONIO_MAPPING)[0] || [];
+  }
 }

@@ -43,7 +43,14 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
   async function load() {
     setIsLoading(true);
 
-    const result = await repository.listByMonth(tableName, momentMonth.format('MM'), momentMonth.format('YYYY'));
+    let result;
+    
+    if (tableName === TableNames.PATRIMONIO) {
+      result = await repository.patrimonio.listByMonth(momentMonth.format('MM'), momentMonth.format('YYYY'));
+    } else {
+      result = await repository.transacoes.listByMonth(momentMonth.format('MM'), momentMonth.format('YYYY'));
+    }
+
 
     if (isCopy) {
       result.forEach(x => {
