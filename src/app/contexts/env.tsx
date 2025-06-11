@@ -29,7 +29,7 @@ export function EnvProvider(props: any) {
 
 
   function handleWindowSizeChange() {
-    setIsMobile(window.innerWidth < 1200);
+    setIsMobile(window.innerWidth < 992);
   }
 
   useEffect(() => {

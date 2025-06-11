@@ -4,10 +4,25 @@
 import React, { createContext, useState, useEffect } from "react"
 import { useAuth } from "./auth";
 import { GDriveUtil } from "../utils/gdrive";
-import { DbRepository } from "../utils/db-repository";
+import { RepositoryUtil } from "../utils/repository";
+import { DefaultRepository } from "../repositories/default";
+import { ParametrosRepository } from "../repositories/parametros";
+import { NotificationUtil } from "../utils/notification";
+import { MetasRepository } from "../repositories/metas";
+import { NotasRepository } from "../repositories/notas";
+import { TransacoesRepository } from "../repositories/transacoes";
+import { PatrimonioRepository } from "../repositories/patrimonio";
+
+interface Repo extends DefaultRepository {
+  params: ParametrosRepository
+  metas: MetasRepository
+  notas: NotasRepository
+  transacoes: TransacoesRepository
+  patrimonio: PatrimonioRepository
+}
 
 interface StorageProviderContext {
-  repository: DbRepository
+  repository: Repo
   isDbOk: boolean
   isGDriveSaveLoading: boolean
   isGDriveLoadLoading: boolean
@@ -30,13 +45,8 @@ const StorageContext = createContext<StorageProviderContext>({
   refresh: () => Promise.resolve(),
 });
 
-export enum AvailableCollections {
-  default = "default",
-  simulador = "simulador",
-}
-
 export function StorageProvider(props: any) {
-  const [repository, setRepository] = useState<DbRepository>({} as any);
+  const [repository, setRepository] = useState<Repo>({} as any);
   const [isDbOk, setIsDbOk] = useState<boolean>(false);
   const [isGDriveSaveLoading, setIsGDriveSaveLoading] = useState<boolean>(false);
   const [isGDriveLoadLoading, setIsGDriveLoadLoading] = useState<boolean>(false);
@@ -47,26 +57,35 @@ export function StorageProvider(props: any) {
   }, []);
 
   async function startStorage(data?: ArrayLike<number> | Buffer | null) {
-    console.log('startStorage');
+    console.debug('startStorage');
     setIsDbOk(false);
 
-    const repository = await DbRepository.create(data);
+    const repository = await RepositoryUtil.create(data) as Repo;
+
+    // @ts-ignore
+    const sqldb = repository.db;
+
+    repository.params = new ParametrosRepository(sqldb);
+    repository.metas = new MetasRepository(sqldb);
+    repository.notas = new NotasRepository(sqldb);
+    repository.transacoes = new TransacoesRepository(sqldb);
+    repository.patrimonio = new PatrimonioRepository(sqldb);
 
     setRepository(repository);
     setIsDbOk(true);
-    console.log('startStorage isDbOk');
+    console.debug('startStorage isDbOk');
 
     return repository;
   }
 
   async function refresh() {
     return new Promise<void>(resolve => {
-      console.log('refresh');
+      console.debug('refresh');
       setIsDbOk(false);
 
       setTimeout(() => {
         setIsDbOk(true);
-        console.log('refresh isDbOk');
+        console.debug('refresh isDbOk');
         resolve();
       }, 100);
     })
@@ -106,59 +125,72 @@ export function StorageProvider(props: any) {
   }
 
   async function doGDriveSave() {
-    if (!confirm('Você tem certeza que deseja salvar no drive?'))
+    if (!window.confirm('Você tem certeza que deseja salvar no drive?'))
       return;
 
     setIsGDriveSaveLoading(true);
-    console.log('doGDriveSave start');
+    console.debug('doGDriveSave start');
 
     if (!isAuthOk)
       throw new Error('you must login on gdrive')
 
-    await updateGDrive();
+    try {
+      await updateGDrive();
 
-    alert('Dados salvos no Google Drive');
+      NotificationUtil.send('Dados salvos no Google Drive');
+    } catch (ex) {
+      console.error('doGDriveSave error:', ex);
 
-    console.log('doGDriveSave end');
+      NotificationUtil.send('Erro ao salvar dados no Google Drive.');
+    }
+
+    console.debug('doGDriveSave end');
     setIsGDriveSaveLoading(false);
   }
 
   async function doGDriveLoad() {
-    if (!confirm('Você tem certeza que deseja carregar do drive?'))
+    if (!window.confirm('Você tem certeza que deseja carregar do drive?'))
       return;
 
     setIsGDriveLoadLoading(true);
-    console.log('doGDriveLoad start');
+    console.debug('doGDriveLoad start');
     if (!isAuthOk)
       throw new Error('you must login on gdrive')
 
-    await loadGDrive();
-    console.log('doGDriveLoad end');
+    const file = await loadGDrive();
+    console.debug('doGDriveLoad end');
     await refresh();
-    alert('Dados carregados do Google Drive');
+
+    if (file)
+      NotificationUtil.send('Dados carregados do Google Drive.');
+    else
+      NotificationUtil.send('Nenhum arquivo encontrado no Google Drive.');
+
     setIsGDriveLoadLoading(false);
   }
 
   async function loadGDrive() {
-    console.log('loadGDrive');
+    console.debug('loadGDrive');
 
     const file = await GDriveUtil.getFirstFileByName(GDriveUtil.DB_FILE_NAME);
 
-    console.log("file", file);
+    console.debug("file", file);
 
     if (file) {
       const fileData = await GDriveUtil.getFileById(file.id);
       const dump = fileData?.body;
 
-      await DbRepository.persistLocalDump(dump);
+      await RepositoryUtil.persistLocalDump(dump);
       await startStorage()
     }
+
+    return file;
   }
 
   async function updateGDrive() {
-    const dump = await DbRepository.exportLocalDump();
+    const dump = await RepositoryUtil.exportLocalDump();
 
-    console.info('updateGDrive');
+    console.debug('updateGDrive');
 
     const file = await GDriveUtil.getFirstFileByName(GDriveUtil.DB_FILE_NAME);
 
@@ -167,6 +199,8 @@ export function StorageProvider(props: any) {
     } else {
       await GDriveUtil.createFile(GDriveUtil.DB_FILE_NAME, dump);
     }
+
+    return file;
   }
 
   return (

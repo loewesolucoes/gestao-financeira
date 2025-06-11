@@ -14,6 +14,22 @@ const PERCENT = new Intl.NumberFormat('pt-br', {
 });
 
 export class NumberUtil {
+  public static bigNumberToNumber(obj: any): any {
+    const nextObj = { ...obj };
+
+    Object.keys(nextObj).forEach(key => {
+      const val = nextObj[key]
+
+      if (val instanceof BigNumber)
+        nextObj[key] = val?.toNumber();
+      else if (typeof (val) === 'object') {
+        nextObj[key] = NumberUtil.bigNumberToNumber(val);
+      }
+    })
+
+    return nextObj;
+  }
+
   public static extenso(number?: number | string | BigNumber | null, options?: Options): string {
     if (number instanceof BigNumber)
       number = number?.integerValue()?.toNumber();

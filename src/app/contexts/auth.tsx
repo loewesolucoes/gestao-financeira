@@ -60,7 +60,7 @@ export function AuthProvider(props: any) {
   }
 
   function createGDrive() {
-    console.info("createGDrive");
+    console.debug("createGDrive");
 
     try {
       gisLoaded();
@@ -77,7 +77,7 @@ export function AuthProvider(props: any) {
    * discovery doc to initialize the API.
   */
   async function initializeGapiClient() {
-    console.info("initializeGapiClient");
+    console.debug("initializeGapiClient");
 
     await gapi.client.load('drive', 'v3');
     setIsLoadingGapi(false);
@@ -87,7 +87,7 @@ export function AuthProvider(props: any) {
    * Callback after Google Identity Services are loaded.
   */
   function gisLoaded() {
-    console.info("gisLoaded");
+    console.debug("gisLoaded");
 
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
@@ -101,10 +101,10 @@ export function AuthProvider(props: any) {
    *  Sign in the user upon button click.
   */
   function doAuth() {
-    console.info("doAuth");
+    console.debug("doAuth");
 
     tokenClient.callback = async (resp: any) => {
-      console.info('doAuth resp', resp)
+      console.debug('doAuth resp', resp)
       if (resp.error !== undefined) {
         throw (resp);
       }
@@ -129,14 +129,14 @@ export function AuthProvider(props: any) {
    *  Sign out the user upon button click.
   */
   function doLogout() {
-    console.info("doLogout");
+    console.debug("doLogout");
 
     const token = gapi.client.getToken();
 
     setIsAuthOk(false);
 
     if (token !== null) {
-      google.accounts.oauth2.revoke(token.access_token, () => console.info('end logout'));
+      google.accounts.oauth2.revoke(token.access_token, () => console.debug('end logout'));
       gapi.client.setToken(null);
       Cookies.remove(COOKIE_NAME);
     }

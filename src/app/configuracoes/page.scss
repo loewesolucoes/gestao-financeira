@@ -2,10 +2,8 @@
 
 .configs {
   display: flex;
-  justify-content: center;
-  align-items: stretch;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
   min-height: 50vh;
 
   &.is-loading {
@@ -13,11 +11,21 @@
   }
 
   @include media-breakpoint-up(md) {
-    flex-direction: row;
-    justify-content: space-between;
-    
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    order: initial;
+
     &.is-loading {
       justify-content: center;
+    }
+
+    .card {
+      grid-column: auto / span 2;
+
+      &.card-chart {
+        grid-column: auto / span 3;
+      }
     }
   }
 }

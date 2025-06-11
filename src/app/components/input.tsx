@@ -1,6 +1,8 @@
 "use client";
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
+import Stackedit from 'stackedit-js';
+import { useEffect, useRef } from 'react';
 
 interface CustomProps extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   isNumber?: boolean,
@@ -36,15 +38,44 @@ export function Input(props: CustomProps) {
   }
 
   const inputValue = parseInputValue(value, isInputNumber, isInputDate, isInputMonth, isPercent);
-  const input = isTextArea ? <textarea className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps as any} /> : <input className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps} />;
+  const input = isTextArea ? <TextArea onChangeInput={onChangeInput} inputValue={inputValue} otherProps={otherProps} /> : <input className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps} />;
 
   return groupSymbolLeft || groupSymbolRight ? (
-    <div className="input-group mb-3">
+    <div className="input-group">
       {groupSymbolLeft && <span className="input-group-text">{groupSymbolLeft}</span>}
       {input}
       {groupSymbolRight && <span className="input-group-text">{groupSymbolRight}</span>}
     </div>
   ) : input;
+}
+
+function TextArea({ onChangeInput, inputValue, otherProps }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  // const stackedit = new Stackedit();
+  // useEffect(() => {
+  // }, []);
+  function openEditor() {
+    const stackedit = new Stackedit();
+
+    stackedit.openFile({
+      name: 'New Document',
+      content: {
+        text: ref.current?.value || '',
+      },
+    });
+
+    stackedit.on('fileChange', (file) => {
+      ref.current!.value = file.content.text;
+    });
+  }
+
+  return <span style={{ position: 'relative' }}>
+    <textarea ref={ref} className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps as any} />
+    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={openEditor} style={{ position: 'absolute', bottom: 5, right: 20 }} title="Pressione para abrir o editor completo">📝</button>
+  </span>
+
+  // return <div ref={ref} id="editor" {...otherProps}></div>
 }
 
 function parseInputValue(value: any, isInputNumber?: boolean, isInputDate?: boolean, isInputMonth?: boolean, isPercent?: boolean) {

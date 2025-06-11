@@ -11,12 +11,14 @@ import moment from "moment";
 import { Modal } from "../components/modal";
 import { NotaForm } from "./components/nota-form";
 import { EnumUtil } from "../utils/enum";
+import { MarkdownUtils } from "../utils/markdown";
 
 function NotasPage() {
   const { isDbOk, repository } = useStorage();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [notas, setNotas] = useState<Notas[]>([]);
   const [notaAEditar, setNotaAEditar] = useState<Notas>();
+  const [parsedNotas, setParsedNotas] = useState<Notas[]>([]);
 
   useEffect(() => {
     document.title = `Notas | ${process.env.NEXT_PUBLIC_TITLE}`
@@ -25,6 +27,13 @@ function NotasPage() {
   useEffect(() => {
     isDbOk && load();
   }, [isDbOk]);
+
+  useEffect(() => {
+    setParsedNotas(notas.map(x => ({
+      ...x,
+      parsedComentario: MarkdownUtils.render(x.comentario),
+    })));
+  }, [notas]);
 
   async function load() {
     setIsLoading(true);
@@ -38,7 +47,6 @@ function NotasPage() {
     setNotas(result);
   }
 
-
   return (
     <main className="notas container mt-3 d-flex flex-column gap-3">
       <h1>Notas</h1>
@@ -50,16 +58,16 @@ function NotasPage() {
           : (
             <>
               <ul className="list-group">
-                {notas.map((x, i) => (
+                {parsedNotas.map((x, i) => (
                   <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao == null ? 'list-group-item-warning' : ''} list-group-item-${EnumUtil.keyFromValue(TipoDeNota, x.tipo)}`.toLowerCase()}>
                     <div className="d-flex w-100 justify-content-between gap-3">
                       <div className="d-flex flex-column gap-3">
                         <h5>{x.descricao}</h5>
-                        <p>{x.comentario}</p>
+                        <p dangerouslySetInnerHTML={{ __html: (x as any).parsedComentario }} />
                       </div>
                       <div className="d-flex flex-column gap-3">
                         <small>{moment(x.data).format('DD/MM/YY')}</small>
-                        <button className="btn btn-secondary" onClick={e => setNotaAEditar(x)}>Editar</button>
+                        <button className="btn btn-secondary" onClick={e => { const { parsedComentario, ...y } = x as any; setNotaAEditar(y); }}>Editar</button>
                       </div>
                     </div>
                   </li>

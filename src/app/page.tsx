@@ -13,7 +13,6 @@ import { NumberUtil } from "./utils/number";
 import { Input } from "./components/input";
 import { useEnv } from "./contexts/env";
 import moment from "moment";
-import { UltimaVariacao } from "./components/home/ultima-variacao-home";
 import { GraficoCaixaAcumuladoMesAMes, GraficoBalancoMesAMes, GraficoCaixaVariacaoAcumuladoMesAMes, GraficoCaixaVariacaoPercentualAcumuladoMesAMes } from "./components/home/graficos-home";
 
 const MOBILE_TRANSACOES_POR_MES = 6;
@@ -36,7 +35,7 @@ function Home() {
 
   async function load() {
     setIsLoading(true);
-    const result = await repository.totais(yearAndMonth);
+    const result = await repository.transacoes.totais(yearAndMonth);
 
     console.info('load', result);
 
@@ -146,13 +145,13 @@ function Home() {
                     </div>
                   </section>
                   <section className="card border-info card-chart">
-                    <h4 className="card-header">Variação (R$) do caixa acumulado mês a mês</h4>
+                    <h4 className="card-header">Variação (R$) do caixa mês a mês</h4>
                     <div className="card-body">
                       <GraficoCaixaVariacaoAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                     </div>
                   </section>
                   <section className="card border-info card-chart">
-                    <h4 className="card-header">Variação percentual (%) do caixa acumulado mês a mês</h4>
+                    <h4 className="card-header">Variação percentual (%) do caixa mês a mês</h4>
                     <div className="card-body">
                       <GraficoCaixaVariacaoPercentualAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                     </div>

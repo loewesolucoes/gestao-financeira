@@ -18,10 +18,3 @@ interface CurrencyModeOptions extends BaseOptions {
 }
 
 export type Options = NumberModeOptions | CurrencyModeOptions;
-
-
-export enum TipoCustoConstrucao {
-  CUB = "CUB",
-  HISTORICO_INTERNO = "HISTORICO_INTERNO",
-  ORCAMENTO = "ORCAMENTO",
-}

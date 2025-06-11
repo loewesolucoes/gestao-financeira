@@ -60,7 +60,7 @@ export class GDriveUtil {
 
     const json = await response.json()
 
-    console.log('Uploaded. Result:\n' + JSON.stringify(json, null, 2));
+    console.debug('Uploaded. Result:\n' + JSON.stringify(json, null, 2));
 
     return json;
   }
@@ -80,7 +80,7 @@ export class GDriveUtil {
 
     const json = await response.json()
 
-    console.log('Updated. Result:\n' + JSON.stringify(json, null, 2));
+    console.debug('Updated. Result:\n' + JSON.stringify(json, null, 2));
   }
 
   /**

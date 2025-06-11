@@ -38,7 +38,13 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
   }
 
   async function loadTransactions() {
-    const result = await repository.listCaixaOrPatrimonio(tableName, periodo);
+    let result;
+
+    if (tableName === TableNames.PATRIMONIO) {
+      result = await repository.patrimonio.listPatrimonio(periodo);
+    } else {
+      result = await repository.transacoes.listCaixa(periodo);
+    }
 
     const dict = result.reduce((previous, next) => {
       const period = moment(next.data).format(groupFormat);
@@ -57,7 +63,7 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
     if (!confirm('Você tem certeza que deseja remover o mês?'))
       return;
 
-    await repository.deletePeriod(tableName, momentPeriod.format('MM'), momentPeriod.format('YYYY'))
+    await repository.transacoes.deletePeriod(momentPeriod.format('MM'), momentPeriod.format('YYYY'))
     await refresh();
   }
 
