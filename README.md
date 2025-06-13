@@ -22,7 +22,8 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 ## Future features
 
-- [ ] Add category to the transactions
+- [X] Add category to the transactions
+- [ ] Load categories on forms
 - [ ] Add new category
 - [ ] Add relatorios
 - [ ] Update react and next version
