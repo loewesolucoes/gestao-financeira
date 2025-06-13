@@ -101,11 +101,29 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
             <label htmlFor="local" className="form-label">Local</label>
             <Input type="text" className="form-control" id="local" onChange={x => setLocal(x)} value={local} placeholder="Local" />
           </div>
+        </div>
+        <div className="d-flex gap-3 flex-column flex-md-row w-100">
           <div className="flex-grow-1">
             <label htmlFor="valorAplicado" className="form-label">Valor aplicado</label>
             <Input type="number" className="form-control" id="valorAplicado" groupSymbolLeft="R$" onChange={x => setValor(x)} value={valor} />
           </div>
           {isPatrimonio ? <DataInput data={data} setData={setData} isPatrimonio={isPatrimonio} /> : null}
+          {!isPatrimonio && (
+            <div className="flex-grow-1">
+              <label htmlFor="categoria" className="form-label">Categoria</label>
+              <div className="input-group mb-3">
+                <button type="button" className="btn btn-outline-secondary" title="Adicionar nova categoria" onClick={() => setIsNewCategoriaModalOpen(true)}>➕</button>
+                <select className={`form-select ${!isMobile && 'form-control-sm'}`} id="categoria" onChange={e => setCategoria(Number(e.target.value))} defaultValue={categoriaId}>
+                  {repository?.categoriaTransacoes?.TODAS.map(c => (
+                    <option key={c.id} value={c.id} defaultChecked={c.id === 1}>{c.descricao}</option>
+                  ))}
+                </select>
+              </div>
+              <small id="passwordHelpBlock" className="form-text">
+                Para adicionar uma nova categoria, clique no botão "➕" ao lado.
+              </small>
+            </div>
+          )}
         </div>
         <div className="d-flex gap-3 flex-column flex-md-row w-100">
           <ComentarioInput comentario={comentario} setComentario={setComentario} />
@@ -121,22 +139,6 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
                   </select>
                 </div>
               ) : null}
-            {!isPatrimonio && (
-              <div className="flex-grow-1">
-                <label htmlFor="categoria" className="form-label">Categoria</label>
-                <div className="input-group mb-3">
-                  <button type="button" className="btn btn-outline-secondary" title="Adicionar nova categoria" onClick={() => setIsNewCategoriaModalOpen(true)}>➕</button>
-                  <select className={`form-select ${!isMobile && 'form-control-sm'}`} id="categoria" onChange={e => setCategoria(Number(e.target.value))} defaultValue={categoriaId}>
-                    {repository?.categoriaTransacoes?.TODAS.map(c => (
-                      <option key={c.id} value={c.id} defaultChecked={c.id === 1}>{c.descricao}</option>
-                    ))}
-                  </select>
-                  <span id="passwordHelpBlock" className="form-text">
-                    Para adicionar uma nova categoria, clique no botão "➕" ao lado.
-                  </span>
-                </div>
-              </div>
-            )}
           </div>
         </div>
         <FormButtons isAllLoading={isAllLoading} transacao={transacao} onClose={onClose} onDelete={onDelete} onReset={onReset} />
@@ -164,7 +166,7 @@ function DataInput({ setData, data, isPatrimonio }) {
 
 function ComentarioInput({ setComentario, comentario }: { setComentario: (value: string) => void, comentario?: string }) {
   return (
-    <div className="flex-grow-1 d-flex flex-column">
+    <div className="flex-grow-1 d-flex flex-column w-100 h-100">
       <label htmlFor="comentario" className="form-label">Comentario (OBS)</label>
       <Input type="mdtextarea" className="form-control h-100" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentario (OBS)" />
     </div>

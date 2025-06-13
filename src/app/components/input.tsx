@@ -65,11 +65,14 @@ function MDTextArea({ onChangeInput, inputValue, otherProps }) {
   useEffect(() => {
     const EasyMDE = require('easymde'); // Import EasyMDE dynamically to avoid SSR issues
     // import EasyMDE from 'easymde';
+
+    console.log("HERE", ref.current)
     easyMDERef.current = new EasyMDE({
       element: ref.current,
       spellChecker: false,
       autoDownloadFontAwesome: false,
-      maxHeight: ref.current?.offsetHeight || 200 as any,
+      maxHeight: `${ref.current?.offsetHeight || 200 as any}px`,
+      maxWidth: `${ref.current?.offsetWidth || 600 as any}px`,
       toolbar: [
         { name: "bold", action: EasyMDE.toggleBold, text: "N", title: "Negrito" },
         { name: "italic", action: EasyMDE.toggleItalic, text: "I", title: "Itálico" },
