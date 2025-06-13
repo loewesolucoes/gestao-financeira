@@ -1,10 +1,11 @@
 "use client";
 
-import { TableNames, Metas, TipoDeMeta } from "@/app/utils/db-repository";
 import { Input } from "../../components/input";
 import { useState } from "react";
 import { useStorage } from "@/app/contexts/storage";
 import { EnumUtil } from "@/app/utils/enum";
+import { TableNames } from "@/app/repositories/default";
+import { Metas, TipoDeMeta } from "@/app/repositories/metas";
 
 interface CustomProps {
   meta?: Metas
@@ -66,6 +67,13 @@ export function MetasForm({ meta, cleanStyle, onClose, onCustomSubmit, onCustomD
     onClose && onClose();
   }
 
+  function onReset() {
+    setData(new Date());
+    setDescricao('');
+    setComentario('');
+    setTipo(TipoDeMeta.PESSOAL);
+  }
+
   const isAllLoading = !isDbOk || isLoading
 
   return <form className={`meta-form w-100 ${!cleanStyle && 'card'}`} onSubmit={onSubmitForm}>
@@ -83,7 +91,7 @@ export function MetasForm({ meta, cleanStyle, onClose, onCustomSubmit, onCustomD
         </div>
         <div>
           <label htmlFor="tipoReceita" className="form-label">Tipo de meta</label>
-          <select className="form-select" id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
+          <select className="form-select" id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} value={tipo}>
             {EnumUtil.values(TipoDeMeta).map(x => (
               <option key={x} value={TipoDeMeta[x]}>{x}</option>
             ))}
@@ -93,15 +101,15 @@ export function MetasForm({ meta, cleanStyle, onClose, onCustomSubmit, onCustomD
       <div className="d-flex gap-3 flex-column flex-md-row w-100">
         <div className="flex-grow-1">
           <label htmlFor="comentario" className="form-label">Comentário</label>
-          <Input type="textarea" className="form-control" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentário" />
+          <Input type="mdtextarea" className="form-control" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentário" />
         </div>
       </div>
-      <FormButtons isAllLoading={isAllLoading} meta={meta} onClose={onClose} onDelete={onDelete} />
+      <FormButtons isAllLoading={isAllLoading} meta={meta} onClose={onClose} onDelete={onDelete} onReset={onReset} />
     </div>
   </form>;
 }
 
-function FormButtons({ isAllLoading, meta, onClose, onDelete }: any) {
+function FormButtons({ isAllLoading, meta, onClose, onDelete, onReset }: any) {
   let title = 'Adicionar';
 
   if (meta != null)
@@ -126,6 +134,11 @@ function FormButtons({ isAllLoading, meta, onClose, onDelete }: any) {
           {isAllLoading
             ? loadingState
             : 'Remover'}
+        </button>
+      )}
+      {onReset && (
+        <button type="button" onClick={onReset} className="btn btn-light align-self-end mt-2" disabled={isAllLoading}>
+          Limpar campos
         </button>
       )}
       <button type="submit" className="btn btn-primary align-self-end mt-2" disabled={isAllLoading}>

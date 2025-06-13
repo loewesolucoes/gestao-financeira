@@ -6,7 +6,7 @@ import { Layout } from "../shared/layout";
 import { useStorage } from "../contexts/storage";
 import { useEffect, useState } from "react";
 
-import { PeriodoTransacoes, TableNames, TransacoesAcumuladasPorMes } from "../utils/db-repository";
+import { PeriodoTransacoes, TransacoesAcumuladasPorMes } from "../repositories/transacoes";
 import { PeriodoForm } from "./components/periodo-form";
 import { TransacaoForm } from "./components/transacao-form";
 import { NumberUtil } from "../utils/number";

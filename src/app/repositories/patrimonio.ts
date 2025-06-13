@@ -32,4 +32,10 @@ export class PatrimonioRepository extends DefaultRepository {
 
     return this.parseSqlResultToObj(result, this.PATRIMONIO_MAPPING)[0] || [];
   }
+
+  public async deletePeriod(month: string, year: string) {
+    await this.db.exec(`delete from ${TableNames.PATRIMONIO} where strftime('%m', data) = $month and strftime('%Y', data) = $year`, { "$month": month, "$year": year })
+
+    await this.persistDb();
+  }
 }

@@ -1,9 +1,9 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { TransacaoForm } from "../transacao-form";
-import { TableNames, TipoDeReceita } from "../../../utils/db-repository";
 import '@testing-library/jest-dom';
-import BigNumber from "bignumber.js";
+import { TableNames } from "@/app/repositories/default";
+import { TipoDeReceita } from "@/app/repositories/transacoes";
 
 // Mock useStorage context
 describe("TransacaoForm", () => {

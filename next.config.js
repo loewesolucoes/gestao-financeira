@@ -34,12 +34,14 @@ module.exports = async (phase) => {
         ...config.resolve.alias,
       }
 
+      const defaultCopyConfig = { info: { minimized: true } }
+
       config.plugins.push(new CopyWebpackPlugin({
         patterns: [
-          { from: path.join(__dirname, './node_modules/sql.js/dist/sql-wasm.wasm'), to: path.join(__dirname, './public/sql-wasm.wasm') },
-          { from: path.join(__dirname, './node_modules/sql.js/dist/sql-wasm-debug.wasm'), to: path.join(__dirname, './public/sql-wasm-debug.wasm') },
-          { from: path.join(__dirname, './node_modules/sql.js/dist/worker.sql-wasm.js'), to: path.join(__dirname, './public/worker.sql-wasm.js') },
-          { from: path.join(__dirname, './node_modules/sql.js/dist/worker.sql-wasm-debug.js'), to: path.join(__dirname, './public/worker.sql-wasm-debug.js') },
+          { ...defaultCopyConfig, from: path.join(__dirname, './node_modules/sql.js/dist/sql-wasm.wasm'), to: path.join(__dirname, './public/sql-wasm.wasm') },
+          { ...defaultCopyConfig, from: path.join(__dirname, './node_modules/sql.js/dist/sql-wasm-debug.wasm'), to: path.join(__dirname, './public/sql-wasm-debug.wasm') },
+          { ...defaultCopyConfig, from: path.join(__dirname, './node_modules/sql.js/dist/worker.sql-wasm.js'), to: path.join(__dirname, './public/worker.sql-wasm.js') },
+          { ...defaultCopyConfig, from: path.join(__dirname, './node_modules/sql.js/dist/worker.sql-wasm-debug.js'), to: path.join(__dirname, './public/worker.sql-wasm-debug.js') },
         ]
       }))
 

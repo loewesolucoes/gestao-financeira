@@ -9,6 +9,7 @@ export interface Transacoes extends DefaultFields {
   tipo?: TipoDeReceita
   local?: string
   comentario?: string
+  categoriaId?: number
   ordem?: number
 }
 

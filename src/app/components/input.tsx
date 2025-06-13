@@ -10,6 +10,7 @@ interface CustomProps extends React.DetailedHTMLProps<React.InputHTMLAttributes<
   groupSymbolRight?: string,
   onChange: React.Dispatch<React.SetStateAction<any>>,
   value: any,
+  switch?: any,
 }
 
 export function Input(props: CustomProps) {
@@ -19,9 +20,10 @@ export function Input(props: CustomProps) {
   const isInputMonth = props.type === 'month';
   const isTextArea = props.type === 'textarea';
   const isMDTextArea = props.type === 'mdtextarea';
+  const isCheckbox = props.type === 'checkbox';
 
-  function onChangeInput(event: any) {
-    const { value } = event.target;
+  function onChangeInput(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+    const { value, checked } = event.target as any;
 
     const onChangeOrDefault = onChange || function () { };
 
@@ -33,6 +35,8 @@ export function Input(props: CustomProps) {
       onChangeOrDefault(moment(value, 'YYYY-MM-DD').toDate());
     else if (isInputMonth)
       onChangeOrDefault(moment(value, 'YYYY-MM').toDate());
+    else if (isCheckbox)
+      onChangeOrDefault(checked);
     else
       onChangeOrDefault(value);
   }
@@ -42,7 +46,7 @@ export function Input(props: CustomProps) {
   let input = isTextArea ? <textarea className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps as any} /> : <input className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps} />;
 
   if (isMDTextArea) {
-    input = <TextArea onChangeInput={onChangeInput} inputValue={inputValue} otherProps={otherProps} />;
+    input = <MDTextArea onChangeInput={onChangeInput} inputValue={inputValue} otherProps={otherProps} />;
   }
 
   return groupSymbolLeft || groupSymbolRight ? (
@@ -54,7 +58,7 @@ export function Input(props: CustomProps) {
   ) : input;
 }
 
-function TextArea({ onChangeInput, inputValue, otherProps }) {
+function MDTextArea({ onChangeInput, inputValue, otherProps }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const easyMDERef = useRef<any>(null);
 
@@ -99,6 +103,13 @@ function TextArea({ onChangeInput, inputValue, otherProps }) {
       easyMDERef.current = null;
     }
   }, []);
+
+  useEffect(() => {
+    if (easyMDERef.current != null) {
+      if (inputValue !== easyMDERef.current.value())
+        easyMDERef.current.value(inputValue);
+    }
+  }, [inputValue]);
 
   return <textarea ref={ref} className="form-control" onChange={onChangeInput} value={inputValue} {...otherProps as any} />
 }

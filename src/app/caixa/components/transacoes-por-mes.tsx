@@ -5,10 +5,11 @@ import { ListaCaixa } from "./lista-caixa";
 import { BalancoDoMes } from "./balanco-do-mes";
 import Link from "next/link";
 import { NumberUtil } from "../../utils/number";
-import { PeriodoTransacoes, TableNames, Transacoes, TransacoesAcumuladasPorMes } from "../../utils/db-repository";
 import { useEffect, useState } from "react";
 import { useStorage } from "@/app/contexts/storage";
 import BigNumber from "bignumber.js";
+import { PeriodoTransacoes, Transacoes, TransacoesAcumuladasPorMes } from "@/app/repositories/transacoes";
+import { TableNames } from "@/app/repositories/default";
 
 interface CustomProps {
   periodo: PeriodoTransacoes
@@ -40,11 +41,10 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
   async function loadTransactions() {
     let result;
 
-    if (tableName === TableNames.PATRIMONIO) {
+    if (tableName === TableNames.PATRIMONIO)
       result = await repository.patrimonio.listPatrimonio(periodo);
-    } else {
+    else
       result = await repository.transacoes.listCaixa(periodo);
-    }
 
     const dict = result.reduce((previous, next) => {
       const period = moment(next.data).format(groupFormat);
@@ -63,7 +63,11 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
     if (!confirm('Você tem certeza que deseja remover o mês?'))
       return;
 
-    await repository.transacoes.deletePeriod(momentPeriod.format('MM'), momentPeriod.format('YYYY'))
+    if (tableName === TableNames.PATRIMONIO)
+      await repository.patrimonio.deletePeriod(momentPeriod.format('MM'), momentPeriod.format('YYYY'))
+    else
+      await repository.transacoes.deletePeriod(momentPeriod.format('MM'), momentPeriod.format('YYYY'))
+
     await refresh();
   }
 

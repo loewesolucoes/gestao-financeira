@@ -1,5 +1,5 @@
 "use client";
-import { TransacoesAcumuladasPorMesHome } from "../../utils/db-repository";
+import { TransacoesAcumuladasPorMesHome } from "@/app/repositories/transacoes";
 import { NumberUtil } from "../../utils/number";
 
 interface CustomProps {

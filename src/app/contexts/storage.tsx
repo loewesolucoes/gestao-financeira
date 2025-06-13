@@ -12,6 +12,7 @@ import { MetasRepository } from "../repositories/metas";
 import { NotasRepository } from "../repositories/notas";
 import { TransacoesRepository } from "../repositories/transacoes";
 import { PatrimonioRepository } from "../repositories/patrimonio";
+import { CategoriaTransacoesRepository } from "../repositories/categoria-transacoes";
 
 interface Repo extends DefaultRepository {
   params: ParametrosRepository
@@ -19,6 +20,7 @@ interface Repo extends DefaultRepository {
   notas: NotasRepository
   transacoes: TransacoesRepository
   patrimonio: PatrimonioRepository
+  categoriaTransacoes: CategoriaTransacoesRepository
 }
 
 interface StorageProviderContext {
@@ -56,6 +58,10 @@ export function StorageProvider(props: any) {
     startStorage();
   }, []);
 
+  useEffect(() => {
+    isDbOk && reload();
+  }, [isDbOk]);
+
   async function startStorage(data?: ArrayLike<number> | Buffer | null) {
     console.debug('startStorage');
     setIsDbOk(false);
@@ -70,6 +76,7 @@ export function StorageProvider(props: any) {
     repository.notas = new NotasRepository(sqldb);
     repository.transacoes = new TransacoesRepository(sqldb);
     repository.patrimonio = new PatrimonioRepository(sqldb);
+    repository.categoriaTransacoes = await CategoriaTransacoesRepository.create(sqldb);
 
     setRepository(repository);
     setIsDbOk(true);
@@ -89,6 +96,17 @@ export function StorageProvider(props: any) {
         resolve();
       }, 100);
     })
+  }
+
+  async function reload() {
+    console.debug('starting reload where need');
+
+    if (!repository) {
+      console.warn('repository not initialized');
+      return;
+    }
+
+    repository.categoriaTransacoes.loadAll();
   }
 
   async function exportOriginalDumpToFileAndDownload(fileName: string) {

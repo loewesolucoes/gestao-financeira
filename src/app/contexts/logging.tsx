@@ -46,7 +46,7 @@ export function LoggingProvider(props: any) {
       if (logLevel === 'debug') {
         const type = LoggingType.debug;
 
-        consoleBkp[type](...args);
+        consoleBkp[type].apply(consoleBkp, args);
 
         saveLogInDb(type, JSON.stringify(args));
       }
@@ -58,7 +58,7 @@ export function LoggingProvider(props: any) {
 
   function createLogging(type: LoggingType) {
     return function (...args: any[]) {
-      consoleBkp[type](...args);
+      consoleBkp[type].apply(consoleBkp, args);
 
       saveLogInDb(type, args);
     }

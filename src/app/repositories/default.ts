@@ -4,6 +4,7 @@ import { RepositoryUtil } from "../utils/repository";
 import { IDatabase } from "./database-connector";
 
 export enum MapperTypes {
+  TEXT,
   DATE,
   DATE_TIME,
   NUMBER,
@@ -17,6 +18,7 @@ export enum TableNames {
   NOTAS = "notas",
   METAS = "metas",
   PARAMETROS = "parametros",
+  CATEGORIA_TRANSACOES = "categoria_transacoes",
 }
 
 export interface DefaultFields {
@@ -73,7 +75,7 @@ export class DefaultRepository {
     let result = {} as any;
 
     if (data?.id != null)
-      result = await this.update(tableName, data)
+      result = await this.update(tableName, data);
     else
       result = await this.insert(tableName, data);
 
@@ -122,7 +124,7 @@ export class DefaultRepository {
   }
 
   protected createInsertCommand(tableName: TableNames, data: any, paramsPrefix: string = '') {
-    const nextData = { ...data, createdDate: new Date() };
+    const nextData = { ...this.parseModelBeforeSave(data), createdDate: new Date() };
     const { keys, params } = this.parseToCommand(nextData, paramsPrefix);
     const valuesCommand = `(${keys.map(k => `$${k}${paramsPrefix}`).join(', ')})`
     const command = `INSERT INTO ${tableName} (${keys.join(', ')}) VALUES ${valuesCommand}`;
@@ -139,11 +141,22 @@ export class DefaultRepository {
   }
 
   protected createUpdateCommand(tableName: TableNames, data: any, paramsPrefix: string = '') {
-    const nextData = { ...data, updatedDate: new Date() };
+    const nextData = { ...this.parseModelBeforeSave(data), updatedDate: new Date() };
     const { keys, params } = this.parseToCommand(nextData, paramsPrefix);
     const command = `UPDATE ${tableName} SET ${keys.map(k => `${k}=$${k}${paramsPrefix}`).join(', ')} WHERE id=$id${paramsPrefix}`;
 
     return { command, params, nextData }
+  }
+
+  private parseModelBeforeSave(data: any) {
+    const nextData = { ...data };
+
+    for (const key in nextData) {
+      if (key.startsWith('__')) {
+        delete nextData[key];
+      }
+    }
+    return nextData;
   }
 
   protected parseSqlResultToObj(result: initSqlJs.QueryExecResult[], mapper?: { [key: string]: MapperTypes }) {
@@ -248,6 +261,21 @@ export class DefaultRepository {
     if (migrations['metas'] == null) {
       await this.db.exec(`CREATE TABLE IF NOT EXISTS "metas" ("id" INTEGER NOT NULL,"data" DATETIME NOT NULL,"descricao" TEXT NULL DEFAULT NULL, "comentario" TEXT NULL, "tipo" INTEGER NULL, "done" INTEGER NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
       migrations['metas'] = RUNNED_MIGRATION_CODE;
+    }
+
+    if (migrations['categoria_transacoes'] == null) {
+      await this.db.exec(`CREATE TABLE IF NOT EXISTS "categoria_transacoes" ("id" INTEGER NOT NULL, "descricao" TEXT NULL DEFAULT NULL, "comentario" TEXT NULL, "tipo" INTEGER NULL, "active" INTEGER NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
+      this.db.exec(`INSERT INTO "categoria_transacoes" (descricao, comentario, active, createdDate) VALUES ('Outros', 'Categoria para transações diversas', 1, datetime('now'));`);
+      migrations['categoria_transacoes'] = RUNNED_MIGRATION_CODE;
+    }
+
+    if (migrations['categoria_transacoes_chave_estrangeira'] == null) {
+      await this.db.exec(`
+        PRAGMA foreign_keys = OFF;
+        ALTER TABLE "transacoes" ADD COLUMN "categoriaId" INTEGER NOT NULL REFERENCES "categoria_transacoes" ("id") DEFAULT 1;
+        PRAGMA foreign_keys = ON;
+      `.trim());
+      migrations['categoria_transacoes_chave_estrangeira'] = RUNNED_MIGRATION_CODE;
     }
 
     const runnedMigrations = Object.keys(migrations).filter(x => migrations[x] === RUNNED_MIGRATION_CODE).reduce((p, n) => { p.push({ name: n, executedDate: new Date() }); return p; }, [])

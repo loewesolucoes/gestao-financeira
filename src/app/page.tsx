@@ -7,7 +7,8 @@ import { useEffect, useState } from "react";
 
 import { Layout } from "./shared/layout";
 import { useStorage } from "./contexts/storage";
-import { TipoDeMeta, TotaisHome } from "./utils/db-repository";
+import { TipoDeMeta } from "./repositories/metas";
+import { TotaisHome } from "./repositories/transacoes";
 import { Loader } from "./components/loader";
 import { NumberUtil } from "./utils/number";
 import { Input } from "./components/input";

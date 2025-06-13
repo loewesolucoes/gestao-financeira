@@ -6,12 +6,13 @@ import { Layout } from "../shared/layout";
 import { useEffect, useState } from "react";
 import { useStorage } from "../contexts/storage";
 import { Loader } from "../components/loader";
-import { Notas, TableNames, TipoDeNota } from "../utils/db-repository";
+import { Notas, TipoDeNota } from "../repositories/notas";
 import moment from "moment";
 import { Modal } from "../components/modal";
 import { NotaForm } from "./components/nota-form";
 import { EnumUtil } from "../utils/enum";
 import { MarkdownUtils } from "../utils/markdown";
+import { TableNames } from "../repositories/default";
 
 function NotasPage() {
   const { isDbOk, repository } = useStorage();
@@ -31,7 +32,7 @@ function NotasPage() {
   useEffect(() => {
     setParsedNotas(notas.map(x => ({
       ...x,
-      parsedComentario: MarkdownUtils.render(x.comentario),
+      __parsedComentario: MarkdownUtils.render(x.comentario),
     })));
   }, [notas]);
 
@@ -63,11 +64,11 @@ function NotasPage() {
                     <div className="d-flex w-100 justify-content-between gap-3">
                       <div className="d-flex flex-column gap-3">
                         <h5>{x.descricao}</h5>
-                        <p dangerouslySetInnerHTML={{ __html: (x as any).parsedComentario }} />
+                        <p dangerouslySetInnerHTML={{ __html: (x as any).__parsedComentario }} />
                       </div>
                       <div className="d-flex flex-column gap-3">
                         <small>{moment(x.data).format('DD/MM/YY')}</small>
-                        <button className="btn btn-secondary" onClick={e => { const { parsedComentario, ...y } = x as any; setNotaAEditar(y); }}>Editar</button>
+                        <button className="btn btn-secondary" onClick={e => setNotaAEditar(x)}>Editar</button>
                       </div>
                     </div>
                   </li>

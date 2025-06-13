@@ -6,21 +6,39 @@ import { Layout } from "../shared/layout";
 import { useEffect, useState } from "react";
 import { useStorage } from "../contexts/storage";
 import { Loader } from "../components/loader";
-import { Metas, TableNames, TipoDeMeta } from "../utils/db-repository";
 import moment from "moment";
 import { Modal } from "../components/modal";
 import { MetasForm } from "./components/metas-form";
-import { EnumUtil } from "../utils/enum";
+import { Metas, TipoDeMeta } from "../repositories/metas";
+import { TableNames } from "../repositories/default";
+import { MarkdownUtils } from "../utils/markdown";
 
 function MetasPage() {
   const { isDbOk, repository } = useStorage();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [metas, setMetas] = useState<{ [key: string]: Metas[] }>({});
+  const [parsedMetas, setParsedMetas] = useState<{ [key: string]: Metas[] }>({});
   const [metaAEditar, setMetaAEditar] = useState<Metas>();
 
   useEffect(() => {
     document.title = `Metas | ${process.env.NEXT_PUBLIC_TITLE}`
   }, []);
+
+  useEffect(() => {
+    const parsed = Object.keys(metas).reduce((previous, next) => {
+      const metasDoPeriodo = metas[next] || [];
+      const parsedMetasDoPeriodo = metasDoPeriodo.map(x => ({
+        ...x,
+        __parsedComentario: MarkdownUtils.render(x.comentario)
+      }));
+
+      previous[next] = parsedMetasDoPeriodo;
+
+      return previous;
+    }, {} as { [key: string]: Metas[] });
+
+    setParsedMetas(parsed);
+  }, [metas]);
 
   useEffect(() => {
     isDbOk && load();
@@ -48,9 +66,7 @@ function MetasPage() {
     setMetas(dict);
   }
 
-
-  const keysMetas = Object.keys(metas);
-
+  const keysMetas = Object.keys(parsedMetas);
 
   return (
     <main className="metas container mt-3 d-flex flex-column gap-3">
@@ -60,8 +76,8 @@ function MetasPage() {
         ? <Loader className="align-self-center my-5" />
         : keysMetas.length === 0
           ? (<div className="alert alert-info my-3" role="alert">Nenhum dado encontrado</div>)
-          : keysMetas.map(key => {
-            const metasDoPeriodo = metas[key] || [];
+          : keysMetas.sort().reverse().map(key => {
+            const metasDoPeriodo = parsedMetas[key] || [];
             const momentPeriod = moment(key, 'YYYY-MM');
 
             return (
@@ -76,7 +92,7 @@ function MetasPage() {
                         <div className="d-flex w-100 justify-content-between gap-3">
                           <div className="d-flex flex-column gap-3">
                             <h5>{x.descricao}</h5>
-                            <p>{x.comentario}</p>
+                            <p dangerouslySetInnerHTML={{ __html: (x as any).__parsedComentario }} />
                           </div>
                           <div className="d-flex flex-column gap-3">
                             <small>{moment(x.data).format('MMMM YYYY')}</small>

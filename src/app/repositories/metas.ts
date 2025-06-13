@@ -13,5 +13,5 @@ export enum TipoDeMeta {
 }
 
 export class MetasRepository extends DefaultRepository {
-  public readonly NOTA_MAPPING = { ...this.DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
+  public readonly META_MAPPING = { ...this.DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
 }

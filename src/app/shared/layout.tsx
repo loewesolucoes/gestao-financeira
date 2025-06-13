@@ -9,6 +9,7 @@ import moment from "moment";
 
 import 'chart.js/auto';
 import { BottomNavbar } from "../components/bottom-navbar";
+import { Notifications } from "../components/notifications";
 
 BigNumber.config({
   FORMAT: {
@@ -28,6 +29,7 @@ export function Layout({ children }: any) {
       {children}
       <Footer />
       <BottomNavbar />
+      <Notifications />
     </AppProviders>
   );
 }

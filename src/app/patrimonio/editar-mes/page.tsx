@@ -4,8 +4,8 @@ import { Layout } from "@/app/shared/layout";
 import "./page.scss";
 import { EditarEmMassa } from "../../caixa/components/editar-em-massa";
 import moment from "moment";
-import { TableNames } from "@/app/utils/db-repository";
 import { useLocation } from "@/app/contexts/location";
+import { TableNames } from "@/app/repositories/default";
 
 function EditarMesPage() {
   const { params } = useLocation();

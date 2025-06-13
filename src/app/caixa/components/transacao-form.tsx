@@ -1,11 +1,14 @@
 "use client";
 
-import { Transacoes, DbRepository, TableNames, TipoDeReceita } from "@/app/utils/db-repository";
 import { Input } from "../../components/input";
 import { useState } from "react";
 import BigNumber from "bignumber.js";
 import { useStorage } from "@/app/contexts/storage";
 import { useEnv } from "@/app/contexts/env";
+import { TableNames } from "@/app/repositories/default";
+import { TipoDeReceita, Transacoes } from "@/app/repositories/transacoes";
+import { Modal } from "@/app/components/modal";
+import { NovaCategoria } from "./nova-categoria";
 
 interface CustomProps {
   transacao?: Transacoes
@@ -26,7 +29,9 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
   const [tipo, setTipo] = useState(transacao?.tipo);
   const [local, setLocal] = useState(transacao?.local);
   const [comentario, setComentario] = useState(transacao?.comentario);
+  const [categoriaId, setCategoria] = useState(transacao?.categoriaId || 1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isNewCategoriaModalOpen, setIsNewCategoriaModalOpen] = useState<boolean>(false);
   const isPatrimonio = tableName === TableNames.PATRIMONIO;
 
   async function onSubmitForm(event: import('react').ChangeEvent<any>) {
@@ -81,44 +86,69 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
     setTipo(TipoDeReceita.VARIAVEL);
     setLocal('');
     setComentario('');
+    setCategoria(1);
   }
 
   const isAllLoading = !isDbOk || isLoading
 
-  return <form className={`transacao-form w-100 ${!cleanStyle && 'card'}`} onSubmit={onSubmitForm}>
-    {!cleanStyle && (<h5 className="card-header">Adicionar novo(a)</h5>)}
+  return <>
+    <form className={`transacao-form w-100 ${!cleanStyle && 'card'}`} onSubmit={onSubmitForm}>
+      {!cleanStyle && (<h5 className="card-header">Adicionar novo(a)</h5>)}
 
-    <div className="d-flex flex-column px-3 py-2 gap-3">
-      <div className="d-flex gap-3 flex-column flex-md-row w-100">
-        <div className={`flex-grow-1 ${!isPatrimonio && 'w-100'}`}>
-          <label htmlFor="local" className="form-label">Local</label>
-          <Input type="text" className="form-control" id="local" onChange={x => setLocal(x)} value={local} placeholder="Local" />
+      <div className="d-flex flex-column px-3 py-2 gap-3">
+        <div className="d-flex gap-3 flex-column flex-md-row w-100">
+          <div className={`flex-grow-1 ${!isPatrimonio && 'w-100'}`}>
+            <label htmlFor="local" className="form-label">Local</label>
+            <Input type="text" className="form-control" id="local" onChange={x => setLocal(x)} value={local} placeholder="Local" />
+          </div>
+          <div className="flex-grow-1">
+            <label htmlFor="valorAplicado" className="form-label">Valor aplicado</label>
+            <Input type="number" className="form-control" id="valorAplicado" groupSymbolLeft="R$" onChange={x => setValor(x)} value={valor} />
+          </div>
+          {isPatrimonio ? <DataInput data={data} setData={setData} isPatrimonio={isPatrimonio} /> : null}
         </div>
-        <div className="flex-grow-1">
-          <label htmlFor="valorAplicado" className="form-label">Valor aplicado</label>
-          <Input type="number" className="form-control" id="valorAplicado" groupSymbolLeft="R$" onChange={x => setValor(x)} value={valor} />
-        </div>
-        {isPatrimonio ? <DataInput data={data} setData={setData} isPatrimonio={isPatrimonio} /> : null}
-      </div>
-      <div className="d-flex gap-3 flex-column flex-md-row w-100">
-        <ComentarioInput comentario={comentario} setComentario={setComentario} />
-        <div className="d-flex gap-3 flex-column">
-          {!isPatrimonio ? <DataInput data={data} setData={setData} isPatrimonio={isPatrimonio} /> : null}
-          {!isPatrimonio
-            ? (
+        <div className="d-flex gap-3 flex-column flex-md-row w-100">
+          <ComentarioInput comentario={comentario} setComentario={setComentario} />
+          <div className="d-flex gap-3 flex-column">
+            {!isPatrimonio ? <DataInput data={data} setData={setData} isPatrimonio={isPatrimonio} /> : null}
+            {!isPatrimonio
+              ? (
+                <div className="flex-grow-1">
+                  <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
+                  <select className={`form-select ${!isMobile && 'form-control-sm'}`} id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
+                    <option value={TipoDeReceita.VARIAVEL}>Variável</option>
+                    <option value={TipoDeReceita.FIXO}>Fixo</option>
+                  </select>
+                </div>
+              ) : null}
+            {!isPatrimonio && (
               <div className="flex-grow-1">
-                <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
-                <select className={`form-select ${!isMobile && 'form-control-sm'}`} id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
-                  <option value={TipoDeReceita.VARIAVEL}>Variável</option>
-                  <option value={TipoDeReceita.FIXO}>Fixo</option>
-                </select>
+                <label htmlFor="categoria" className="form-label">Categoria</label>
+                <div className="input-group mb-3">
+                  <button type="button" className="btn btn-outline-secondary" title="Adicionar nova categoria" onClick={() => setIsNewCategoriaModalOpen(true)}>➕</button>
+                  <select className={`form-select ${!isMobile && 'form-control-sm'}`} id="categoria" onChange={e => setCategoria(Number(e.target.value))} defaultValue={categoriaId}>
+                    {repository?.categoriaTransacoes?.TODAS.map(c => (
+                      <option key={c.id} value={c.id} defaultChecked={c.id === 1}>{c.descricao}</option>
+                    ))}
+                  </select>
+                  <span id="passwordHelpBlock" className="form-text">
+                    Para adicionar uma nova categoria, clique no botão "➕" ao lado.
+                  </span>
+                </div>
               </div>
-            ) : null}
+            )}
+          </div>
         </div>
+        <FormButtons isAllLoading={isAllLoading} transacao={transacao} onClose={onClose} onDelete={onDelete} onReset={onReset} />
       </div>
-      <FormButtons isAllLoading={isAllLoading} transacao={transacao} onClose={onClose} onDelete={onDelete} onReset={onReset} />
-    </div>
-  </form>;
+    </form>
+
+    {isNewCategoriaModalOpen && (
+      <Modal title="Adicionar Nova Categoria" onClose={() => setIsNewCategoriaModalOpen(false)} hideFooter={true}>
+        <NovaCategoria onClose={() => setIsNewCategoriaModalOpen(false)} />
+      </Modal>
+    )}
+  </>;
 }
 
 function DataInput({ setData, data, isPatrimonio }) {
