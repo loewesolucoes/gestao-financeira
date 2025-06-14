@@ -26,6 +26,8 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 - [ ] Load categories on forms
 - [ ] Add new category
 - [ ] Add relatorios
+- [ ] Add landing page to sell app
+- [ ] Add better preload for pages to the user doesnt see an empty screen
 - [ ] Update react and next version
 - [ ] Add AI support
 
