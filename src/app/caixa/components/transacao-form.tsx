@@ -119,9 +119,9 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
                   ))}
                 </select>
               </div>
-              <small id="passwordHelpBlock" className="form-text">
-                Para adicionar uma nova categoria, clique no botão "➕" ao lado.
-              </small>
+                <small id="passwordHelpBlock" className="form-text">
+                Para adicionar uma nova categoria, clique no botão &quot;➕&quot; ao lado.
+                </small>
             </div>
           )}
         </div>
