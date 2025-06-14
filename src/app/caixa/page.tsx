@@ -6,7 +6,7 @@ import { Layout } from "../shared/layout";
 import { useStorage } from "../contexts/storage";
 import { useEffect, useState } from "react";
 
-import { PeriodoTransacoes, TableNames, TransacoesAcumuladasPorMes } from "../utils/db-repository";
+import { PeriodoTransacoes, TransacoesAcumuladasPorMes } from "../repositories/transacoes";
 import { PeriodoForm } from "./components/periodo-form";
 import { TransacaoForm } from "./components/transacao-form";
 import { NumberUtil } from "../utils/number";
@@ -38,7 +38,7 @@ function CaixaPage() {
   }
 
   async function loadTotals() {
-    const result = await repository.totaisCaixa();
+    const result = await repository.transacoes.totaisCaixa();
 
     console.info('loadTotals', result);
 

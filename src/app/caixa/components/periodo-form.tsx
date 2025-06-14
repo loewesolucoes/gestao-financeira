@@ -1,5 +1,6 @@
 "use client";
-import { PeriodoTransacoes } from "../../utils/db-repository";
+
+import { PeriodoTransacoes } from "@/app/repositories/transacoes";
 
 const periodosTransacoes = [
   { title: 'ultimo mes', value: PeriodoTransacoes.ULTIMO_MES },

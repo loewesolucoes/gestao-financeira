@@ -34,15 +34,14 @@ module.exports = async (phase) => {
         ...config.resolve.alias,
       }
 
-      config.plugins.push(new CopyWebpackPlugin({
-        patterns: [
-          { from: path.join(__dirname, './node_modules/sql.js/dist/sql-wasm.wasm'), to: path.join(__dirname, './public/sql-wasm.wasm') }
-        ]
-      }))
+      const defaultCopyConfig = { info: { minimized: true } }
 
       config.plugins.push(new CopyWebpackPlugin({
         patterns: [
-          { from: path.join(__dirname, './node_modules/sql.js/dist/worker.sql-wasm.js'), to: path.join(__dirname, './public/worker.sql-wasm.js') }
+          { ...defaultCopyConfig, from: path.join(__dirname, './node_modules/sql.js/dist/sql-wasm.wasm'), to: path.join(__dirname, './public/sql-wasm.wasm') },
+          { ...defaultCopyConfig, from: path.join(__dirname, './node_modules/sql.js/dist/sql-wasm-debug.wasm'), to: path.join(__dirname, './public/sql-wasm-debug.wasm') },
+          { ...defaultCopyConfig, from: path.join(__dirname, './node_modules/sql.js/dist/worker.sql-wasm.js'), to: path.join(__dirname, './public/worker.sql-wasm.js') },
+          { ...defaultCopyConfig, from: path.join(__dirname, './node_modules/sql.js/dist/worker.sql-wasm-debug.js'), to: path.join(__dirname, './public/worker.sql-wasm-debug.js') },
         ]
       }))
 
@@ -58,6 +57,7 @@ module.exports = async (phase) => {
       swDest: 'public/sw.js', // where the service worker code will end up
       reloadOnOnline: true,
     });
+
     return withSerwist(nextConfig);
   }
 

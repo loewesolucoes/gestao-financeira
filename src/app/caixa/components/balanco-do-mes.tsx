@@ -1,8 +1,8 @@
 "use client";
-import { Bar, Doughnut, Line } from "react-chartjs-2";
-import { Transacoes, TransacoesAcumuladasPorMes } from "../../utils/db-repository";
+import { Doughnut, Line } from "react-chartjs-2";
 import { NumberUtil } from "../../utils/number";
 import BigNumber from "bignumber.js";
+import { Transacoes } from "@/app/repositories/transacoes";
 
 export function BalancoDoMes({ transacoesDoPeriodo, transacoesAcumuladasPorMes }: { transacoesDoPeriodo: Transacoes[], transacoesAcumuladasPorMes: any }) {
   const somaPeriodo = transacoesDoPeriodo.reduce((p, n) => p.plus(n.valor || 0), BigNumber(0));

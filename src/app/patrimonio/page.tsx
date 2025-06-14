@@ -5,7 +5,8 @@ import "./page.scss";
 import { Layout } from "../shared/layout";
 import { PeriodoForm } from "../caixa/components/periodo-form";
 import { TransacaoForm } from "../caixa/components/transacao-form";
-import { PeriodoTransacoes, TableNames } from "../utils/db-repository";
+import { PeriodoTransacoes } from "../repositories/transacoes";
+import { TableNames } from "../repositories/default";
 import { useEffect, useState } from "react";
 import { TransacoesPorMes } from "../caixa/components/transacoes-por-mes";
 
@@ -25,7 +26,7 @@ function Patrimonio() {
           <TransacaoForm tableName={TableNames.PATRIMONIO} />
         </section>
 
-        <TransacoesPorMes tableName={TableNames.PATRIMONIO} periodo={periodo} groupByDay={true}/>
+        <TransacoesPorMes tableName={TableNames.PATRIMONIO} periodo={periodo} groupByDay={true} />
       </article>
     </main>
   );

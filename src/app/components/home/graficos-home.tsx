@@ -1,8 +1,9 @@
 "use client";
 import { useEnv } from "@/app/contexts/env";
-import { TransacoesAcumuladasPorMesHome } from "../../utils/db-repository";
 import { NumberUtil } from "../../utils/number";
 import { Bar, Line } from "react-chartjs-2";
+import { TransacoesAcumuladasPorMesHome } from "@/app/repositories/transacoes";
+
 
 interface CustomProps {
   transacoesAcumuladasPorMes: TransacoesAcumuladasPorMesHome[];

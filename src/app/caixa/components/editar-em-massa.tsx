@@ -2,7 +2,6 @@ import moment from "moment";
 import { useRouter } from "next/navigation";
 import { useStorage } from "@/app/contexts/storage";
 import { useEffect, useState } from "react";
-import { Transacoes, TableNames, TipoDeReceita } from "@/app/utils/db-repository";
 import { Loader } from "@/app/components/loader";
 import { NumberUtil } from "@/app/utils/number";
 import { Input } from "@/app/components/input";
@@ -11,6 +10,8 @@ import { TransacaoForm } from "./transacao-form";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import BigNumber from "bignumber.js";
 import { useLocation } from "@/app/contexts/location";
+import { TableNames } from "@/app/repositories/default";
+import { TipoDeReceita, Transacoes } from "@/app/repositories/transacoes";
 
 interface CustomProps {
   tableName?: TableNames
@@ -43,7 +44,14 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
   async function load() {
     setIsLoading(true);
 
-    const result = await repository.listByMonth(tableName, momentMonth.format('MM'), momentMonth.format('YYYY'));
+    let result;
+
+    if (tableName === TableNames.PATRIMONIO) {
+      result = await repository.patrimonio.listByMonth(momentMonth.format('MM'), momentMonth.format('YYYY'));
+    } else {
+      result = await repository.transacoes.listByMonth(momentMonth.format('MM'), momentMonth.format('YYYY'));
+    }
+
 
     if (isCopy) {
       result.forEach(x => {

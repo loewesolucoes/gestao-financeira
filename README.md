@@ -20,6 +20,17 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+## Future features
+
+- [X] Add category to the transactions
+- [ ] Load categories on forms
+- [ ] Add new category
+- [ ] Add relatorios
+- [ ] Add landing page to sell app
+- [ ] Add better preload for pages to the user doesnt see an empty screen
+- [ ] Update react and next version
+- [ ] Add AI support
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

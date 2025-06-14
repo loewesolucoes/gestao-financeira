@@ -1,10 +1,11 @@
 "use client";
 
-import { TableNames, Notas, TipoDeNota } from "@/app/utils/db-repository";
 import { Input } from "../../components/input";
 import { useState } from "react";
 import { useStorage } from "@/app/contexts/storage";
 import { EnumUtil } from "@/app/utils/enum";
+import { TableNames } from "@/app/repositories/default";
+import { Notas, TipoDeNota } from "@/app/repositories/notas";
 
 interface CustomProps {
   nota?: Notas
@@ -20,7 +21,7 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
   const [data, setData] = useState<Date>(nota?.data || new Date());
   const [descricao, setDescricao] = useState(nota?.descricao);
   const [comentario, setComentario] = useState(nota?.comentario);
-  const [tipo, setTipo] = useState<TipoDeNota>(nota?.tipo);
+  const [tipo, setTipo] = useState<TipoDeNota>(nota?.tipo || TipoDeNota.NORMAL);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -66,6 +67,13 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
     onClose && onClose();
   }
 
+  function onReset() {
+    setData(new Date());
+    setDescricao('');
+    setComentario('');
+    setTipo(TipoDeNota.NORMAL);
+  }
+
   const isAllLoading = !isDbOk || isLoading
 
   return <form className={`nota-form w-100 ${!cleanStyle && 'card'}`} onSubmit={onSubmitForm}>
@@ -83,7 +91,7 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
         </div>
         <div>
           <label htmlFor="tipoNota" className="form-label">Tipo de nota</label>
-          <select className={`form-select bg-${EnumUtil.keyFromValue(TipoDeNota, tipo)}`.toLowerCase()} id="tipoNota" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
+          <select className={`form-select bg-${EnumUtil.keyFromValue(TipoDeNota, tipo)}`.toLowerCase()} id="tipoNota" onChange={e => setTipo(Number(e.target.value))} value={tipo}>
             {EnumUtil.values(TipoDeNota).map(x => (
               <option key={x} value={TipoDeNota[x]}>{x}</option>
             ))}
@@ -93,15 +101,15 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
       <div className="d-flex gap-3 flex-column flex-md-row w-100">
         <div className="flex-grow-1">
           <label htmlFor="comentario" className="form-label">Comentário</label>
-          <Input type="textarea" className="form-control" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentário" />
+          <Input type="mdtextarea" className="form-control" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentário" />
         </div>
       </div>
-      <FormButtons isAllLoading={isAllLoading} nota={nota} onClose={onClose} onDelete={onDelete} />
+      <FormButtons isAllLoading={isAllLoading} nota={nota} onClose={onClose} onDelete={onDelete} onReset={onReset} />
     </div>
   </form>;
 }
 
-function FormButtons({ isAllLoading, nota, onClose, onDelete }: any) {
+function FormButtons({ isAllLoading, nota, onClose, onDelete, onReset }: any) {
   let title = 'Adicionar';
 
   if (nota != null)
@@ -126,6 +134,11 @@ function FormButtons({ isAllLoading, nota, onClose, onDelete }: any) {
           {isAllLoading
             ? loadingState
             : 'Remover'}
+        </button>
+      )}
+      {onReset && (
+        <button type="button" onClick={onReset} className="btn btn-light align-self-end mt-2" disabled={isAllLoading}>
+          Limpar campos
         </button>
       )}
       <button type="submit" className="btn btn-primary align-self-end mt-2" disabled={isAllLoading}>
