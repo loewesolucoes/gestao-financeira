@@ -6,6 +6,7 @@ export interface CategoriaTransacoes extends DefaultFields {
   comentario?: string;
   tipo?: TipoDeCategoriaTransacao; // 0 - Pessoal, 1 - Financeira
   active?: boolean;
+  categoriaId: number;
 }
 
 export enum TipoDeCategoriaTransacao {
@@ -14,7 +15,8 @@ export enum TipoDeCategoriaTransacao {
 }
 
 export class CategoriaTransacoesRepository extends DefaultRepository {
-  public readonly CATEGORIA_TRANSACOES_MAPPING = { ...this.DEFAULT_MAPPING, descricao: MapperTypes.TEXT, tipo: MapperTypes.NUMBER, active: MapperTypes.BOOLEAN };
+  // @ts-ignore
+  public readonly DEFAULT_MAPPING = { ...super.DEFAULT_MAPPING, descricao: MapperTypes.TEXT, tipo: MapperTypes.NUMBER, active: MapperTypes.BOOLEAN };
   public readonly TODAS: CategoriaTransacoes[];
 
   public static async create(db: IDatabase): Promise<CategoriaTransacoesRepository> {

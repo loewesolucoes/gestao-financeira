@@ -64,7 +64,8 @@ export enum PeriodoTransacoes {
 }
 
 export class TransacoesRepository extends DefaultRepository {
-  public readonly TRANSACOES_MAPPING = { ...this.DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
+  // @ts-ignore
+  public readonly DEFAULT_MAPPING = { ...super.DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE, categoriaId: MapperTypes.NUMBER };
 
   public async totais(yearAndMonth: Date): Promise<TotaisHome> {
     await Promise.resolve();
@@ -178,7 +179,7 @@ export class TransacoesRepository extends DefaultRepository {
     if (!Array.isArray(result))
       throw new Error(`${TableNames.TRANSACOES} não encontrado (a)`);
 
-    return this.parseSqlResultToObj(result, this.TRANSACOES_MAPPING)[0] || [];
+    return this.parseSqlResultToObj(result, this.DEFAULT_MAPPING)[0] || [];
   }
 
   public async listByMonth(month: string, year: string): Promise<Transacoes[]> {
@@ -187,7 +188,7 @@ export class TransacoesRepository extends DefaultRepository {
     if (!Array.isArray(result))
       throw new Error(`${TableNames.TRANSACOES} não encontrado (a)`);
 
-    return this.parseSqlResultToObj(result, this.TRANSACOES_MAPPING)[0] || [];
+    return this.parseSqlResultToObj(result, this.DEFAULT_MAPPING)[0] || [];
   }
 
   public async deletePeriod(month: string, year: string) {

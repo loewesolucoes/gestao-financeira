@@ -30,7 +30,7 @@ export interface DefaultFields {
 const RUNNED_MIGRATION_CODE = 'runned';
 
 export class DefaultRepository {
-  protected readonly DEFAULT_MAPPING = { createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME };
+  public readonly DEFAULT_MAPPING = { createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME };
   public constructor(protected db: IDatabase) { }
 
   public async saveAll(tableName: TableNames, items: DefaultFields[]) {
