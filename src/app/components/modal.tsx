@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useEnv } from '../contexts/env';
 
 interface CustomProps {
   children?: any
@@ -9,6 +10,7 @@ interface CustomProps {
 
 export function Modal({ children, title, onClose, hideFooter }: CustomProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const { isMobile } = useEnv()
 
   function onCloseClick() {
     setIsOpen(false);
@@ -55,6 +57,7 @@ export function Modal({ children, title, onClose, hideFooter }: CustomProps) {
               </div>
             )}
           </div>
+          {isMobile ? <div className="py-5"></div> : null}
         </div>
       </div>
       <div className={`modal-backdrop fade ${isOpen && 'show'}`} style={{ zIndex: 98 }} onClick={onCloseClickBackdrop}></div>

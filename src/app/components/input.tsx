@@ -76,7 +76,6 @@ function MDTextArea({ onChangeInput, inputValue, otherProps }) {
 
     textAsDivRef.current?.parentNode?.appendChild(innerDivRef.current);
 
-    console.log('MDTextArea component mounted');
     const EasyMDE = require('easymde'); // Import EasyMDE dynamically to avoid SSR issues
 
     const defaultToolbar = [
@@ -140,7 +139,6 @@ function MDTextArea({ onChangeInput, inputValue, otherProps }) {
 
     return () => {
       setIsLoading(true);
-      console.log('MDTextArea component unmounted');
       cleanUpEasyMDE();
     }
   }, [isMobile]);

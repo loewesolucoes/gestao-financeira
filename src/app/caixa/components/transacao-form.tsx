@@ -136,10 +136,7 @@ function TipoDeReceitaInput({ setTipo, tipo }: { setTipo: (value: number) => voi
   </div>;
 }
 
-function CategoriaInput({ setIsNewCategoriaModalOpen, isMobile, setCategoria, categoriaId, repository }) {
-
-  console.log("CategoriaInput", categoriaId, repository?.categoriaTransacoes?.TODAS);
-  
+function CategoriaInput({ setIsNewCategoriaModalOpen, isMobile, setCategoria, categoriaId, repository }) {  
   return <div className="flex-grow-1">
     <label htmlFor="categoria" className="form-label">Categoria</label>
     <div className="input-group mb-3">
@@ -170,7 +167,7 @@ function ComentarioInput({ setComentario, comentario }: { setComentario: (value:
 
   return (
     <div className="flex-grow-1 d-flex flex-column w-100 h-100">
-      <label htmlFor="comentario" className="form-label">Comentário (OBS) <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setIsOpen(!isOpen)}>{isOpen ? 'Esconder' : 'Mostrar'}</button></label>
+      <label htmlFor="comentario" className="form-label">Comentário (OBS) <button type="button" className="btn btn-sm btn-dark btn-sm mx-2" onClick={() => setIsOpen(!isOpen)}>{isOpen ? 'Esconder' : 'Mostrar'}</button></label>
       {isOpen && (
         <Input type="mdtextarea" className="form-control h-100" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentario (OBS)" />
       )}
@@ -190,27 +187,27 @@ function FormButtons({ isAllLoading, transacao, onClose, onDelete, onReset }) {
   </>;
 
   return (
-    <div className="d-flex gap-2 justify-content-end">
+    <div className="d-flex gap-2 justify-content-sm-end flex-column flex-sm-row">
       {onClose && (
-        <button type="button" onClick={onClose} className="btn btn-secondary align-self-end mt-2" disabled={isAllLoading}>
+        <button type="button" onClick={onClose} className="btn btn-secondary align-self-sm-end mt-2" disabled={isAllLoading}>
           {isAllLoading
             ? loadingState
             : 'Fechar'}
         </button>
       )}
       {transacao && onDelete && (
-        <button type="button" onClick={onDelete} className="btn btn-danger align-self-end mt-2" disabled={isAllLoading}>
+        <button type="button" onClick={onDelete} className="btn btn-danger align-self-sm-end mt-2" disabled={isAllLoading}>
           {isAllLoading
             ? loadingState
             : 'Remover'}
         </button>
       )}
       {onReset && (
-        <button type="button" onClick={onReset} className="btn btn-light align-self-end mt-2" disabled={isAllLoading}>
+        <button type="button" onClick={onReset} className="btn btn-light align-self-sm-end mt-2" disabled={isAllLoading}>
           Limpar campos
         </button>
       )}
-      <button type="submit" className="btn btn-primary align-self-end mt-2" disabled={isAllLoading}>
+      <button type="submit" className="btn btn-primary align-self-sm-end mt-2" disabled={isAllLoading}>
         {isAllLoading
           ? loadingState
           : title}

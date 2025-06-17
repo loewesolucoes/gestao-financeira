@@ -17,7 +17,7 @@ export function ListaCaixa({ transacoesDoPeriodo, tableName: tn }: CustomProps) 
   const tableName = tn || TableNames.TRANSACOES
   const [transaction, setTransaction] = useState<Transacoes | null>(null);
 
-  return <ul className="list-group">
+  return <ul className="list-group w-100 mx-3">
     {transacoesDoPeriodo.map((x, i) => (
       <ListaCaixaItem key={`${x.local}:${i}`} item={x} setTransaction={setTransaction} />
     ))}
