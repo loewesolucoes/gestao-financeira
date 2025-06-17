@@ -6,6 +6,8 @@ export interface Parametro extends DefaultFields {
 }
 
 export class ParametrosRepository extends DefaultRepository {
+  // @ts-ignore
+  public readonly DEFAULT_MAPPING = { ...super.DEFAULT_MAPPING }
   private _paramsDict?: { [key: string]: Parametro };
 
   public async getDict(): Promise<{ [key: string]: Parametro }> {

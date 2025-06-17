@@ -38,11 +38,10 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
     event.preventDefault();
     setIsLoading(true);
 
-    const updatedTransaction = { ...transacao, valor, data, tipo, local, comentario }
+    const updatedTransaction = { ...transacao, valor, data, tipo, local, comentario, categoriaId }
 
     if (tableName === TableNames.PATRIMONIO)
       delete updatedTransaction.tipo;
-
 
     if (onCustomSubmit == null) {
       const result = await repository.save(tableName, updatedTransaction);
@@ -97,49 +96,23 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
 
       <div className="d-flex flex-column px-3 py-2 gap-3">
         <div className="d-flex gap-3 flex-column flex-md-row w-100">
-          <div className={`flex-grow-1 ${!isPatrimonio && 'w-100'}`}>
+          <div className={`flex-grow-1 w-100`}>
             <label htmlFor="local" className="form-label">Local</label>
             <Input type="text" className="form-control" id="local" onChange={x => setLocal(x)} value={local} placeholder="Local" />
           </div>
-        </div>
-        <div className="d-flex gap-3 flex-column flex-md-row w-100">
           <div className="flex-grow-1">
             <label htmlFor="valorAplicado" className="form-label">Valor aplicado</label>
             <Input type="number" className="form-control" id="valorAplicado" groupSymbolLeft="R$" onChange={x => setValor(x)} value={valor} />
           </div>
-          {isPatrimonio ? <DataInput data={data} setData={setData} isPatrimonio={isPatrimonio} /> : null}
-          {!isPatrimonio && (
-            <div className="flex-grow-1">
-              <label htmlFor="categoria" className="form-label">Categoria</label>
-              <div className="input-group mb-3">
-                <button type="button" className="btn btn-outline-secondary" title="Adicionar nova categoria" onClick={() => setIsNewCategoriaModalOpen(true)}>➕</button>
-                <select className={`form-select ${!isMobile && 'form-control-sm'}`} id="categoria" onChange={e => setCategoria(Number(e.target.value))} defaultValue={categoriaId}>
-                  {repository?.categoriaTransacoes?.TODAS.map(c => (
-                    <option key={c.id} value={c.id} defaultChecked={c.id === 1}>{c.descricao}</option>
-                  ))}
-                </select>
-              </div>
-                <small id="passwordHelpBlock" className="form-text">
-                Para adicionar uma nova categoria, clique no botão &quot;➕&quot; ao lado.
-                </small>
-            </div>
-          )}
+          {isPatrimonio && (<DataInput data={data} setData={setData} />)}
+        </div>
+        <div className="d-flex gap-3 flex-column flex-md-row w-100">
+          {!isPatrimonio && (<CategoriaInput setIsNewCategoriaModalOpen={setIsNewCategoriaModalOpen} isMobile={isMobile} setCategoria={setCategoria} categoriaId={categoriaId} repository={repository} />)}
+          {!isPatrimonio && (<DataInput data={data} setData={setData} />)}
+          {!isPatrimonio && (<TipoDeReceitaInput setTipo={setTipo} tipo={tipo} />)}
         </div>
         <div className="d-flex gap-3 flex-column flex-md-row w-100">
           <ComentarioInput comentario={comentario} setComentario={setComentario} />
-          <div className="d-flex gap-3 flex-column">
-            {!isPatrimonio ? <DataInput data={data} setData={setData} isPatrimonio={isPatrimonio} /> : null}
-            {!isPatrimonio
-              ? (
-                <div className="flex-grow-1">
-                  <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
-                  <select className={`form-select ${!isMobile && 'form-control-sm'}`} id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
-                    <option value={TipoDeReceita.VARIAVEL}>Variável</option>
-                    <option value={TipoDeReceita.FIXO}>Fixo</option>
-                  </select>
-                </div>
-              ) : null}
-          </div>
         </div>
         <FormButtons isAllLoading={isAllLoading} transacao={transacao} onClose={onClose} onDelete={onDelete} onReset={onReset} />
       </div>
@@ -153,22 +126,51 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
   </>;
 }
 
-function DataInput({ setData, data, isPatrimonio }) {
-  const { isMobile } = useEnv();
+function TipoDeReceitaInput({ setTipo, tipo }: { setTipo: (value: number) => void, tipo: TipoDeReceita }) {
+  return <div className="flex-grow-1">
+    <label htmlFor="tipoReceita" className="form-label">Tipo de receita</label>
+    <select className={`form-select`} id="tipoReceita" onChange={e => setTipo(Number(e.target.value))} defaultValue={tipo}>
+      <option value={TipoDeReceita.VARIAVEL}>Variável</option>
+      <option value={TipoDeReceita.FIXO}>Fixo</option>
+    </select>
+  </div>;
+}
 
+function CategoriaInput({ setIsNewCategoriaModalOpen, isMobile, setCategoria, categoriaId, repository }) {  
+  return <div className="flex-grow-1">
+    <label htmlFor="categoria" className="form-label">Categoria</label>
+    <div className="input-group mb-3">
+      <button type="button" className="btn btn-outline-secondary" title="Adicionar nova categoria" onClick={() => setIsNewCategoriaModalOpen(true)}>➕</button>
+      <select className={`form-select ${!isMobile && 'form-control-sm'}`} id="categoria" onChange={e => setCategoria(Number(e.target.value))} defaultValue={categoriaId}>
+        {repository?.categoriaTransacoes?.TODAS.map(c => (
+          <option key={c.id} value={c.id}>{c.descricao}</option>
+        ))}
+      </select>
+    </div>
+    <small id="passwordHelpBlock" className="form-text">
+      Para adicionar uma nova categoria, clique no botão &quot;➕&quot; ao lado.
+    </small>
+  </div>
+}
+
+function DataInput({ setData, data }) {
   return (
     <div className="flex-grow-1">
       <label htmlFor="data" className="form-label">Data</label>
-      <Input type="date" className={`form-control ${!isMobile && !isPatrimonio && 'form-control-sm'}`} id="data" onChange={x => setData(x)} value={data} />
+      <Input type="date" className={`form-control`} id="data" onChange={x => setData(x)} value={data} />
     </div>
   )
 }
 
 function ComentarioInput({ setComentario, comentario }: { setComentario: (value: string) => void, comentario?: string }) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   return (
     <div className="flex-grow-1 d-flex flex-column w-100 h-100">
-      <label htmlFor="comentario" className="form-label">Comentario (OBS)</label>
-      <Input type="mdtextarea" className="form-control h-100" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentario (OBS)" />
+      <label htmlFor="comentario" className="form-label">Comentário (OBS) <button type="button" className="btn btn-sm btn-dark btn-sm mx-2" onClick={() => setIsOpen(!isOpen)}>{isOpen ? 'Esconder' : 'Mostrar'}</button></label>
+      {isOpen && (
+        <Input type="mdtextarea" className="form-control h-100" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentario (OBS)" />
+      )}
     </div>
   );
 }
@@ -185,27 +187,27 @@ function FormButtons({ isAllLoading, transacao, onClose, onDelete, onReset }) {
   </>;
 
   return (
-    <div className="d-flex gap-2 justify-content-end">
+    <div className="d-flex gap-2 justify-content-sm-end flex-column flex-sm-row">
       {onClose && (
-        <button type="button" onClick={onClose} className="btn btn-secondary align-self-end mt-2" disabled={isAllLoading}>
+        <button type="button" onClick={onClose} className="btn btn-secondary align-self-sm-end mt-2" disabled={isAllLoading}>
           {isAllLoading
             ? loadingState
             : 'Fechar'}
         </button>
       )}
       {transacao && onDelete && (
-        <button type="button" onClick={onDelete} className="btn btn-danger align-self-end mt-2" disabled={isAllLoading}>
+        <button type="button" onClick={onDelete} className="btn btn-danger align-self-sm-end mt-2" disabled={isAllLoading}>
           {isAllLoading
             ? loadingState
             : 'Remover'}
         </button>
       )}
       {onReset && (
-        <button type="button" onClick={onReset} className="btn btn-light align-self-end mt-2" disabled={isAllLoading}>
+        <button type="button" onClick={onReset} className="btn btn-light align-self-sm-end mt-2" disabled={isAllLoading}>
           Limpar campos
         </button>
       )}
-      <button type="submit" className="btn btn-primary align-self-end mt-2" disabled={isAllLoading}>
+      <button type="submit" className="btn btn-primary align-self-sm-end mt-2" disabled={isAllLoading}>
         {isAllLoading
           ? loadingState
           : title}

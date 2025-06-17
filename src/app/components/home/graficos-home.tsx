@@ -37,7 +37,7 @@ export function GraficoCaixaAcumuladoMesAMes({ transacoesAcumuladasPorMes }: Cus
     }
   }} />;
 }
-export function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
+export function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {  
   return <Bar data={{
     labels: transacoesAcumuladasPorMes?.map(x => x.mes),
     datasets: [
@@ -82,17 +82,17 @@ export function GraficoCaixaVariacaoPercentualAcumuladoMesAMes({ transacoesAcumu
       },
       {
         label: 'variação trimestral (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualTrimestral.toNumber() > 1000 ? 0 : x.variacaoPercentualTrimestral),
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualTrimestral?.toNumber() > 1000 ? 0 : x?.variacaoPercentualTrimestral),
         hidden: true,
       },
       !isMobile && {
         label: 'variação semestral (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualSemestral.toNumber() > 1000 ? 0 : x.variacaoPercentualSemestral),
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualSemestral?.toNumber() > 1000 ? 0 : x?.variacaoPercentualSemestral),
         hidden: true,
       },
       !isMobile && {
         label: 'variação anual (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualAnual.toNumber() > 1000 ? 0 : x.variacaoPercentualAnual),
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualAnual?.toNumber() > 1000 ? 0 : x?.variacaoPercentualAnual),
         hidden: true,
       },
     ].filter(Boolean),
@@ -127,17 +127,17 @@ export function GraficoCaixaVariacaoAcumuladoMesAMes({ transacoesAcumuladasPorMe
       },
       {
         label: 'variação trimestral',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoTrimestral.toNumber() > 1000 ? 0 : x.variacaoTrimestral),
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoTrimestral?.toNumber() > 1000 ? 0 : x?.variacaoTrimestral),
         hidden: true,
       },
       !isMobile && {
         label: 'variação semestral',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoSemestral.toNumber() > 1000 ? 0 : x.variacaoSemestral),
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoSemestral?.toNumber() > 1000 ? 0 : x?.variacaoSemestral),
         hidden: true,
       },
       !isMobile && {
         label: 'variação anual',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoAnual.toNumber() > 1000 ? 0 : x.variacaoAnual),
+        data: transacoesAcumuladasPorMes?.map(x => x.variacaoAnual?.toNumber() > 1000 ? 0 : x?.variacaoAnual),
         hidden: true,
       },
     ].filter(Boolean),

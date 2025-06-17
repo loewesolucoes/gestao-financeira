@@ -11,7 +11,8 @@ export interface Patrimonio extends DefaultFields {
 }
 
 export class PatrimonioRepository extends DefaultRepository {
-  public readonly PATRIMONIO_MAPPING = { ...this.DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
+  // @ts-ignore
+  public readonly DEFAULT_MAPPING = { ...super.DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
 
   public async listPatrimonio(periodo: PeriodoTransacoes): Promise<Patrimonio[]> {
     let query = TransacoesRepository.getQueryByPeriodo(periodo);
@@ -21,7 +22,7 @@ export class PatrimonioRepository extends DefaultRepository {
     if (!Array.isArray(result))
       throw new Error(`${TableNames.PATRIMONIO} não encontrado (a)`);
 
-    return this.parseSqlResultToObj(result, this.PATRIMONIO_MAPPING)[0] || [];
+    return this.parseSqlResultToObj(result, this.DEFAULT_MAPPING)[0] || [];
   }
 
   public async listByMonth(month: string, year: string): Promise<Patrimonio[]> {
@@ -30,7 +31,7 @@ export class PatrimonioRepository extends DefaultRepository {
     if (!Array.isArray(result))
       throw new Error(`${TableNames.PATRIMONIO} não encontrado (a)`);
 
-    return this.parseSqlResultToObj(result, this.PATRIMONIO_MAPPING)[0] || [];
+    return this.parseSqlResultToObj(result, this.DEFAULT_MAPPING)[0] || [];
   }
 
   public async deletePeriod(month: string, year: string) {
