@@ -28,9 +28,10 @@ export function ThemeProvider(props: any) {
 
     const currentTheme = html.getAttribute('data-bs-theme');
     const nextTheme = getNextThemeOrDefault(theme);
-    
+
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
+
     if (currentTheme !== nextTheme) {
-      localStorage.setItem(THEME_STORAGE_KEY, theme)
       html.setAttribute('data-bs-theme', nextTheme);
     }
   }, [theme]);
