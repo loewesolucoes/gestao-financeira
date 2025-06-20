@@ -7,6 +7,7 @@ import { StorageProvider } from "./storage"
 import { LoggingProvider } from "./logging"
 import { LocationProvider } from "./location";
 import { NotificationProvider } from "./notification";
+import { ThemeProvider } from "./theme";
 
 export function AppProviders({ children }: any) {
   return (
@@ -16,7 +17,9 @@ export function AppProviders({ children }: any) {
           <LoggingProvider>
             <AuthProvider>
               <StorageProvider>
-                {children}
+                <ThemeProvider>
+                  {children}
+                </ThemeProvider>
               </StorageProvider>
             </AuthProvider>
           </LoggingProvider>
