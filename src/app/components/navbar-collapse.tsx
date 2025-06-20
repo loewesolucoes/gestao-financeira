@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from "next/navigation";
 import { AuthButton } from "./auth-button";
+import { ThemeSelector } from './theme-selector';
 
 const pages = [
   {
@@ -57,7 +58,10 @@ export function NavbarCollapse({ show, className }: CustomProps) {
           <Link className={`nav-link ${pathname == x.path ? 'active' : ''}`} href={x.path}>{x.name}</Link>
         </li>
       ))}
+      <ThemeSelector />
     </ul>
     <AuthButton />
   </div>;
 }
+
+
