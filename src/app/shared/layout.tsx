@@ -10,6 +10,7 @@ import moment from "moment";
 import 'chart.js/auto';
 import { BottomNavbar } from "../components/bottom-navbar";
 import { Notifications } from "../components/notifications";
+import { ErrorHandler } from "./error-handler";
 
 BigNumber.config({
   FORMAT: {
@@ -24,13 +25,15 @@ moment().locale('pt-br')
 
 export function Layout({ children }: any) {
   return (
-    <AppProviders>
-      <Header />
-      {children}
-      <Footer />
-      <BottomNavbar />
-      <Notifications />
-    </AppProviders>
+    <ErrorHandler>
+      <AppProviders>
+        <Header />
+        {children}
+        <Footer />
+        <BottomNavbar />
+        <Notifications />
+      </AppProviders>
+    </ErrorHandler>
   );
 }
 
