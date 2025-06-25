@@ -10,7 +10,12 @@ export class RepositoryUtil {
     const localDump = await RepositoryUtil.exportLocalDump();
 
     if (data == null && localDump != null) {
-      data = Buffer.from(await localDump.arrayBuffer());
+      if (localDump instanceof Blob)
+        data = Buffer.from(await localDump.arrayBuffer());
+      else if (typeof localDump === 'string') // validate if it's a base64 string because of legacy database savings
+        data = Buffer.from(localDump, 'base64');
+      else
+        throw new Error('Invalid local dump format');
     }
 
     const db = new DatabaseConnector();
