@@ -23,14 +23,14 @@ BigNumber.config({
 
 moment().locale('pt-br')
 
-export function Layout({ children }: any) {
+export function Layout({ children, noHeader }: any) {
   return (
-    <ErrorHandler>
+    <ErrorHandler noHeader={noHeader}>
       <AppProviders>
-        <Header />
+        {noHeader ? null : <Header />}
         {children}
         <Footer />
-        <BottomNavbar />
+        {noHeader ? null : <BottomNavbar />}
         <Notifications />
       </AppProviders>
     </ErrorHandler>

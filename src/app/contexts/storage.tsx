@@ -196,7 +196,8 @@ export function StorageProvider(props: any) {
 
     if (file) {
       const fileData = await GDriveUtil.getFileById(file.id);
-      const dump = fileData?.body;
+      // check if fileDataBlob is a base64 string
+      const dump = await RepositoryUtil.parseFromBase64OrDefault(fileData);
 
       await RepositoryUtil.persistLocalDump(dump);
       await startStorage()

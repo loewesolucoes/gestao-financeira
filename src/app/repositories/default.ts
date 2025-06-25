@@ -309,11 +309,10 @@ export class DefaultRepository {
     console.debug("persistDb ok");
   }
 
-  private async exportDump() {
-    await Promise.resolve();
+  private async exportDump(): Promise<Blob> {
     const exp = await this.db.export();
 
-    return await RepositoryUtil.generateDumpFromExport(exp)
+    return RepositoryUtil.generateDumpFromExport(exp);
   }
 
   private beforeClose() {
