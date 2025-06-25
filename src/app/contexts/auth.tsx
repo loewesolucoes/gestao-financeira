@@ -25,9 +25,9 @@ if (!CLIENT_ID || !CLIENT_SECRET)
 // included, separated by spaces.
 const SCOPES = 'https://www.googleapis.com/auth/drive';
 const GOOGLE_AUTH_BASE_URL = "https://accounts.google.com/o/oauth2/auth"
+const redirectUrl = `${process.env.NEXT_PUBLIC_URL}/auth/redirect`;
 
 export function AuthProvider(props: any) {
-  const redirectUrl = typeof (window) !== 'undefined' ? `${window?.location?.origin}/auth/redirect` : null;
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isAuthOk, setIsAuthOk] = useState(false);
   const [authError, setAuthError] = useState<any>(null);
