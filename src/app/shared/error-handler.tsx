@@ -3,15 +3,15 @@ import { Footer } from "../components/footer";
 import { Header } from "../components/header";
 import { useEffect } from "react";
 
-export function ErrorHandler({ children }: { children: React.ReactNode }) {
+export function ErrorHandler({ children, noHeader }: { children: React.ReactNode, noHeader?: boolean }) {
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
+    <ErrorBoundary fallbackRender={p => (<ErrorFallback {...p} noHeader={noHeader} />)}>
       {children}
     </ErrorBoundary>
   );
 }
 
-function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void; }) {
+function ErrorFallback({ error, resetErrorBoundary, noHeader }: { error: Error; resetErrorBoundary: () => void; noHeader?: boolean }) {
   useEffect(() => {
     if (error != null) {
       sendDataToTagManager(error);
@@ -40,7 +40,7 @@ function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetError
 
   return (
     <>
-      <Header />
+      {noHeader ? null : <Header />}
       <main className="container my-5">
         <div className="alert alert-danger" role="alert">
           <h4 className="alert-heading">Ocorreu um erro inesperado</h4>

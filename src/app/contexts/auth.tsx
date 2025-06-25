@@ -1,12 +1,13 @@
 "use client";
 
-import Cookies from 'js-cookie'
 import moment from 'moment';
-import Script from 'next/script';
 import React, { createContext, useState, useEffect } from "react"
+import { NotificationUtil } from '../utils/notification';
+import { AuthUtil } from '../utils/auth';
 
 const AuthContext = createContext({
-  doAuth: () => { },
+  goToAuth: () => { },
+  doAuth: (code: string) => { },
   doLogout: () => { },
   isLoadingAuth: true,
   isAuthOk: false,
@@ -15,136 +16,185 @@ const AuthContext = createContext({
 
 // TODO(developer): Set to client ID and API key from the Developer Console
 const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID || '';
+const CLIENT_SECRET = process.env.NEXT_PUBLIC_API_KEY || '';
 
-if (!CLIENT_ID)
+if (!CLIENT_ID || !CLIENT_SECRET)
   throw new Error("You must set env variables")
 
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
 const SCOPES = 'https://www.googleapis.com/auth/drive';
-const COOKIE_NAME = 'gdriveauth';
-
-let tokenClient: any;
-let isApiLoaded = false;
-let isClientLoaded = false;
+const GOOGLE_AUTH_BASE_URL = "https://accounts.google.com/o/oauth2/auth"
+const redirectUrl = `${process.env.NEXT_PUBLIC_URL}/auth/redirect`;
 
 export function AuthProvider(props: any) {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isAuthOk, setIsAuthOk] = useState(false);
-  const [isLoadingGapi, setIsLoadingGapi] = useState(true);
-  const [isLoadingGis, setIsLoadingGis] = useState(true);
   const [authError, setAuthError] = useState<any>(null);
-  const [gload, setGLoad] = useState({ api: isApiLoaded, client: isClientLoaded });
 
   useEffect(() => {
-    if (gload.api && gload.client) {
-      createGDrive();
-      isApiLoaded = isClientLoaded = true;
-    }
-  }, [gload]);
+    load();
+  }, []);
 
-  useEffect(() => {
-    if (!isLoadingGapi && !isLoadingGis) {
-      loadTokenIfExists();
-      setIsLoadingAuth(false);
-    }
-  }, [isLoadingGapi, isLoadingGis]);
+  async function load() {
+    setIsLoadingAuth(true);
+    console.debug("Loading auth state...");
+    loadTokenOrRefreshIfExists();
+    setIsLoadingAuth(false);
+  }
 
-  function loadTokenIfExists() {
-    const token = Cookies.get(COOKIE_NAME);
+  async function loadTokenOrRefreshIfExists() {
+    console.debug("Checking for existing token or refresh token...");
+    const token = AuthUtil.getAuthToken();
 
     if (token) {
-      gapi.client.setToken({ access_token: token });
+      console.debug("Token found, setting auth state to OK");
       setIsAuthOk(true);
+    } else {
+      console.debug("No token found, checking for refresh token...");
+      await loadRefreshIfExists();
     }
   }
 
-  function createGDrive() {
-    console.debug("createGDrive");
+  async function loadRefreshIfExists() {
+    let isOk = false;
+    const refreshToken = await AuthUtil.getRefreshToken();
 
-    try {
-      gisLoaded();
-      gapi.load('client', initializeGapiClient);
-    } catch (ex) {
-      console.error('Provavel sem internet.', ex)
-      setAuthError(ex);
+    if (typeof refreshToken === 'string' && refreshToken.length > 0) {
+      console.debug("Refresh token found, attempting to refresh access token...");
+      isOk = await doRefresh(refreshToken);
+    }
+
+    if (isOk)
+      setIsAuthOk(true);
+    else {
+      console.debug("No valid token or refresh token found, setting auth state to not OK");
+      setIsAuthOk(false);
+      setAuthError("No valid token or refresh token found");
+      await AuthUtil.clearRefreshToken();
+      AuthUtil.clearAuthToken();
     }
   }
 
+  function goToAuth() {
+    var googleAuthUrl = new URL(GOOGLE_AUTH_BASE_URL)
 
-  /**
-   * Callback after the API client is loaded. Loads the
-   * discovery doc to initialize the API.
-  */
-  async function initializeGapiClient() {
-    console.debug("initializeGapiClient");
+    googleAuthUrl.searchParams.set('client_id', CLIENT_ID);
+    googleAuthUrl.searchParams.set('redirect_uri', redirectUrl);
+    googleAuthUrl.searchParams.set('response_type', 'code');
+    googleAuthUrl.searchParams.set('scope', SCOPES);
+    googleAuthUrl.searchParams.set('access_type', 'offline');
 
-    await gapi.client.load('drive', 'v3');
-    setIsLoadingGapi(false);
+    window.location.href = googleAuthUrl.toString();
   }
 
-  /**
-   * Callback after Google Identity Services are loaded.
-  */
-  function gisLoaded() {
-    console.debug("gisLoaded");
+  async function doAuth(code: string) {
+    setIsLoadingAuth(true);
+    const myHeaders = new Headers();
 
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: () => console.warn('not defined'), // defined later
-    });
-    setIsLoadingGis(false);
-  }
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
-  /**
-   *  Sign in the user upon button click.
-  */
-  function doAuth() {
-    console.debug("doAuth");
+    const urlencoded = new URLSearchParams();
 
-    tokenClient.callback = async (resp: any) => {
-      console.debug('doAuth resp', resp)
-      if (resp.error !== undefined) {
-        throw (resp);
-      }
-      setIsAuthOk(true);
+    urlencoded.append("code", code);
+    urlencoded.append("client_id", CLIENT_ID);
+    urlencoded.append("client_secret", CLIENT_SECRET);
+    urlencoded.append("redirect_uri", redirectUrl);
+    urlencoded.append("grant_type", "authorization_code");
 
-      const token = gapi.client.getToken();
-
-      Cookies.set(COOKIE_NAME, token.access_token, { expires: moment().add(token.expires_in, 's').toDate() });
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: urlencoded,
     };
 
-    if (gapi.client.getToken() === null) {
-      // Prompt the user to select a Google Account and ask for consent to share their data
-      // when establishing a new session.
-      tokenClient.requestAccessToken({ prompt: 'consent' });
-    } else {
-      // Skip display of account chooser and consent dialog for an existing session.
-      tokenClient.requestAccessToken({ prompt: '' });
+    const response = await fetch("https://oauth2.googleapis.com/token", requestOptions)
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      console.error("Failed to authenticate:", responseData);
+      setIsLoadingAuth(false);
+      setAuthError(responseData.error || "Failed to authenticate");
+
+      throw new Error(responseData.error || "Failed to authenticate");
     }
+
+    console.debug("doAuth response:", responseData);
+
+    await AuthUtil.setAuthToken(responseData.access_token, responseData.expires_in)
+    await AuthUtil.setRefreshTokenIfNeed(responseData.refresh_token);
+
+    setIsLoadingAuth(false);
+    NotificationUtil.send("Autenticação realizada com sucesso");
+
+    return responseData;
   }
 
-  /**
-   *  Sign out the user upon button click.
-  */
-  function doLogout() {
-    console.debug("doLogout");
+  async function doRefresh(refresh: string) {
+    const myHeaders = new Headers();
 
-    const token = gapi.client.getToken();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
-    setIsAuthOk(false);
+    const urlencoded = new URLSearchParams();
 
-    if (token !== null) {
-      google.accounts.oauth2.revoke(token.access_token, () => console.debug('end logout'));
-      gapi.client.setToken(null);
-      Cookies.remove(COOKIE_NAME);
+    // https://developers.google.com/identity/protocols/oauth2/web-server#offline
+    urlencoded.append("refresh_token", refresh);
+    urlencoded.append("client_id", CLIENT_ID);
+    urlencoded.append("client_secret", CLIENT_SECRET);
+    urlencoded.append("grant_type", "refresh_token");
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: urlencoded,
+    };
+
+    const response = await fetch("https://oauth2.googleapis.com/token", requestOptions)
+
+    if (!response.ok)
+      return false;
+
+    const responseData = await response.json();
+
+    await AuthUtil.setAuthToken(responseData.access_token, responseData.expires_in);
+
+    setIsLoadingAuth(false);
+    NotificationUtil.send("Autenticação realizada com sucesso");
+
+    return responseData;
+  }
+
+  async function doLogout() {
+    // revoke access token
+    // https://developers.google.com/identity/protocols/oauth2/web-server#tokenrevoke
+    setIsLoadingAuth(true);
+    const currentToken = AuthUtil.getAuthToken();
+    const revokeUrl = `https://oauth2.googleapis.com/revoke?token=${currentToken}`;
+    const requestOptions = { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded", }, };
+    const response = await fetch(revokeUrl, requestOptions)
+
+    if (response.ok) {
+      console.debug("Access token revoked successfully");
+
+      // Clear cookies and local storage
+      AuthUtil.clearAuthToken();
+      await AuthUtil.clearRefreshToken();
+      setIsAuthOk(false);
+      setAuthError(null);
+      setIsLoadingAuth(false);
+      NotificationUtil.send("Logout realizado com sucesso");
+    } else {
+      console.debug("Failed to revoke access token:", response, response.statusText);
+      setIsLoadingAuth(false);
+      setAuthError("Failed to revoke access token");
+      throw new Error("Failed to revoke access token");
     }
   }
 
   return (
     <AuthContext.Provider
       value={{
+        goToAuth,
         doAuth,
         doLogout,
         isLoadingAuth,
@@ -154,8 +204,6 @@ export function AuthProvider(props: any) {
       {...props}
     >
       {props.children}
-      <Script async defer src="https://apis.google.com/js/api.js" strategy="afterInteractive" onLoad={() => setGLoad((p) => ({ ...p, api: true }))} />
-      <Script async defer src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onLoad={() => setGLoad((p) => ({ ...p, client: true }))} />
     </AuthContext.Provider>
   )
 }

@@ -8,23 +8,26 @@ import { LoggingProvider } from "./logging"
 import { LocationProvider } from "./location";
 import { NotificationProvider } from "./notification";
 import { ThemeProvider } from "./theme";
+import { ErrorHandlerProvider } from "./error-handler";
 
 export function AppProviders({ children }: any) {
   return (
-    <EnvProvider>
-      <NotificationProvider>
-        <LocationProvider>
-          <LoggingProvider>
-            <AuthProvider>
-              <StorageProvider>
-                <ThemeProvider>
-                  {children}
-                </ThemeProvider>
-              </StorageProvider>
-            </AuthProvider>
-          </LoggingProvider>
-        </LocationProvider>
-      </NotificationProvider>
-    </EnvProvider>
+    <ErrorHandlerProvider>
+      <EnvProvider>
+        <NotificationProvider>
+          <LocationProvider>
+            <LoggingProvider>
+              <AuthProvider>
+                <StorageProvider>
+                  <ThemeProvider>
+                    {children}
+                  </ThemeProvider>
+                </StorageProvider>
+              </AuthProvider>
+            </LoggingProvider>
+          </LocationProvider>
+        </NotificationProvider>
+      </EnvProvider>
+    </ErrorHandlerProvider>
   )
 }

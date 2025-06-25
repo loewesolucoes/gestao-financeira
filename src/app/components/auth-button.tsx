@@ -4,7 +4,7 @@ import { useStorage } from "../contexts/storage";
 import { Loader } from "./loader";
 
 export function AuthButton() {
-  const { doAuth, doLogout, isLoadingAuth, isAuthOk } = useAuth();
+  const { goToAuth, doLogout, isLoadingAuth, isAuthOk } = useAuth();
   const { isGDriveLoadLoading, isGDriveSaveLoading } = useStorage();
 
   if (isAuthOk)
@@ -25,7 +25,7 @@ export function AuthButton() {
     );
 
   else
-    return isLoadingAuth ? <Loader className="text-success" /> : <button className="btn btn-outline-success" type="button" onClick={doAuth}>Entrar</button>;
+    return isLoadingAuth ? <Loader className="text-success" /> : <button className="btn btn-outline-success" type="button" onClick={goToAuth}>Entrar</button>;
 }
 
 function LoadGDriveButton() {
