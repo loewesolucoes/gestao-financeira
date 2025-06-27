@@ -9,6 +9,7 @@ import { useStorage } from "../contexts/storage";
 import { useEnv } from "../contexts/env";
 import { Parametro } from "../repositories/parametros";
 import { Input } from "../components/input";
+import { NotificationUtil } from "../utils/notification";
 
 function Configuracoes() {
   const [isLoading, setIsLoading] = useState(false);
@@ -54,13 +55,13 @@ function Configuracoes() {
 
     await importOriginalDumpFromFile(file);
 
-    alert('arquivo carregado com sucesso');
+    NotificationUtil.send('arquivo carregado com sucesso');
     setIsLoading(false);
   }
 
   async function saveParam(currentParam?: Parametro) {
     if (currentParam == null)
-      return alert('Parâmetro invalido.');
+      return NotificationUtil.send('Parâmetro invalido.');
 
     setIsLoading(true);
     await repository.params.set(currentParam.chave, currentParam.valor);

@@ -5,6 +5,8 @@ export interface Parametro extends DefaultFields {
   valor?: string
 }
 
+export const GOOGLE_DRIVE_REFRESH_TOKEN = 'GOOGLE_DRIVE_REFRESH_TOKEN';
+
 export class ParametrosRepository extends DefaultRepository {
   // @ts-ignore
   public readonly DEFAULT_MAPPING = { ...super.DEFAULT_MAPPING }
@@ -22,8 +24,7 @@ export class ParametrosRepository extends DefaultRepository {
     const params = (await this.list<Parametro>(TableNames.PARAMETROS)).reduce((p, n) => { p[n.chave] = n; return p; }, {});
     const nextParams = params;
 
-    // example of a default parameter that could be added
-    // nextParams[BRAPI_KEY] = params[BRAPI_KEY] || { chave: BRAPI_KEY, valor: '' };
+    nextParams[GOOGLE_DRIVE_REFRESH_TOKEN] = params[GOOGLE_DRIVE_REFRESH_TOKEN] || { chave: GOOGLE_DRIVE_REFRESH_TOKEN, valor: '' };
 
     const newParams = Object.keys(nextParams).map(x => nextParams[x]).filter(x => x.id == null);
 

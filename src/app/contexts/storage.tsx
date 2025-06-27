@@ -6,13 +6,14 @@ import { useAuth } from "./auth";
 import { GDriveUtil } from "../utils/gdrive";
 import { RepositoryUtil } from "../utils/repository";
 import { DefaultRepository } from "../repositories/default";
-import { ParametrosRepository } from "../repositories/parametros";
+import { GOOGLE_DRIVE_REFRESH_TOKEN, ParametrosRepository } from "../repositories/parametros";
 import { NotificationUtil } from "../utils/notification";
 import { MetasRepository } from "../repositories/metas";
 import { NotasRepository } from "../repositories/notas";
 import { TransacoesRepository } from "../repositories/transacoes";
 import { PatrimonioRepository } from "../repositories/patrimonio";
 import { CategoriaTransacoesRepository } from "../repositories/categoria-transacoes";
+import { AuthUtil } from "../utils/auth";
 
 interface Repo extends DefaultRepository {
   params: ParametrosRepository
@@ -52,7 +53,7 @@ export function StorageProvider(props: any) {
   const [isDbOk, setIsDbOk] = useState<boolean>(false);
   const [isGDriveSaveLoading, setIsGDriveSaveLoading] = useState<boolean>(false);
   const [isGDriveLoadLoading, setIsGDriveLoadLoading] = useState<boolean>(false);
-  const { isAuthOk } = useAuth();
+  const { isAuthOk, loadRefreshIfExists } = useAuth();
 
   useEffect(() => {
     startStorage();
@@ -62,11 +63,11 @@ export function StorageProvider(props: any) {
     isDbOk && reload();
   }, [isDbOk]);
 
-  async function startStorage(data?: ArrayLike<number> | Buffer | null) {
+  async function startStorage() {
     console.debug('startStorage');
     setIsDbOk(false);
 
-    const repository = await RepositoryUtil.create(data) as Repo;
+    const repository = await RepositoryUtil.createFromPersistedLocalDump() as Repo;
 
     // @ts-ignore
     const sqldb = repository.db;
@@ -106,12 +107,45 @@ export function StorageProvider(props: any) {
       return;
     }
 
-    repository.categoriaTransacoes.loadAll();
+    await repository.categoriaTransacoes.loadAll();
+    await loadRefreshTokenIfExistsAndSetIfNeed();
+  }
+
+  async function loadRefreshTokenIfExistsAndSetIfNeed() {
+    console.debug('loadRefreshTokenIfExistsAndSetIfNeed');
+
+    const { success, refreshToken } = await loadRefreshIfExists();
+
+    if (success && refreshToken) {
+      await repository.params.set(GOOGLE_DRIVE_REFRESH_TOKEN, refreshToken);
+      console.debug('Refresh token loaded and set from auth.');
+      return;
+    }
+
+    console.debug('No valid refresh token found in auth, checking db...');
+    const dbToken = await repository.params.getByKey(GOOGLE_DRIVE_REFRESH_TOKEN);
+
+    if (dbToken?.valor) {
+      console.debug('Found refresh token in db, setting it in auth...');
+      const { success } = await loadRefreshIfExists(dbToken.valor);
+
+      if (!success) {
+        console.warn('Failed to load refresh token from db, clearing it...');
+        await repository.params.set(GOOGLE_DRIVE_REFRESH_TOKEN, undefined);
+      }
+    } else {
+      console.debug('No valid refresh token found in db, clearing it...');
+      await repository.params.set(GOOGLE_DRIVE_REFRESH_TOKEN, undefined);
+
+      if (AuthUtil.isAuthOk()) {
+        NotificationUtil.send('Nenhum token de autenticação encontrado. Por favor, faça logout e login novamente no Google Drive.');
+      }
+    }
   }
 
   async function exportOriginalDumpToFileAndDownload(fileName: string) {
     const dump = await repository.exportOriginalDump();
-    const blob = new Blob([dump], { type: "application/vnd.sqlite3" });
+    const blob = new Blob([dump], { type: "application/octet-stream" });
 
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
@@ -124,18 +158,22 @@ export function StorageProvider(props: any) {
     await Promise.resolve();
 
     if (file == null) {
-      alert('Precisa escolher o arquivo primeiro');
+      NotificationUtil.send('Precisa escolher o arquivo primeiro');
     } else {
       const fileReader = new FileReader();
 
       fileReader.onload = async function () {
         if (fileReader.result == null || typeof (fileReader.result) === 'string')
-          return alert('arquivo invalido')
+          return NotificationUtil.send('arquivo invalido')
 
         const data = new Uint8Array(fileReader.result);
-        const repo = await startStorage(data);
 
-        repo.persistDb();
+        console.debug('importOriginalDumpFromFile data length:', data.length);
+
+        const dataBlob = new Blob([data], { type: "application/octet-stream" });
+
+        await RepositoryUtil.persistLocalDump(dataBlob);
+        await startStorage();
       }
 
       fileReader.readAsArrayBuffer(file);
@@ -172,6 +210,7 @@ export function StorageProvider(props: any) {
 
     setIsGDriveLoadLoading(true);
     console.debug('doGDriveLoad start');
+
     if (!isAuthOk)
       throw new Error('you must login on gdrive')
 
