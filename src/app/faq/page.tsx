@@ -7,6 +7,7 @@ import ArrowIcon from './arrow.svg'
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+// TODO: trocar pra um arquivo markdown
 const qea = [
   {
     question: "Como faço para criar um orçamento detalhado?",
