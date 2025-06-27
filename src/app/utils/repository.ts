@@ -6,17 +6,21 @@ import { DatabaseConnector } from '../repositories/database-connector';
 export class RepositoryUtil {
   public static readonly DB_NAME = 'gestao-financeira.settings.db';
 
-  public static async create(data?: ArrayLike<number> | Buffer | null) {
+  public static async createFromPersistedLocalDump() {
     const localDump = await RepositoryUtil.exportLocalDump();
+    let data: Buffer | null = null;
 
-    if (data == null && localDump != null) {
+    if (localDump != null) {
       if (localDump instanceof Blob)
         data = Buffer.from(await localDump.arrayBuffer());
       else if (typeof localDump === 'string') // validate if it's a base64 string because of legacy database savings
         data = Buffer.from(localDump, 'base64');
       else
-        throw new Error('Invalid local dump format');
+        data = null;
     }
+
+    if (data == null || data.length === 0)
+      console.debug('No local dump found, creating a new database');
 
     const db = new DatabaseConnector();
 

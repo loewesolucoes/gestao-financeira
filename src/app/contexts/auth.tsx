@@ -1,18 +1,28 @@
 "use client";
 
-import moment from 'moment';
 import React, { createContext, useState, useEffect } from "react"
 import { NotificationUtil } from '../utils/notification';
 import { AuthUtil } from '../utils/auth';
 
-const AuthContext = createContext({
-  goToAuth: () => { },
-  doAuth: (code: string) => { },
-  doLogout: () => { },
-  isLoadingAuth: true,
-  isAuthOk: false,
+interface AuthContextInterface {
+  authError: any;
+  doAuth: (code: string) => Promise<any>;
+  doLogout: () => Promise<void>;
+  goToAuth: () => void;
+  isAuthOk: boolean;
+  isLoadingAuth: boolean;
+  loadRefreshIfExists: (refreshTokenToSet?: string) => Promise<{ success: boolean, refreshToken?: string, message?: string }>;
+}
+
+const AuthContext = createContext<AuthContextInterface>({
   authError: null,
-})
+  doAuth: Promise.reject,
+  doLogout: Promise.reject,
+  goToAuth: Promise.reject,
+  isAuthOk: false,
+  isLoadingAuth: true,
+  loadRefreshIfExists: Promise.reject,
+});
 
 // TODO(developer): Set to client ID and API key from the Developer Console
 const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID || '';
@@ -56,24 +66,32 @@ export function AuthProvider(props: any) {
     }
   }
 
-  async function loadRefreshIfExists() {
-    let isOk = false;
-    const refreshToken = await AuthUtil.getRefreshToken();
+  async function loadRefreshIfExists(refreshTokenToSet?: string) {
+    let message = "No valid token or refresh token found";
+    const refreshToken = refreshTokenToSet ?? await AuthUtil.getRefreshToken();
+    const authToken = AuthUtil.getAuthToken();
+    let isOk = !!authToken;
 
-    if (typeof refreshToken === 'string' && refreshToken.length > 0) {
+    if (typeof refreshToken === 'string' && refreshToken.length > 0 && authToken == null) {
       console.debug("Refresh token found, attempting to refresh access token...");
       isOk = await doRefresh(refreshToken);
     }
 
-    if (isOk)
+    if (isOk) {
+      message = "Token refreshed successfully";
+      await AuthUtil.setRefreshTokenIfNeed(refreshToken);
+      console.debug(`${message}, setting auth state to OK`);
       setIsAuthOk(true);
-    else {
-      console.debug("No valid token or refresh token found, setting auth state to not OK");
+      setAuthError(null);
+    } else {
+      console.debug(`${message}, setting auth state to not OK`);
       setIsAuthOk(false);
-      setAuthError("No valid token or refresh token found");
+      setAuthError(message);
       await AuthUtil.clearRefreshToken();
       AuthUtil.clearAuthToken();
     }
+
+    return { success: isOk, refreshToken, message };
   }
 
   function goToAuth() {
@@ -194,12 +212,13 @@ export function AuthProvider(props: any) {
   return (
     <AuthContext.Provider
       value={{
-        goToAuth,
+        authError,
         doAuth,
         doLogout,
-        isLoadingAuth,
+        goToAuth,
         isAuthOk,
-        authError,
+        isLoadingAuth,
+        loadRefreshIfExists,
       }}
       {...props}
     >

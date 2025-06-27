@@ -1,6 +1,6 @@
 {
   "name": "gestao-financeira",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -15,6 +15,7 @@
   "dependencies": {
     "bignumber.js": "9.3.0",
     "bootstrap": "5.3.6",
+    "bootstrap-icons": "1.13.1",
     "chart.js": "4.4.9",
     "dompurify": "3.2.6",
     "easymde": "2.20.0",
@@ -36,9 +37,6 @@
     "@testing-library/jest-dom": "6.4.2",
     "@testing-library/react": "14.2.2",
     "@types/extenso": "2.0.4",
-    "@types/gapi": "0.0.47",
-    "@types/gapi.drive": "0.0.9",
-    "@types/google.accounts": "0.0.14",
     "@types/jest": "29.5.12",
     "@types/js-cookie": "3.0.6",
     "@types/node": "20.11.30",
