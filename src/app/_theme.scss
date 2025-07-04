@@ -1,14 +1,25 @@
 $white: #ffffff;
 
+// $theme-colors: (
+//   "light": #00aa5d,
+//   "dark": #232323,
+//   "primary": #00aa5d,
+//   "secondary": #383838,
+//   "info": #0dcaf0,
+//   "success": #198754,
+//   "warning": #ffc107,
+//   "danger": #ef4e4e,
+// );
+
 $theme-colors: (
-  "light": #f8f9fa,
+  "light": #f4f7f6,
   "dark": #343a40,
-  "primary": #65a148,
-  "secondary": #adb5bd,
-  "info": #0dcaf0,
-  "success": #198754,
-  "warning": #ffc107,
-  "danger": #dc3545,
+  "primary": #4caf50, // A modern, professional green
+  "secondary": #6c757d, // Muted gray for contrast
+  "info": #17a2b8, // Subtle blue for info
+  "success": #43a047, // Slightly deeper green for success
+  "warning": #ffb300, // Muted amber for warnings
+  "danger": #e53935, // Professional red for errors
 );
 
 // $theme-colors: (
@@ -21,3 +32,11 @@ $theme-colors: (
 //   "warning": #ffc107,
 //   "danger": #dc3545,
 // );
+
+// TODO: customize following this documentation https://getbootstrap.com/docs/5.3/customize/overview/ to make the dashboard more professional looking
+
+// $enable-shadows: false;
+// $enable-rounded: true;
+// $enable-gradients: false;
+
+$body-bg: #f7faff;

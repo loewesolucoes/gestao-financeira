@@ -3,6 +3,7 @@
 import React, { createContext, useState, useEffect } from "react"
 import { NotificationUtil } from '../utils/notification';
 import { AuthUtil } from '../utils/auth';
+import { GDriveUserInfo, GDriveUtil } from "../utils/gdrive";
 
 interface AuthContextInterface {
   authError: any;
@@ -12,6 +13,7 @@ interface AuthContextInterface {
   isAuthOk: boolean;
   isLoadingAuth: boolean;
   loadRefreshIfExists: (refreshTokenToSet?: string) => Promise<{ success: boolean, refreshToken?: string, message?: string }>;
+  userInfo?: GDriveUserInfo
 }
 
 const AuthContext = createContext<AuthContextInterface>({
@@ -22,6 +24,7 @@ const AuthContext = createContext<AuthContextInterface>({
   isAuthOk: false,
   isLoadingAuth: true,
   loadRefreshIfExists: Promise.reject,
+  userInfo: null,
 });
 
 // TODO(developer): Set to client ID and API key from the Developer Console
@@ -41,6 +44,7 @@ export function AuthProvider(props: any) {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isAuthOk, setIsAuthOk] = useState(false);
   const [authError, setAuthError] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<GDriveUserInfo>(null);
 
   useEffect(() => {
     load();
@@ -49,8 +53,35 @@ export function AuthProvider(props: any) {
   async function load() {
     setIsLoadingAuth(true);
     console.debug("Loading auth state...");
-    loadTokenOrRefreshIfExists();
+    await loadTokenOrRefreshIfExists();
+    await loadUserInfoIfNeed();
     setIsLoadingAuth(false);
+  }
+
+  async function loadUserInfoIfNeed() {
+    const isLoggedIn = AuthUtil.isAuthOk();
+
+    if (!isLoggedIn) {
+      console.debug('User is not logged in, skipping user info load');
+      setUserInfo(null);
+      return;
+    }
+
+    const cachedUserInfo = AuthUtil.getUserInfo() as GDriveUserInfo;
+
+    if (cachedUserInfo) {
+      console.debug('Using cached user info:', cachedUserInfo);
+      setUserInfo(cachedUserInfo);
+      return;
+    }
+
+    console.debug('Loading user info from GDrive Api...');
+
+    const userInfo = await GDriveUtil.getUserInfo();
+    console.debug('loadedUserInfo', userInfo);
+
+    AuthUtil.setUserInfo(userInfo);
+    setUserInfo(userInfo);
   }
 
   async function loadTokenOrRefreshIfExists() {
@@ -87,8 +118,9 @@ export function AuthProvider(props: any) {
       console.debug(`${message}, setting auth state to not OK`);
       setIsAuthOk(false);
       setAuthError(message);
-      await AuthUtil.clearRefreshToken();
       AuthUtil.clearAuthToken();
+      AuthUtil.clearUserInfo();
+      await AuthUtil.clearRefreshToken();
     }
 
     return { success: isOk, refreshToken, message };
@@ -196,6 +228,7 @@ export function AuthProvider(props: any) {
 
       // Clear cookies and local storage
       AuthUtil.clearAuthToken();
+      AuthUtil.clearUserInfo();
       await AuthUtil.clearRefreshToken();
       setIsAuthOk(false);
       setAuthError(null);
@@ -219,6 +252,7 @@ export function AuthProvider(props: any) {
         isAuthOk,
         isLoadingAuth,
         loadRefreshIfExists,
+        userInfo,
       }}
       {...props}
     >

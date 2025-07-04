@@ -10,6 +10,8 @@ import GearFillIcon from "../../../public/gear-fill.svg";
 import ThreeDotsIcon from "../../../public/three-dots.svg";
 import { useState } from "react";
 import { NavbarCollapse } from "./navbar-collapse";
+import { Modal } from "./modal";
+import { HeaderSidebar } from "./header-sidebar";
 
 const pages = [
   {
@@ -43,8 +45,7 @@ export function BottomNavbar() {
     isMobile
       ? (
         <>
-          <footer className="bottom-navbar navbar fixed-bottom p-0 bg-light" >
-            <NavbarCollapse show={show} className="px-3 py-3" />
+          <footer className="bottom-navbar navbar fixed-bottom p-0 bg-light">
             <div id="buttonGroup" className="btn-group selectors rounded-0 w-100 pb-3 bg-light" role="group" aria-label="Basic example">
               {pages.map(x => (
                 <Link key={x.path} href={x.path} className={`btn btn-light rounded-0 ${pathname == x.path ? 'active' : ''}`}>
@@ -63,6 +64,11 @@ export function BottomNavbar() {
             </div>
           </footer>
           <div className="py-5"></div>
+          {show && (
+            <Modal hideFooter={true} hideHeader={true} onClose={() => setShow(false)} fullScreen={true} style={{ zIndex: 1031 }}>
+              <HeaderSidebar mobile={true} onClose={() => setShow(false)} />
+            </Modal>
+          )}
         </>
       )
       : null

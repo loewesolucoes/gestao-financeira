@@ -11,6 +11,7 @@ import 'chart.js/auto';
 import { BottomNavbar } from "../components/bottom-navbar";
 import { Notifications } from "../components/notifications";
 import { ErrorHandler } from "./error-handler";
+import { HeaderSidebar } from "../components/header-sidebar";
 
 BigNumber.config({
   FORMAT: {
@@ -28,8 +29,13 @@ export function Layout({ children, noHeader }: any) {
     <ErrorHandler noHeader={noHeader}>
       <AppProviders>
         {noHeader ? null : <Header />}
-        {children}
-        <Footer />
+        <div className="d-flex">
+          {noHeader ? null : <HeaderSidebar />}
+          <div className="d-flex flex-column flex-grow-1 real-body">
+            {children}
+            <Footer />
+          </div>
+        </div>
         {noHeader ? null : <BottomNavbar />}
         <Notifications />
       </AppProviders>

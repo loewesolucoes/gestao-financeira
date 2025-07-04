@@ -40,7 +40,6 @@ function ErrorFallback({ error, resetErrorBoundary, noHeader }: { error: Error; 
 
   return (
     <>
-      {noHeader ? null : <Header />}
       <main className="container my-5">
         <div className="alert alert-danger" role="alert">
           <h4 className="alert-heading">Ocorreu um erro inesperado</h4>

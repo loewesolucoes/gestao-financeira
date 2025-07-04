@@ -15,12 +15,32 @@ export interface GDriveFileGet {
   statusText: null;
 }
 
+export interface GDriveUserInfo {
+  kind: string;
+  user: {
+    kind: string;
+    displayName: string;
+    photoLink: string;
+    me: boolean;
+    permissionId: string;
+    emailAddress: string;
+  };
+  storageQuota: {
+    limit: string;
+    usage: string;
+    usageInDrive: string;
+    usageInDriveTrash: string;
+  };
+}
+
+
 const GOOGLE_APIS_URL = 'https://www.googleapis.com';
 const GOOGLE_DRIVE_URL = `${GOOGLE_APIS_URL}/drive/v3`;
 const GOOGLE_DRIVE_UPLOAD_URL = `${GOOGLE_APIS_URL}/upload/drive/v3`;
 
 export class GDriveUtil {
   public static readonly DB_FILE_NAME = 'gestao-financeira.settings.db'
+
   public static async getFirstFileByName(fileName: string): Promise<GDriveFile | undefined> {
     const token = AuthUtil.getAuthToken();
     const googleAuthUrl = new URL(`${GOOGLE_DRIVE_URL}/files`)
@@ -96,5 +116,18 @@ export class GDriveUtil {
     console.debug('Updated. Result:\n' + JSON.stringify(json, null, 2));
 
     return json;
+  }
+
+  public static async getUserInfo(): Promise<GDriveUserInfo> {
+    const token = AuthUtil.getAuthToken();
+
+    const response = await fetch("https://www.googleapis.com/drive/v3/about/?fields=kind,user,storageQuota", {
+      method: "GET",
+      headers: new Headers({ Authorization: 'Bearer ' + token }),
+    });
+
+    const result = await response.json()
+
+    return result;
   }
 }
