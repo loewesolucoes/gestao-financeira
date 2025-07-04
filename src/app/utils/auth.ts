@@ -2,6 +2,7 @@ import Cookies from 'js-cookie'
 import localforage from 'localforage';
 import moment from 'moment';
 import { GDriveUserInfo } from './gdrive';
+import { NotificationUtil } from './notification';
 
 const GDRIVE_COOKIE_NAME = 'gdriveauth';
 const GDRIVE_COOKIE_EXPIRATION_DATE = 'gdriveauthexpirationdate';
@@ -64,8 +65,11 @@ export class AuthUtil {
   public static setUserInfo(userInfo: GDriveUserInfo): void {
     const expirationIsoDate = Cookies.get(GDRIVE_COOKIE_EXPIRATION_DATE)
 
-    if (!expirationIsoDate)
+    if (!expirationIsoDate) {
+      NotificationUtil.send("Não foi possível salvar as informações do usuário. Por favor, faça logout e realize o login novamente.");
+
       throw new Error("Expiration date not set, cannot save user info.");
+    }
 
     const expirationDate = new Date(expirationIsoDate);
 
