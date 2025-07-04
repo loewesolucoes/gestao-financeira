@@ -66,7 +66,7 @@ export class AuthUtil {
     const expirationIsoDate = Cookies.get(GDRIVE_COOKIE_EXPIRATION_DATE)
 
     if (!expirationIsoDate) {
-      NotificationUtil.send("Não foi possível salvar as informações do usuário. Por favor, faça logout e realize o login novamente.");
+      NotificationUtil.send("Não foi possível salvar as informações do usuário. Tente novamente em alguns instantes ou faça logout e realize o login novamente.");
 
       throw new Error("Expiration date not set, cannot save user info.");
     }
