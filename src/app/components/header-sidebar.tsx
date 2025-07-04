@@ -62,7 +62,7 @@ function UserInfo() {
 
 export function HeaderSidebar({ mobile, onClose }: { mobile?: boolean, onClose?: () => void }) {
   return (
-    <header className={`sidebar p-3 flex-column flex-shrink-0 ${!mobile && 'd-none d-lg-flex'}`} style={{ width: mobile ? '290px' : '320px', minHeight: '100vh' }}>
+    <header className={`sidebar p-3 flex-column flex-shrink-0 ${!mobile && 'd-none d-lg-flex'}`} style={{ width: !mobile && '320px', minHeight: '100vh' }}>
       {onClose && (
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={onClose} style={{ position: 'absolute', right: 15, top: 15 }}></button>
       )}
