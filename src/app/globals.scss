@@ -52,7 +52,7 @@ header {
   > svg {
     width: 30px;
     height: 30px;
-    
+
     @include media-breakpoint-up(lg) {
       width: 40px;
       height: 40px;
@@ -73,5 +73,106 @@ footer {
     &:hover {
       color: rgba(#000, 0.7);
     }
+  }
+}
+
+// .real-body {
+//   background: #F7FAFF;
+//   border-top-left-radius: $card-border-radius;
+//   box-shadow: inset 3px 3px 7px 0px rgba(0, 0, 0, 0.1);
+// }
+
+.user-info-card {
+  background: var(--bs-white);
+  border-color: #fbfbfb;
+  box-shadow: rgba(35, 35, 35, 0.1) 0px 8px 20px;
+
+  .profile-image {
+    height: 3.75rem;
+    width: 3.75rem;
+    object-fit: cover;
+  }
+
+  .form-control {
+    background: rgba(0, 170, 93, 0.04);
+    border: 1px solid rgba(0, 170, 93, 0.15);
+    color: var(--bs-primary);
+  }
+}
+
+.side-bar-menu {
+  background: #eaedf2;
+  box-shadow: initial;
+  border: none;
+
+  .nav-item {
+    color: #838fa0;
+    border-left: 1px solid;
+
+    > .nav-link {
+      position: relative;
+
+      > .nav-icon {
+        height: 2rem;
+        width: 2rem;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.5rem;
+        border-radius: 5px;
+      }
+
+      &::before {
+        content: "";
+        display: inline-flex;
+        height: 30px;
+        width: 3px;
+        position: absolute;
+        top: 50%;
+        left: -8px;
+        transform: translateY(-50%);
+        opacity: 0;
+        border-radius: 6px;
+      }
+    }
+
+    &.active {
+      color: rgb(131, 143, 160);
+
+      > .nav-link {
+        > .nav-icon {
+          color: var(--bs-primary);
+          box-shadow: rgba(35, 35, 35, 0.2) 5px 9px 30px;
+          background: var(--bs-white);
+        }
+
+        > span {
+          color: var(--bs-primary);
+        }
+
+        &::before {
+          opacity: 1;
+          background-color: var(--bs-primary);
+        }
+      }
+    }
+
+    &.not-link {
+      border-left: none;
+    }
+  }
+}
+
+@include color-mode(dark) {
+  .user-info-card,
+  .side-bar-menu {
+    background: linear-gradient(
+      117deg,
+      rgba(69, 69, 69, 0) -152.27%,
+      #202227 100.58%
+    );
+    box-shadow: none;
+    border-color: #282b31;
   }
 }

@@ -6,9 +6,12 @@ interface CustomProps {
   title?: any
   onClose?: () => void
   hideFooter?: boolean
+  hideHeader?: boolean
+  fullScreen?: boolean
+  style?: React.CSSProperties
 }
 
-export function Modal({ children, title, onClose, hideFooter }: CustomProps) {
+export function Modal({ children, title, onClose, hideFooter, hideHeader, fullScreen, style }: CustomProps) {
   const [isOpen, setIsOpen] = useState(true);
   const { isMobile } = useEnv()
 
@@ -41,13 +44,15 @@ export function Modal({ children, title, onClose, hideFooter }: CustomProps) {
 
   return (
     <>
-      <div className={`modal modal-lg fade ${isOpen && 'show'}`} id="modal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ zIndex: 99, display: isOpen ? 'block' : 'none' }} onClick={onCloseClickBackdrop}>
-        <div className="modal-dialog">
+      <div className={`modal modal-lg fade ${isOpen && 'show'}`} id="modal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ zIndex: 99, display: isOpen ? 'block' : 'none', ...style }} onClick={onCloseClickBackdrop}>
+        <div className={`modal-dialog ${fullScreen ? ' modal-fullscreen' : ''} ${isMobile ? 'modal-dialog-scrollable' : ''}`} style={{ zIndex: 99 }} onClick={(e) => e.stopPropagation()}>
           <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel">{title}</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={onCloseClick}></button>
-            </div>
+            {!hideHeader && (
+              <div className="modal-header">
+                <h5 className="modal-title" id="exampleModalLabel">{title}</h5>
+                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={onCloseClick}></button>
+              </div>
+            )}
             <div className="modal-body">
               {children}
             </div>

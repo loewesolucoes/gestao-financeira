@@ -16,11 +16,14 @@ import { useEnv } from "./contexts/env";
 import moment from "moment";
 import { GraficoCaixaAcumuladoMesAMes, GraficoBalancoMesAMes, GraficoCaixaVariacaoAcumuladoMesAMes, GraficoCaixaVariacaoPercentualAcumuladoMesAMes } from "./components/home/graficos-home";
 import Link from "next/link";
+import { DateUtil } from "./utils/date";
+import { useAuth } from "./contexts/auth";
 
-const MOBILE_TRANSACOES_POR_MES = 6;
+const MOBILE_TRANSACOES_POR_MES = 4;
 
 function Home() {
   const { isDbOk, repository } = useStorage();
+  const { userInfo } = useAuth();
   const { isMobile } = useEnv();
 
   const [yearAndMonth, setYearAndMonth] = useState<Date>(new Date());
@@ -28,7 +31,7 @@ function Home() {
   const [totais, setTotais] = useState<TotaisHome>({} as any);
 
   useEffect(() => {
-    document.title = `Início | ${process.env.NEXT_PUBLIC_TITLE}`
+    document.title = `Dashboard | ${process.env.NEXT_PUBLIC_TITLE}`
   }, []);
 
   useEffect(() => {
@@ -38,7 +41,7 @@ function Home() {
   async function load() {
     setIsLoading(true);
     const result = await repository.transacoes.totais(yearAndMonth);
-    
+
 
     console.info('load', result);
 
@@ -56,6 +59,7 @@ function Home() {
 
   return (
     <main className="main container">
+      <h1 className="mt-lg-3">👋 {DateUtil.generateGreetings()}{userInfo ? ', ' + userInfo?.user?.displayName : ''}</h1>
       <NoData isLoading={isLoading} valorEmCaixa={valorEmCaixa} />
       <section className="home my-3">
         {isLoading
@@ -163,6 +167,8 @@ function Home() {
     </main>
   );
 }
+
+
 
 function NoData({ isLoading, valorEmCaixa }) {
   return !isLoading && valorEmCaixa == null ? (

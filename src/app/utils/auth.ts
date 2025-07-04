@@ -1,9 +1,12 @@
 import Cookies from 'js-cookie'
 import localforage from 'localforage';
 import moment from 'moment';
+import { GDriveUserInfo } from './gdrive';
 
 const GDRIVE_COOKIE_NAME = 'gdriveauth';
+const GDRIVE_COOKIE_EXPIRATION_DATE = 'gdriveauthexpirationdate';
 const GDRIVE_REFRESH_TOKEN_KEY = 'gdrive_refresh_token';
+const GDRIVE_USER_INFO = 'user_info';
 
 export class AuthUtil {
   public static isAuthOk(): boolean {
@@ -22,10 +25,17 @@ export class AuthUtil {
       secure: true,
       sameSite: 'Strict',
     });
+
+    Cookies.set(GDRIVE_COOKIE_EXPIRATION_DATE, expirationDate.toISOString(), {
+      expires: expirationDate,
+      secure: true,
+      sameSite: 'Strict',
+    });
   }
 
   public static clearAuthToken(): void {
     Cookies.remove(GDRIVE_COOKIE_NAME);
+    Cookies.remove(GDRIVE_COOKIE_EXPIRATION_DATE);
   }
 
   public static async getRefreshToken(): Promise<string | null> {
@@ -43,5 +53,30 @@ export class AuthUtil {
 
   public static async clearRefreshToken(): Promise<void> {
     return localforage.removeItem(GDRIVE_REFRESH_TOKEN_KEY);
+  }
+
+  public static getUserInfo(): GDriveUserInfo {
+    const userInfo = Cookies.get(GDRIVE_USER_INFO);
+
+    return userInfo ? JSON.parse(userInfo) : null;
+  }
+
+  public static setUserInfo(userInfo: GDriveUserInfo): void {
+    const expirationIsoDate = Cookies.get(GDRIVE_COOKIE_EXPIRATION_DATE)
+
+    if (!expirationIsoDate)
+      throw new Error("Expiration date not set, cannot save user info.");
+
+    const expirationDate = new Date(expirationIsoDate);
+
+    Cookies.set(GDRIVE_USER_INFO, JSON.stringify(userInfo), {
+      expires: expirationDate,
+      secure: true,
+      sameSite: 'Strict',
+    });
+  }
+
+  public static clearUserInfo(): void {
+    Cookies.remove(GDRIVE_USER_INFO);
   }
 }

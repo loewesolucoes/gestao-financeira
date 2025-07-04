@@ -3,7 +3,7 @@
 
 import React, { createContext, useState, useEffect } from "react"
 import { useAuth } from "./auth";
-import { GDriveUtil } from "../utils/gdrive";
+import { GDriveUserInfo, GDriveUtil } from "../utils/gdrive";
 import { RepositoryUtil } from "../utils/repository";
 import { DefaultRepository } from "../repositories/default";
 import { GOOGLE_DRIVE_REFRESH_TOKEN, ParametrosRepository } from "../repositories/parametros";

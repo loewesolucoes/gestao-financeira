@@ -9,7 +9,7 @@ export function AuthButton() {
 
   if (isAuthOk)
     return (
-      <div className="auth-button d-flex justify-content-center mb-lg-0 mb-2">
+      <div className="auth-button d-flex justify-content-center flex-column gap-3 mb-lg-0 mb-2">
         {isGDriveLoadLoading || isGDriveSaveLoading
           ? (
             <Loader />
