@@ -86,6 +86,13 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
       x.ordem = i;
     });
 
+    if (isPatrimonio) {
+      transacoesOk.forEach((x, i) => {
+        delete x.categoriaId;
+        delete x.tipo;
+      });
+    }
+
     await Promise.all(transacoesRemovidas.filter(x => x.id).map(x => repository.delete(tableName, x.id)))
     await repository.saveAll(tableName, transacoesOk);
 

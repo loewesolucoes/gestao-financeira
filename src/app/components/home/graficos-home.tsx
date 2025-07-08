@@ -4,10 +4,33 @@ import { NumberUtil } from "../../utils/number";
 import { Bar, Line } from "react-chartjs-2";
 import { TransacoesAcumuladasPorMesHome } from "@/app/repositories/transacoes";
 
+// TODO: try to change this by https://apexcharts.com/
 
 interface CustomProps {
   transacoesAcumuladasPorMes: TransacoesAcumuladasPorMesHome[];
 }
+
+const zoomOptions = {
+  pan: {
+    enabled: true,
+    mode: 'xy',
+  },
+  zoom: {
+    wheel: {
+      enabled: true,
+    },
+    pinch: {
+      enabled: true
+    },
+    mode: 'xy',
+    onZoomComplete({ chart }) {
+      // This update is needed to display up to date zoom level in the title.
+      // Without this, previous zoom level is displayed.
+      // The reason is: title uses the same beforeUpdate hook, and is evaluated before zoom.
+      chart.update('none');
+    }
+  }
+};
 
 export function GraficoCaixaAcumuladoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
   return <Line data={{
@@ -24,7 +47,8 @@ export function GraficoCaixaAcumuladoMesAMes({ transacoesAcumuladasPorMes }: Cus
       legend: {
         position: 'bottom',
       },
-    },
+      zoom: zoomOptions,
+    } as any,
     scales: {
       y: {
         ticks: {
@@ -34,10 +58,10 @@ export function GraficoCaixaAcumuladoMesAMes({ transacoesAcumuladasPorMes }: Cus
           }
         }
       }
-    }
+    },
   }} />;
 }
-export function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {  
+export function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
   return <Bar data={{
     labels: transacoesAcumuladasPorMes?.map(x => x.mes),
     datasets: [
@@ -56,7 +80,8 @@ export function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProp
       legend: {
         position: 'bottom',
       },
-    },
+      zoom: zoomOptions,
+    } as any,
     scales: {
       y: {
         ticks: {
@@ -102,7 +127,8 @@ export function GraficoCaixaVariacaoPercentualAcumuladoMesAMes({ transacoesAcumu
       legend: {
         position: 'bottom',
       },
-    },
+      zoom: zoomOptions,
+    } as any,
     scales: {
       y: {
         ticks: {
@@ -147,7 +173,8 @@ export function GraficoCaixaVariacaoAcumuladoMesAMes({ transacoesAcumuladasPorMe
       legend: {
         position: 'bottom',
       },
-    },
+      zoom: zoomOptions,
+    } as any,
     scales: {
       y: {
         ticks: {
