@@ -40,8 +40,10 @@ export function TransacaoForm({ transacao, cleanStyle, onClose, onCustomSubmit, 
 
     const updatedTransaction = { ...transacao, valor, data, tipo, local, comentario, categoriaId }
 
-    if (tableName === TableNames.PATRIMONIO)
+    if (isPatrimonio) {
       delete updatedTransaction.tipo;
+      delete updatedTransaction.categoriaId;
+    }
 
     if (onCustomSubmit == null) {
       const result = await repository.save(tableName, updatedTransaction);
@@ -136,7 +138,7 @@ function TipoDeReceitaInput({ setTipo, tipo }: { setTipo: (value: number) => voi
   </div>;
 }
 
-function CategoriaInput({ setIsNewCategoriaModalOpen, isMobile, setCategoria, categoriaId, repository }) {  
+function CategoriaInput({ setIsNewCategoriaModalOpen, isMobile, setCategoria, categoriaId, repository }) {
   return <div className="flex-grow-1">
     <label htmlFor="categoria" className="form-label">Categoria</label>
     <div className="input-group mb-3">

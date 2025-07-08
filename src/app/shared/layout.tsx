@@ -12,6 +12,13 @@ import { BottomNavbar } from "../components/bottom-navbar";
 import { Notifications } from "../components/notifications";
 import { ErrorHandler } from "./error-handler";
 import { HeaderSidebar } from "../components/header-sidebar";
+import { Chart } from 'chart.js';
+
+if (typeof window !== 'undefined') {
+  const zoomPlugin = require('chartjs-plugin-zoom').default || require('chartjs-plugin-zoom');
+
+  Chart.register(zoomPlugin);
+}
 
 BigNumber.config({
   FORMAT: {

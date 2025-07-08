@@ -17,6 +17,7 @@
     "bootstrap": "5.3.6",
     "bootstrap-icons": "1.13.1",
     "chart.js": "4.4.9",
+    "chartjs-plugin-zoom": "2.2.0",
     "dompurify": "3.2.6",
     "easymde": "2.20.0",
     "extenso": "2.1.0",
