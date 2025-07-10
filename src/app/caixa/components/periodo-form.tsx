@@ -11,7 +11,7 @@ const periodosTransacoes = [
 ];
 
 export function PeriodoForm({ onChange, value }: any) {
-  return <form className="periodo-form card">
+  return <form className="periodo-form card card-material-1">
     <h5 className="card-header">Escolha o periodo</h5>
     <div className="d-xl-none my-3 px-3">
       <select className="form-select" id="tipoReceita" onChange={e => onChange(Number(e.target.value))} defaultValue={value}>

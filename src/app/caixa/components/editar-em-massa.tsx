@@ -32,8 +32,8 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
   const [yearAndMonth, setYearAndMonth] = useState<Date>(todayDate);
   const [transacoes, setTransacoes] = useState<Transacoes[]>([]);
   const [transacoesRemovidas, setTransacoesRemovidas] = useState<Transacoes[]>([]);
-  const [editTransacao, setEditTransacao] = useState<Transacoes | null>();
   const [isNewTransacaoOpen, setIsNewTransacaoOpen] = useState<boolean>(false);
+  const [editTransacao, setEditTransacao] = useState<Transacoes | null>();
 
   const isPatrimonio = tableName === TableNames.PATRIMONIO;
 
@@ -153,49 +153,7 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
                 <button type="button" className="btn btn-dark" onClick={e => setIsNewTransacaoOpen(true)}>Adicionar nova</button>
               </div>
             </div>
-            <DragDropContext onDragEnd={trocarPosicao}>
-              <Droppable droppableId="droppable">
-                {(provided, snapshot) => (
-                  <>
-                    <ul
-                      {...provided.droppableProps}
-                      className={`list-group ${snapshot.isDraggingOver && 'text-bg-dark'}`}
-                      ref={provided.innerRef}
-                    >
-                      {transacoes.map((x, i) => (
-                        <Draggable key={`${x.local}:${i}`} draggableId={`${x.local}:${i}`} index={i}>
-                          {(provided, snapshot) => (
-                            <li ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              style={provided.draggableProps.style} className={`list-group-item ${!x.valor?.toNumber() && 'list-group-item-warning'} ${snapshot.isDragging && 'active'}`}>
-                              <div className="d-flex w-100 justify-content-between gap-3">
-                                <h5>{x.local}</h5>
-                                <div className="d-flex justify-content-between gap-3">
-                                  <small>{moment(x.data).format('DD/MM/YY')}</small>
-                                  {x.tipo !== undefined && (
-                                    <small className={x.tipo === TipoDeReceita.FIXO ? 'text-primary' : 'text-info'}>{x.tipo === TipoDeReceita.FIXO ? 'Fixo' : 'Variável'}</small>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="d-flex w-100 justify-content-between gap-3">
-                                <p>{x.valor?.toNumber() ? NumberUtil.toCurrency(x.valor) : 'sem valor'}</p>
-                                <div className="d-flex gap-3 flex-column flex-lg-row">
-                                  <button className="btn btn-secondary" onClick={e => setEditTransacao(x)}>Editar</button>
-                                  <button className="btn btn-danger" onClick={e => removerTransacao(x)}>Remover</button>
-                                </div>
-                              </div>
-                              <small>{x.comentario}</small>
-                            </li>
-                          )}
-                        </Draggable>
-                      ))}
-                    </ul>
-                    {provided.placeholder}
-                  </>
-                )}
-              </Droppable>
-            </DragDropContext>
+            <EditarEmMassaList trocarPosicao={trocarPosicao} transacoes={transacoes} tableName={tableName} removerTransacao={removerTransacao} setEditTransacao={setEditTransacao} />
             <div className="d-flex justify-content-center justify-content-lg-end">
               <div className="d-flex gap-3 flex-column flex-lg-row">
                 <BalancoMes total={total} />
@@ -210,17 +168,110 @@ export function EditarEmMassa({ isCopy, tableName: tn }: CustomProps) {
             </div>
           </>
         )}
-      {editTransacao && (
-        <Modal hideFooter={true} onClose={() => setEditTransacao(null)} title={`Detalhes da transação: ${editTransacao?.local}`}>
-          <TransacaoForm tableName={tableName} transacao={editTransacao} cleanStyle={true} onClose={() => setEditTransacao(null)} onCustomSubmit={x => salvarTransacao(editTransacao, x)} onCustomDelete={x => removerTransacao(editTransacao)} />
-        </Modal>
-      )}
       {isNewTransacaoOpen && (
         <Modal hideFooter={true} onClose={() => setIsNewTransacaoOpen(false)} title={`Adicionar transação`}>
           <TransacaoForm tableName={tableName} cleanStyle={true} onClose={() => setIsNewTransacaoOpen(false)} onCustomSubmit={x => addTransacao(x)} onCustomDelete={x => setIsNewTransacaoOpen(false)} />
         </Modal>
       )}
+      {editTransacao && (
+        <Modal hideFooter={true} onClose={() => setEditTransacao(null)} title={`Detalhes da transação: ${editTransacao?.local}`}>
+          <TransacaoForm tableName={tableName} transacao={editTransacao} cleanStyle={true} onClose={() => setEditTransacao(null)} onCustomSubmit={x => salvarTransacao(editTransacao, x)} onCustomDelete={x => removerTransacao(editTransacao)} />
+        </Modal>
+      )}
     </>
+  );
+}
+interface EditarEmMassaListProps {
+  trocarPosicao: (drop: DropResult) => void;
+  transacoes: Transacoes[];
+  tableName: TableNames;
+  removerTransacao: (transacao: Transacoes) => void;
+  setEditTransacao: (transacao: Transacoes | null) => void;
+}
+
+function EditarEmMassaList({ trocarPosicao, transacoes, removerTransacao, tableName, setEditTransacao }: EditarEmMassaListProps) {
+  return <>
+    <DragDropContext onDragEnd={trocarPosicao}>
+      <Droppable droppableId="droppable">
+        {(provided, snapshot) => (
+          <>
+            <ul
+              {...provided.droppableProps}
+              className={`list-group ${snapshot.isDraggingOver && 'text-bg-dark'}`}
+              ref={provided.innerRef}
+            >
+              {transacoes.map((x, i) => (
+                <Draggable key={`${x.local}:${i}`} draggableId={`${x.local}:${i}`} index={i}>
+                  {(provided, snapshot) => (
+                    <EditarEmMassaListItem provided={provided} item={x} tableName={tableName} snapshot={snapshot} setEditTransacao={setEditTransacao} removerTransacao={removerTransacao} />
+                  )}
+                </Draggable>
+              ))}
+            </ul>
+            {provided.placeholder}
+          </>
+        )}
+      </Droppable>
+    </DragDropContext>
+  </>
+}
+
+interface EditarEmMassaListItemProps {
+  provided: any;
+  tableName: TableNames;
+  item: Transacoes;
+  snapshot: any;
+  setEditTransacao: (transacao: Transacoes | null) => void;
+  removerTransacao: (transacao: Transacoes) => void;
+}
+
+function EditarEmMassaListItem({
+  provided,
+  item,
+  snapshot,
+  tableName,
+  setEditTransacao,
+  removerTransacao,
+}: EditarEmMassaListItemProps) {
+  const { repository } = useStorage();
+
+  const isPatrimonio = tableName === TableNames.PATRIMONIO;
+  const descricaoCategoriaOrDefault = isPatrimonio ? '' : `(${repository?.categoriaTransacoes?.TODAS_DICT[item.categoriaId]?.descricao || 'Sem categoria'})`;
+
+  return (
+    <li
+      ref={provided.innerRef}
+      {...provided.draggableProps}
+      {...provided.dragHandleProps}
+      style={provided.draggableProps.style}
+      className={`list-group-item ${!item.valor?.toNumber() && 'list-group-item-warning'} ${snapshot.isDragging && 'active'}`}
+    >
+      <div className="d-flex w-100 justify-content-between gap-3">
+        <h5>
+          {item.local} <small className="text-secondary">{descricaoCategoriaOrDefault}</small>
+        </h5>
+        <div className="d-flex justify-content-between gap-3">
+          <small>{moment(item.data).format('DD/MM/YY')}</small>
+          {item.tipo !== undefined && (
+            <small className={item.tipo === TipoDeReceita.FIXO ? 'text-primary' : 'text-info'}>
+              {item.tipo === TipoDeReceita.FIXO ? 'Fixo' : 'Variável'}
+            </small>
+          )}
+        </div>
+      </div>
+      <div className="d-flex w-100 justify-content-between gap-3">
+        <p>{item.valor?.toNumber() ? NumberUtil.toCurrency(item.valor) : 'sem valor'}</p>
+        <div className="d-flex gap-3 flex-column flex-lg-row">
+          <button className="btn btn-secondary" onClick={e => setEditTransacao(item)}>
+            Editar
+          </button>
+          <button className="btn btn-danger" onClick={e => removerTransacao(item)}>
+            Remover
+          </button>
+        </div>
+      </div>
+      <small>{item.comentario}</small>
+    </li>
   );
 }
 

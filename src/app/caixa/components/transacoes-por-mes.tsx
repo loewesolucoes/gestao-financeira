@@ -2,7 +2,7 @@
 import moment from "moment";
 import { Loader } from "../../components/loader";
 import { ListaCaixa } from "./lista-caixa";
-import { BalancoDoMes } from "./balanco-do-mes";
+import { CaixaTotaisDoMes } from "./caixa-totais-do-mes";
 import Link from "next/link";
 import { NumberUtil } from "../../utils/number";
 import { useEffect, useState } from "react";
@@ -10,6 +10,7 @@ import { useStorage } from "@/app/contexts/storage";
 import BigNumber from "bignumber.js";
 import { PeriodoTransacoes, Transacoes, TransacoesAcumuladasPorMes } from "@/app/repositories/transacoes";
 import { TableNames } from "@/app/repositories/default";
+import { PatrimonioTotaisDoMes } from "./patrimonio-totais-do-mes";
 
 interface CustomProps {
   periodo: PeriodoTransacoes
@@ -81,7 +82,7 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
       {isLoading
         ? <Loader className="align-self-center my-5" />
         : keysTransacoes.length === 0
-          ? (<div className="alert alert-info my-3" role="alert">Nenhum dado encontrado</div>)
+          ? (<div className="alert alert-info my-3" role="alert">Nenhuma transação encontrada para o período selecionado. Adicione uma nova transação para começar a utilizar o sistema.</div>)
           : keysTransacoes.map(key => {
             const transacoesDoPeriodo = transacoes[key] || [];
             const { acumulado, acumuladoAteOMes } = filterAcumulados(transacoesAcumuladaPorMes, key);
@@ -89,9 +90,9 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
             const momentPeriod = moment(key, groupFormat);
 
             return (
-              <section key={key} className="card my-3">
-                <div className="card-header d-flex justify-content-between align-items-center flex-column flex-lg-row gap-3">
-                  <h4 className="m-0">Periodo de: {momentPeriod.format(groupDescFormat)}</h4>
+              <section key={key} className="my-3 d-flex flex-column gap-3">
+                <div className="d-flex justify-content-between align-items-center flex-column flex-lg-row gap-3">
+                  <h4>Periodo de: {momentPeriod.format(groupDescFormat)}</h4>
                   {acumulado?.totalAcumulado && (<small>Valor em caixa no periodo: {NumberUtil.toCurrency(acumulado.totalAcumulado)}</small>)}
                   <div className="actions d-flex gap-3">
                     <button type="button" className="btn btn-outline-danger btn-sm" onClick={() => removeMonthAndSave(momentPeriod)}>Remover Mês</button>
@@ -99,17 +100,13 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
                     <Link href={`/${path}/copia?month=${key}`} className="btn btn-outline-dark btn-sm">Copiar mês</Link>
                   </div>
                 </div>
-                <div className="card-body d-flex align-items-center align-items-lg-start flex-column-reverse flex-lg-row justify-content-lg-around">
+                <div className="d-flex align-items-center align-items-lg-start flex-column-reverse flex-lg-row justify-content-lg-around gap-3">
                   <ListaCaixa tableName={tableName} transacoesDoPeriodo={transacoesDoPeriodo} />
                   {!isPatrimonio && (
-                    <BalancoDoMes transacoesDoPeriodo={transacoesDoPeriodo} transacoesAcumuladasPorMes={acumuladoAteOMes} />
+                    <CaixaTotaisDoMes transacoesDoPeriodo={transacoesDoPeriodo} transacoesAcumuladasPorMes={acumuladoAteOMes} />
                   )}
                   {isPatrimonio && (
-                    <div className="totals">
-                      <h5>Soma de todos os saldos</h5>
-                      <p>{NumberUtil.toCurrency(somaPeriodo)}</p>
-                      <small>{NumberUtil.extenso(somaPeriodo)}</small>
-                    </div>
+                    <PatrimonioTotaisDoMes transacoesDoPeriodo={transacoesDoPeriodo} somaPeriodo={somaPeriodo} />
                   )}
                 </div>
               </section>
@@ -118,10 +115,10 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
     </section>
   );
 }
+
 function filterAcumulados(transacoesAcumuladaPorMes: { [key: string]: TransacoesAcumuladasPorMes; }, key: string) {
   if (transacoesAcumuladaPorMes == null)
     return { acumulado: {}, acumuladoAteOMes: [] };
-
 
   const acumulado = transacoesAcumuladaPorMes[key] || {} as any;
   const dataAtual = moment(acumulado.mes, 'YYYY-MM');

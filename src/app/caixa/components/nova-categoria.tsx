@@ -9,6 +9,9 @@ interface NovaCategoriaProps {
   onClose: () => void
 }
 
+// TODO: add icones
+// TODO: add editar categoria nas configurações
+
 export function NovaCategoria({ categoria, onClose }: NovaCategoriaProps) {
   const { repository, refresh } = useStorage();
   const [descricao, setDescricao] = useState(categoria?.descricao || '');

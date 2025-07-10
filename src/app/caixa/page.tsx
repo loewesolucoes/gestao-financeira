@@ -70,7 +70,7 @@ function CaixaPage() {
       </section>
 
       <article className="transacoes">
-        <section className="forms">
+        <section className="forms d-flex flex-column gap-3">
           <PeriodoForm onChange={(x: PeriodoTransacoes) => setPeriodo(x)} value={periodo} />
           <TransacaoForm />
         </section>

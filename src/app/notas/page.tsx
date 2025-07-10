@@ -43,7 +43,7 @@ function NotasPage() {
   }
 
   async function loadNotas() {
-    const result = await repository.list<Notas>(TableNames.NOTAS);
+    const result = await repository.notas.list<Notas>(TableNames.NOTAS);
 
     setNotas(result);
   }
@@ -55,10 +55,10 @@ function NotasPage() {
       {isLoading
         ? <Loader className="align-self-center my-5" />
         : notas.length === 0
-          ? (<div className="alert alert-info my-3" role="alert">Nenhum dado encontrado</div>)
+          ? (<div className="alert alert-info my-3" role="alert">Nenhuma nota encontrada. Adicione uma nova nota para começar a utilizar o sistema.</div>)
           : (
             <>
-              <ul className="list-group">
+              <ul className="list-group list-group-material-1">
                 {parsedNotas.map((x, i) => (
                   <li key={`${x.data}:${x.descricao}:${i}`} className={`list-group-item ${x.descricao == null ? 'list-group-item-warning' : ''} list-group-item-${EnumUtil.keyFromValue(TipoDeNota, x.tipo)}`.toLowerCase()}>
                     <div className="d-flex w-100 justify-content-between gap-3">
@@ -75,7 +75,7 @@ function NotasPage() {
                 ))}
               </ul>
               {notaAEditar && (
-                <Modal hideFooter={true} onClose={() => setNotaAEditar(null)} title={`Detalhes da transação: ${notaAEditar?.descricao}`}>
+                <Modal hideFooter={true} onClose={() => setNotaAEditar(null)} title={`Detalhes da nota: ${notaAEditar?.descricao}`}>
                   <NotaForm nota={notaAEditar} cleanStyle={true} onClose={() => setNotaAEditar(null)} />
                 </Modal>
               )}

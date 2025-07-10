@@ -1,11 +1,1 @@
 @import "../_bootstrap";
-
-.forms {
-  display: flex;
-  gap: 30px;
-  flex-direction: column;
-
-  @include media-breakpoint-up(lg) {
-    flex-direction: row;
-  }
-}
