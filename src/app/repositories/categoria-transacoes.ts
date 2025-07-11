@@ -1,5 +1,5 @@
 import { IDatabase } from './database-connector';
-import { DefaultFields, DefaultRepository, MapperTypes, TableNames } from './default';
+import { DefaultFields, DefaultRepository, MapperTypes, TableNames, DEFAULT_MAPPING } from './default';
 
 export interface CategoriaTransacoes extends DefaultFields {
   descricao: string;
@@ -16,7 +16,7 @@ export enum TipoDeCategoriaTransacao {
 
 export class CategoriaTransacoesRepository extends DefaultRepository {
   // @ts-ignore
-  public readonly DEFAULT_MAPPING = { ...super.DEFAULT_MAPPING, descricao: MapperTypes.TEXT, tipo: MapperTypes.NUMBER, active: MapperTypes.BOOLEAN };
+  public readonly DEFAULT_MAPPING = { ...DEFAULT_MAPPING, descricao: MapperTypes.TEXT, tipo: MapperTypes.NUMBER, active: MapperTypes.BOOLEAN };
   public readonly TODAS: CategoriaTransacoes[];
   public readonly TODAS_DICT: Record<string, CategoriaTransacoes>;
 

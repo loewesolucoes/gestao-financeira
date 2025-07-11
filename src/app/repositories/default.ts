@@ -27,10 +27,12 @@ export interface DefaultFields {
   updatedDate?: Date
 }
 
+export const DEFAULT_MAPPING = { createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME };
+
 const RUNNED_MIGRATION_CODE = 'runned';
 
 export class DefaultRepository {
-  public readonly DEFAULT_MAPPING = { createdDate: MapperTypes.DATE_TIME, updatedDate: MapperTypes.DATE_TIME };
+  public readonly DEFAULT_MAPPING = DEFAULT_MAPPING;
   public constructor(protected db: IDatabase) { }
 
   public async saveAll(tableName: TableNames, items: DefaultFields[]) {
