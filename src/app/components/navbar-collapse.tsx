@@ -3,15 +3,15 @@ import Link from 'next/link';
 import { usePathname } from "next/navigation";
 import { AuthButton } from "./auth-button";
 import { ThemeSelector } from './theme-selector';
-import IconHouse from 'bootstrap-icons/icons/house-fill.svg';
-import IconWallet from 'bootstrap-icons/icons/wallet-fill.svg';
-import IconPiggy from 'bootstrap-icons/icons/piggy-bank-fill.svg';
-import IconStickies from 'bootstrap-icons/icons/stickies-fill.svg';
-import IconChecklist from 'bootstrap-icons/icons/card-checklist.svg';
-import IconBank from 'bootstrap-icons/icons/bank.svg';
-import IconFileBarGraph from 'bootstrap-icons/icons/file-bar-graph-fill.svg';
-import IconGear from 'bootstrap-icons/icons/gear-fill.svg';
-import IconQuestion from 'bootstrap-icons/icons/question-circle-fill.svg';
+import IconHouse from '@material-design-icons/svg/filled/home.svg';
+import IconWallet from '@material-design-icons/svg/filled/wallet.svg';
+import IconPiggy from '@material-design-icons/svg/filled/savings.svg';
+import IconStickies from '@material-design-icons/svg/filled/sticky_note_2.svg';
+import IconChecklist from '@material-design-icons/svg/filled/emoji_events.svg';
+import IconBank from '@material-design-icons/svg/filled/account_balance.svg';
+import IconFileBarGraph from '@material-design-icons/svg/filled/analytics.svg';
+import IconGear from '@material-design-icons/svg/filled/settings.svg';
+import IconQuestion from '@material-design-icons/svg/filled/contact_support.svg';
 
 const pages = [
   {

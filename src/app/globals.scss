@@ -107,6 +107,7 @@ footer {
 
   .nav-item {
     color: #838fa0;
+    fill: #838fa0;
     border-left: 1px solid;
 
     > .nav-link {
@@ -143,6 +144,7 @@ footer {
       > .nav-link {
         > .nav-icon {
           color: var(--bs-primary);
+          fill: var(--bs-primary);
           box-shadow: rgba(35, 35, 35, 0.2) 5px 9px 30px;
           background: var(--bs-white);
         }

@@ -7,18 +7,10 @@ import { Footer } from "../components/footer";
 import "moment/locale/pt-br";
 import moment from "moment";
 
-import 'chart.js/auto';
 import { BottomNavbar } from "../components/bottom-navbar";
 import { Notifications } from "../components/notifications";
 import { ErrorHandler } from "./error-handler";
 import { HeaderSidebar } from "../components/header-sidebar";
-import { Chart } from 'chart.js';
-
-if (typeof window !== 'undefined') {
-  const zoomPlugin = require('chartjs-plugin-zoom').default || require('chartjs-plugin-zoom');
-
-  Chart.register(zoomPlugin);
-}
 
 BigNumber.config({
   FORMAT: {

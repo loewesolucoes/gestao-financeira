@@ -3,11 +3,10 @@ import { useEnv } from "../contexts/env";
 import { usePathname } from "next/navigation";
 
 // icons from https://icons.getbootstrap.com/
-import HouseFillIcon from "../../../public/house-fill.svg";
-import CardListIcon from "../../../public/card-list.svg";
-import GraphUpArrowIcon from "../../../public/graph-up-arrow.svg";
-import GearFillIcon from "../../../public/gear-fill.svg";
-import ThreeDotsIcon from "../../../public/three-dots.svg";
+import HouseFillIcon from "@material-design-icons/svg/filled/home.svg";
+import CardListIcon from "@material-design-icons/svg/filled/sticky_note_2.svg";
+import GraphUpArrowIcon from "@material-design-icons/svg/filled/emoji_events.svg";
+import ThreeDotsIcon from "@material-design-icons/svg/filled/menu.svg";
 import { useState } from "react";
 import { NavbarCollapse } from "./navbar-collapse";
 import { Modal } from "./modal";
@@ -19,11 +18,6 @@ const pages = [
     path: '/',
     icon: <HouseFillIcon style={{ width: 22 }} />,
   },
-  // {
-  //   name: 'Caixa',
-  //   path: '/caixa',
-  //   icon: '🪙',
-  // },
   {
     name: 'Notas',
     path: '/notas',

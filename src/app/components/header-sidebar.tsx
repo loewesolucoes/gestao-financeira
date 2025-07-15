@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { SideBarMenu } from "./navbar-collapse";
 import Logo from "../../../public/logo.svg";
-import IconEnvelope from 'bootstrap-icons/icons/envelope-open-fill.svg';
-import IconBell from 'bootstrap-icons/icons/bell-fill.svg';
-import IconCog from 'bootstrap-icons/icons/gear-fill.svg';
+import IconEnvelope from '@material-design-icons/svg/filled/inbox.svg';
+import IconBell from '@material-design-icons/svg/filled/notifications.svg';
+import IconCog from '@material-design-icons/svg/filled/settings.svg';
 import { ThemeSelector } from "./theme-selector";
 import { AuthButton } from "./auth-button";
 import { useAuth } from "../contexts/auth";

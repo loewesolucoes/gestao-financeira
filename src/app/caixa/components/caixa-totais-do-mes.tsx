@@ -1,9 +1,9 @@
 "use client";
-import { Doughnut, Line } from "react-chartjs-2";
 import { NumberUtil } from "../../utils/number";
 import BigNumber from "bignumber.js";
 import { Transacoes } from "@/app/repositories/transacoes";
 import { useStorage } from "@/app/contexts/storage";
+import { ChartWrapper } from "@/app/components/general-chart";
 
 export function CaixaTotaisDoMes({ transacoesDoPeriodo, transacoesAcumuladasPorMes }: { transacoesDoPeriodo: Transacoes[], transacoesAcumuladasPorMes: any }) {
   const somaPeriodo = transacoesDoPeriodo.reduce((p, n) => p.plus(n.valor || 0), BigNumber(0));
@@ -59,24 +59,26 @@ export function GraficoMesPorCategoria({ transacoesDoPeriodo, forReceitas }: { t
     return acc;
   }, {} as Record<string, BigNumber>);
 
+  const labels = Object.keys(categorias).map(key => repository?.categoriaTransacoes?.TODAS_DICT[key]?.descricao || key);
+  const data = Object.values(categorias).map(x => forReceitas ? x.toNumber() : x.abs().toNumber());
+
   return filteredTransactions.length > 0 ? (
-    <Doughnut data={{
-      labels: Object.keys(categorias).map(key => repository?.categoriaTransacoes?.TODAS_DICT[key]?.descricao || key),
-      datasets: [
-        {
-          label: 'soma em reais (R$)',
-          data: Object.values(categorias).map(x => x.toNumber()),
-          hoverOffset: 4,
-        },
-      ],
-    }} options={{
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom',
-        },
-      }
-    }} />
+    <ChartWrapper
+      type="pie"
+      series={data}
+      options={{
+        labels,
+        legend: { position: 'bottom' },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            legend: { position: 'bottom' }
+          }
+        }]
+      }}
+      width="100%"
+      height={300}
+    />
   ) : (
     <div className="alert alert-info" role="alert">
       {forReceitas ? 'Nenhuma receita encontrada.' : 'Nenhuma despesa encontrada.'}
@@ -90,27 +92,23 @@ export function GraficoBalancoDoMes({ transacoesDoPeriodo }: { transacoesDoPerio
   const possuiTransacoesComValor = transacoesDoPeriodo?.some(x => x.valor);
 
   return possuiTransacoesComValor ? (
-    <Doughnut data={{
-      labels: ['Receitas', 'Despesas'],
-      datasets: [
-        {
-          label: 'soma em reais (R$)',
-          data: [somaReceitas, somaDespesas],
-          backgroundColor: [
-            '#65a148',
-            '#dc3545',
-          ],
-          hoverOffset: 4,
-        },
-      ],
-    }} options={{
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom',
-        },
-      }
-    }} />
+    <ChartWrapper
+      type="pie"
+      series={[somaReceitas.toNumber(), somaDespesas.abs().toNumber()]}
+      options={{
+        labels: ['Receitas', 'Despesas'],
+        colors: ['#65a148', '#dc3545'],
+        legend: { position: 'bottom' },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            legend: { position: 'bottom' }
+          }
+        }]
+      }}
+      width="100%"
+      height={300}
+    />
   ) : (
     <div className="alert alert-info" role="alert">
       Nenhum valor encontrado.
@@ -118,26 +116,41 @@ export function GraficoBalancoDoMes({ transacoesDoPeriodo }: { transacoesDoPerio
   );
 }
 
-export function GraficoAcumuladoDoMes({ transacoesAcumuladasPorMes }: any) {
+export function GraficoAcumuladoDoMes({ transacoesAcumuladasPorMes }) {
   const possuiTransacoesComValor = transacoesAcumuladasPorMes?.some(x => x?.totalAcumulado);
 
+  const labels = transacoesAcumuladasPorMes.map(x => x.mes);
+  const data = transacoesAcumuladasPorMes.map(x => x.totalAcumulado);
+
   return possuiTransacoesComValor ? (
-    <Line data={{
-      labels: transacoesAcumuladasPorMes.map(x => x.mes),
-      datasets: [
+    <ChartWrapper
+      type="area"
+      series={[
         {
-          label: 'acumulado até o mes (R$)',
-          data: transacoesAcumuladasPorMes.map(x => x.totalAcumulado),
+          name: 'acumulado até o mes (R$)',
+          data,
+        }
+      ]}
+      options={{
+        chart: {
+          type: "area" as const,
+          zoom: { enabled: false, autoScaleYaxis: true },
+          toolbar: { show: false },
         },
-      ],
-    }} options={{
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom',
-        },
-      }
-    }} />
+        xaxis: { type: "datetime" as const, categories: labels },
+        yaxis: { labels: { formatter: (value: number) => NumberUtil.toCurrency(value), }, },
+        dataLabels: { enabled: false },
+        legend: { position: 'bottom' },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            legend: { position: 'bottom' }
+          }
+        }]
+      }}
+      width="100%"
+      height={300}
+    />
   ) : (
     <div className="alert alert-info" role="alert">
       Nenhum valor encontrado.
