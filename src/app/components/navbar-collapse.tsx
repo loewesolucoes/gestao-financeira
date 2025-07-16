@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { AuthButton } from "./auth-button";
 import { ThemeSelector } from './theme-selector';
 import IconHouse from '@material-design-icons/svg/filled/home.svg';
-import IconWallet from '@material-design-icons/svg/filled/wallet.svg';
+import IconWallet from '@material-design-icons/svg/filled/local_atm.svg';
 import IconPiggy from '@material-design-icons/svg/filled/savings.svg';
 import IconStickies from '@material-design-icons/svg/filled/sticky_note_2.svg';
 import IconChecklist from '@material-design-icons/svg/filled/emoji_events.svg';
@@ -17,47 +17,47 @@ const pages = [
   {
     name: 'Início',
     path: '/',
-    icon: <IconHouse />,
+    icon: <IconHouse width="24" height="24" viewBox="0 0 24 24" />,
   },
   {
     name: 'Caixa',
     path: '/caixa',
-    icon: <IconWallet />,
+    icon: <IconWallet width="24" height="24" viewBox="0 0 24 24" />,
   },
   {
     name: 'Patrimônio',
     path: '/patrimonio',
-    icon: <IconPiggy />,
+    icon: <IconPiggy width="24" height="24" viewBox="0 0 24 24" />,
   },
   {
     name: 'Notas',
     path: '/notas',
-    icon: <IconStickies />
+    icon: <IconStickies width="24" height="24" viewBox="0 0 24 24" />
   },
   {
     name: 'Metas',
     path: '/metas',
-    icon: <IconChecklist />
+    icon: <IconChecklist width="24" height="24" viewBox="0 0 24 24" />
   },
   {
     name: 'Empréstimo',
     path: '/emprestimos',
-    icon: <IconBank />,
+    icon: <IconBank width="24" height="24" viewBox="0 0 24 24" />,
   },
   {
     name: 'Relatórios',
     path: '/relatorios',
-    icon: <IconFileBarGraph />
+    icon: <IconFileBarGraph width="24" height="24" viewBox="0 0 24 24" />
   },
   {
     name: 'Configurações',
     path: '/configuracoes',
-    icon: <IconGear />
+    icon: <IconGear width="24" height="24" viewBox="0 0 24 24" />
   },
   {
     name: 'Perguntas frequentes',
     path: '/faq',
-    icon: <IconQuestion />,
+    icon: <IconQuestion width="24" height="24" viewBox="0 0 24 24" />,
   },
 ];
 
@@ -78,11 +78,11 @@ export function SideBarMenu() {
           </li>
           {pages.map(x => (
             <li key={x.path} className={`nav-item px-2 ${pathname == x.path ? 'active' : ''}`}>
-              <Link className={`nav-link`} href={x.path}>
+              <Link className={`nav-link d-flex align-items-center`} href={x.path}>
                 <span className="nav-icon">
                   {x.icon}
                 </span>
-                <span className='px-1'>
+                <span className='px-1 flex-grow-1'>
                   {x.name}
                 </span>
               </Link>

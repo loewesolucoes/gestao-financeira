@@ -45,7 +45,7 @@ function NotasPage() {
   async function loadNotas() {
     const result = await repository.notas.list<Notas>(TableNames.NOTAS);
 
-    setNotas(result);
+    setNotas(result.sort((a, b) => moment(b.data).diff(moment(a.data))));
   }
 
   return (

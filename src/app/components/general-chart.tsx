@@ -1,12 +1,47 @@
-// Dynamically import ApexCharts to avoid SSR issues
-/* @next-codemod-ignore */
 'use client';
 
 import { useEffect, useState, useRef } from "react";
-// import ApexCharts from "apexcharts";
-import PropTypes from "prop-types";
 import type { ApexOptions } from "apexcharts";
+import { EnumUtil } from "../utils/enum";
+import { NumberUtil } from "../utils/number";
 
+export enum ChartPalette {
+  yellow = "rgba(255, 193, 7, 1)",
+  blue = "rgba(0, 123, 255, 1)",
+  purple = "rgba(111, 66, 193, 1)",
+  gray = "rgba(108, 117, 125, 1)",
+  orange = "rgba(253, 126, 20, 1)",
+  teal = "rgba(32, 201, 151, 1)",
+  green = "rgba(67, 160, 71, 1)",
+  red = "rgba(229, 57, 53, 1)",
+}
+
+export const defaultChartOptions: ApexOptions = {
+  chart: {
+    zoom: { enabled: true, autoScaleYaxis: true },
+    toolbar: { show: true },
+    foreColor: '#999',
+  },
+  colors: EnumUtil.values(ChartPalette).map(x => ChartPalette[x]),
+  stroke: { curve: 'smooth', },
+  fill: {
+    type: 'gradient',
+    gradient: {
+      opacityFrom: 1,
+      opacityTo: 0.8,
+    }
+  },
+  grid: {
+    show: true,
+    borderColor: 'rgba(56, 56, 56, 0.06)',
+    xaxis: { lines: { show: true } },
+    yaxis: { lines: { show: true } },
+  },
+  dataLabels: { enabled: false },
+  legend: { position: "bottom" as const },
+  responsive: [{ breakpoint: 600, options: { chart: { width: "100%" } } }],
+  yaxis: { labels: { formatter: NumberUtil.toCurrencyAbbreviated, } },
+}
 
 interface Props {
   type?:
@@ -162,6 +197,7 @@ export function ReactApexcharts(props) {
         chart.current.updateSeries(series);
       } else {
         // both might be changed
+        chart.current.updateSeries(series);
         chart.current.updateOptions(getConfig());
       }
     }
@@ -177,8 +213,6 @@ export function ReactApexcharts(props) {
 
     const nextOptions = extend(options, newOptions);
 
-    console.log("Chart options:", nextOptions);
-
     if (withoutId) {
       // Remove the id if we don't want it
       delete nextOptions.chart.id;
@@ -187,20 +221,11 @@ export function ReactApexcharts(props) {
     return nextOptions;
   }
 
-  const rest = omit(restProps, Object.keys(ReactApexcharts.propTypes));
+  const rest = omit(restProps, Object.keys(['type', 'series', 'options', 'width', 'height']));
 
   return <div ref={chartElementRef} {...rest} />;
 
 }
-
-ReactApexcharts.propTypes = {
-  type: PropTypes.string.isRequired,
-  series: PropTypes.array.isRequired,
-  options: PropTypes.object.isRequired,
-  width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  chartRef: PropTypes.shape({ current: PropTypes.any })
-};
 
 function isObject(item) {
   return item && typeof item === "object" && !Array.isArray(item);

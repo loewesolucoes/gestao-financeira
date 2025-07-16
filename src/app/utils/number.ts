@@ -51,6 +51,32 @@ export class NumberUtil {
     return BRL.format(number);
   }
 
+  public static toCurrencyAbbreviated(number?: number | string | BigNumber | null): string {
+    if (typeof (number) === 'string')
+      number = Number(number);
+
+    if (number instanceof BigNumber)
+      number = number?.toNumber();
+
+    if (number == null || isNaN(number as any) || !isFinite(number as any)) return '';
+
+    let nextNumber = number;
+    let abbreviation = '';
+
+    if (Math.abs(number) >= 1e9) {
+      nextNumber = (number / 1e9);
+      abbreviation = 'B';
+    } else if (Math.abs(number) >= 1e6) {
+      nextNumber = (number / 1e6);
+      abbreviation = 'M';
+    } else if (Math.abs(number) >= 1e3) {
+      nextNumber = (number / 1e3);
+      abbreviation = 'k';
+    }
+
+    return `${NumberUtil.toCurrency(nextNumber)}${abbreviation}`;
+  }
+
   public static toPercent(number?: number | string | BigNumber | null, div: boolean = true): string {
     if (typeof (number) === 'string')
       number = Number(number);

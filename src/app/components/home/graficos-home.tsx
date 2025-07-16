@@ -4,22 +4,11 @@ import { NumberUtil } from "../../utils/number";
 import { TransacoesAcumuladasPorMesHome } from "@/app/repositories/transacoes";
 
 import type { ApexOptions } from "apexcharts";
-import { ChartWrapper } from "../general-chart";
+import { ChartWrapper, ChartPalette, defaultChartOptions } from "../general-chart";
 
 interface CustomProps {
   transacoesAcumuladasPorMes: TransacoesAcumuladasPorMesHome[];
 }
-
-const palette = {
-  yellow: "#FFC107",
-  green: "#28A745",
-  red: "#DC3545",
-  blue: "#007BFF",
-  purple: "#6F42C1",
-  gray: "#6C757D",
-  teal: "#20C997",
-  orange: "#FD7E14",
-};
 
 export function GraficoCaixaAcumuladoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
   const series = [
@@ -30,26 +19,20 @@ export function GraficoCaixaAcumuladoMesAMes({ transacoesAcumuladasPorMes }: Cus
   ];
 
   const options: ApexOptions = {
+    ...defaultChartOptions,
     chart: {
+      ...defaultChartOptions.chart,
       id: 'acumulado-mes',
       group: "home",
       type: "area" as const,
-      zoom: { enabled: true, autoScaleYaxis: true },
-      toolbar: { show: true },
+      zoom: { enabled: true },
     },
-    colors: [palette.yellow],
+    colors: [ChartPalette.teal],
     xaxis: {
       type: "datetime" as const,
       categories: transacoesAcumuladasPorMes?.map(x => x.mes) || [],
+      min: getMinimumDateFromSerie(transacoesAcumuladasPorMes),
     },
-    yaxis: {
-      labels: {
-        formatter: (value: number) => NumberUtil.toCurrency(value),
-      },
-    },
-    dataLabels: { enabled: false },
-    legend: { position: "bottom" as const },
-    responsive: [{ breakpoint: 600, options: { chart: { width: "100%" } } }],
   };
 
   return <ChartWrapper options={options} series={series} type="area" height={350} />;
@@ -68,27 +51,19 @@ export function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProp
   ];
 
   const options: ApexOptions = {
+    ...defaultChartOptions,
     chart: {
+      ...defaultChartOptions.chart,
       id: 'balanco-mes',
       group: "home",
       type: "area" as const,
-      zoom: { enabled: true, autoScaleYaxis: true },
-      toolbar: { show: true },
     },
-    colors: [palette.green, palette.red],
+    colors: [ChartPalette.green, ChartPalette.red],
     xaxis: {
       type: "datetime" as const,
       categories: transacoesAcumuladasPorMes?.map(x => x.mes) || [],
-      // tickPlacement: 'on',
+      min: getMinimumDateFromSerie(transacoesAcumuladasPorMes),
     },
-    yaxis: {
-      labels: {
-        formatter: (value: number) => NumberUtil.toCurrency(value),
-      },
-    },
-    dataLabels: { enabled: false },
-    legend: { position: "bottom" as const },
-    responsive: [{ breakpoint: 600, options: { chart: { width: "100%" } } }],
   };
 
   return <ChartWrapper options={options} series={series} type="area" height={350} />;
@@ -120,26 +95,19 @@ export function GraficoCaixaVariacaoPercentualAcumuladoMesAMes({ transacoesAcumu
   ].filter(Boolean) as any[];
 
   const options: ApexOptions = {
+    ...defaultChartOptions,
     chart: {
+      ...defaultChartOptions.chart,
       id: 'variacao-percentual-mes',
       group: "home",
       type: "area" as const,
-      zoom: { enabled: true, autoScaleYaxis: true },
-      toolbar: { show: true },
     },
-    colors: [palette.yellow, palette.red, palette.blue, palette.purple],
     xaxis: {
       type: "datetime" as const,
       categories: transacoesAcumuladasPorMes?.map(x => x.mes) || [],
+      min: getMinimumDateFromSerie(transacoesAcumuladasPorMes),
     },
-    yaxis: {
-      labels: {
-        formatter: (value: number) => NumberUtil.toPercent(value),
-      },
-    },
-    dataLabels: { enabled: false },
-    legend: { position: "bottom" as const },
-    responsive: [{ breakpoint: 600, options: { chart: { width: "100%" } } }],
+    yaxis: { labels: { formatter: (value: number) => NumberUtil.toPercent(value), }, },
   };
 
   return <ChartWrapper options={options} series={series} type="area" height={350} />;
@@ -170,27 +138,26 @@ export function GraficoCaixaVariacaoAcumuladoMesAMes({ transacoesAcumuladasPorMe
   ].filter(Boolean) as any[];
 
   const options: ApexOptions = {
+    ...defaultChartOptions,
     chart: {
-      id: 'variacao-mess',
+      ...defaultChartOptions.chart,
+      id: 'variacao-mes',
       group: "home",
       type: "area" as const,
-      zoom: { enabled: true, autoScaleYaxis: true },
-      toolbar: { show: true },
     },
-    colors: [palette.yellow, palette.red, palette.blue, palette.purple],
     xaxis: {
       type: "datetime" as const,
       categories: transacoesAcumuladasPorMes?.map(x => x.mes) || [],
+      min: getMinimumDateFromSerie(transacoesAcumuladasPorMes),
     },
-    yaxis: {
-      labels: {
-        formatter: (value: number) => NumberUtil.toCurrency(value),
-      },
-    },
-    dataLabels: { enabled: false },
-    legend: { position: "bottom" as const },
-    responsive: [{ breakpoint: 600, options: { chart: { width: "100%" } } }],
   };
 
   return <ChartWrapper options={options} series={series} type="area" height={350} />;
+}
+
+function getMinimumDateFromSerie(serie: { mes: string }[]) {
+  const lastFive = serie?.slice(-12) || [];
+  const minDate = lastFive.length > 0 ? Date.parse(lastFive[0]?.mes) : undefined;
+
+  return minDate;
 }
