@@ -3,13 +3,11 @@ import { useEnv } from "../contexts/env";
 import { usePathname } from "next/navigation";
 
 // icons from https://icons.getbootstrap.com/
-import HouseFillIcon from "../../../public/house-fill.svg";
-import CardListIcon from "../../../public/card-list.svg";
-import GraphUpArrowIcon from "../../../public/graph-up-arrow.svg";
-import GearFillIcon from "../../../public/gear-fill.svg";
-import ThreeDotsIcon from "../../../public/three-dots.svg";
+import HouseFillIcon from "@material-design-icons/svg/two-tone/home.svg";
+import CardListIcon from "@material-design-icons/svg/two-tone/sticky_note_2.svg";
+import GraphUpArrowIcon from "@material-design-icons/svg/two-tone/emoji_events.svg";
+import ThreeDotsIcon from "@material-design-icons/svg/two-tone/menu.svg";
 import { useState } from "react";
-import { NavbarCollapse } from "./navbar-collapse";
 import { Modal } from "./modal";
 import { HeaderSidebar } from "./header-sidebar";
 
@@ -17,22 +15,17 @@ const pages = [
   {
     name: 'Início',
     path: '/',
-    icon: <HouseFillIcon style={{ width: 22 }} />,
+    icon: <HouseFillIcon width={30} height={30} viewBox="0 0 24 24" fill="var(--bs-gray)" />,
   },
-  // {
-  //   name: 'Caixa',
-  //   path: '/caixa',
-  //   icon: '🪙',
-  // },
   {
     name: 'Notas',
     path: '/notas',
-    icon: <CardListIcon style={{ width: 22 }} />,
+    icon: <CardListIcon width={30} height={30} viewBox="0 0 24 24" fill="var(--bs-gray)" />,
   },
   {
     name: 'Metas',
     path: '/metas',
-    icon: <GraphUpArrowIcon style={{ width: 22 }} />,
+    icon: <GraphUpArrowIcon width={30} height={30} viewBox="0 0 24 24" fill="var(--bs-gray)" />,
   },
 ]
 
@@ -57,7 +50,7 @@ export function BottomNavbar() {
               ))}
               <button type="button" className={`btn btn-light rounded-0`} aria-expanded="false" aria-label="Toggle navigation" onClick={e => setShow(!show)}>
                 <div className="d-flex flex-column align-items-center justify-content-center">
-                  <ThreeDotsIcon style={{ width: 22 }} />
+                  <ThreeDotsIcon width={30} height={30} viewBox="0 0 24 24" fill="var(--bs-gray)" />
                   <span>Mais</span>
                 </div>
               </button>

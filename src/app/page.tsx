@@ -18,6 +18,9 @@ import { GraficoCaixaAcumuladoMesAMes, GraficoBalancoMesAMes, GraficoCaixaVariac
 import Link from "next/link";
 import { DateUtil } from "./utils/date";
 import { useAuth } from "./contexts/auth";
+import IconMeta from '@material-design-icons/svg/two-tone/emoji_events.svg';
+import IconAtm from '@material-design-icons/svg/two-tone/local_atm.svg';
+import IconWallet from '@material-design-icons/svg/two-tone/account_balance_wallet.svg';
 
 const MOBILE_TRANSACOES_POR_MES = 4;
 
@@ -66,9 +69,9 @@ function Home() {
           ? (<div className="home-loader py-5"><Loader /></div>)
           : (
             <>
-              <section className="card border-primary card-caixa">
-                <h4 className="card-header">Caixa Geral</h4>
+              <section className="card card-caixa card-material-1">
                 <div className="card-body">
+                  <h4 className="card-title">Caixa Geral <IconAtm width={30} height={30} viewBox="0 0 24 24" fill="var(--bs-primary)" /></h4>
                   <div className="d-flex gap-3">
                     <h5>Valor em caixa</h5>
                     <div className="d-flex flex-column">
@@ -85,9 +88,9 @@ function Home() {
                   </div>
                 </div>
               </section>
-              <section className="card border-dark">
-                <h4 className="card-header">Caixa do mês: {moment(yearAndMonth).format('MMMM YYYY')}</h4>
+              <section className="card card-material-1">
                 <div className="card-body">
+                  <h4 className="card-title">Caixa do mês: {moment(yearAndMonth).format('MMMM YYYY')} <IconWallet width={30} height={30} viewBox="0 0 24 24" fill="var(--bs-secondary)" /></h4>
                   {sobra == null
                     ? (<div className="alert alert-info" role="alert">Mês sem dados</div>)
                     : (
@@ -117,9 +120,9 @@ function Home() {
                     )}
                 </div>
               </section>
-              <section className="card border-primary card-metas">
-                <h4 className="card-header">Metas</h4>
+              <section className="card card-metas card-material-1">
                 <div className="card-body">
+                  <h4 className="card-title">Metas <IconMeta width={30} height={30} viewBox="0 0 24 24" fill="var(--bs-primary)" /></h4>
                   {(metas == null || metas.length === 0) && (<div className="alert alert-info" role="alert">Nenhuma meta cadastrada no ano.</div>)}
                   <ul className="list-group">
                     {metas?.map((x, i) => (
@@ -137,27 +140,27 @@ function Home() {
                   </ul>
                 </div>
               </section>
-              <section className="card border-info card-chart">
-                <h4 className="card-header">Caixa acumulado mês a mês</h4>
+              <section className="card card-chart card-material-1">
                 <div className="card-body">
+                  <h4 className="card-title">Caixa acumulado mês a mês</h4>
                   <GraficoCaixaAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                 </div>
               </section>
-              <section className="card border-info card-chart">
-                <h4 className="card-header">Balanço mês a mês</h4>
+              <section className="card card-chart card-material-1">
                 <div className="card-body">
+                  <h4 className="card-title">Balanço mês a mês</h4>
                   <GraficoBalancoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                 </div>
               </section>
-              <section className="card border-info card-chart">
-                <h4 className="card-header">Variação (R$) do caixa mês a mês</h4>
+              <section className="card card-chart card-material-1">
                 <div className="card-body">
+                  <h4 className="card-title">Variação (R$) do caixa mês a mês</h4>
                   <GraficoCaixaVariacaoAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                 </div>
               </section>
-              <section className="card border-info card-chart">
-                <h4 className="card-header">Variação percentual (%) do caixa mês a mês</h4>
+              <section className="card card-chart card-material-1">
                 <div className="card-body">
+                  <h4 className="card-title">Variação percentual (%) do caixa mês a mês</h4>
                   <GraficoCaixaVariacaoPercentualAcumuladoMesAMes transacoesAcumuladasPorMes={transacoesAcumuladaPorMes} />
                 </div>
               </section>

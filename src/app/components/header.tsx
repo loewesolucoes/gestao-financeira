@@ -12,7 +12,7 @@ export function Header() {
   const { userInfo } = useAuth();
 
   function getUserPhotoLink(): string {
-    return (userInfo?.user?.photoLink?.replace('=s64', '=s240')) || '/user.jpg';
+    return (userInfo?.user?.photoLink?.replace('=s64', '=s240')) || `${process.env.BASE_PATH || ''}/user.jpg`;
   }
 
   return (

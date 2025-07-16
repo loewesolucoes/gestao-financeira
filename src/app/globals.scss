@@ -102,11 +102,12 @@ footer {
 
 .side-bar-menu {
   background: #eaedf2;
-  box-shadow: initial;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   border: none;
 
   .nav-item {
     color: #838fa0;
+    fill: #838fa0;
     border-left: 1px solid;
 
     > .nav-link {
@@ -143,6 +144,7 @@ footer {
       > .nav-link {
         > .nav-icon {
           color: var(--bs-primary);
+          fill: var(--bs-primary);
           box-shadow: rgba(35, 35, 35, 0.2) 5px 9px 30px;
           background: var(--bs-white);
         }
@@ -174,5 +176,70 @@ footer {
     );
     box-shadow: none;
     border-color: #282b31;
+  }
+}
+
+.card-material-1,
+.card-material-2,
+.card-material-3 {
+  background: var(--bs-white);
+  border-color: #fbfbfb;
+}
+
+.card-material-1 {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.card-material-2 {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.card-material-3 {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+@include color-mode(dark) {
+  .card-material-1,
+  .card-material-2,
+  .card-material-3 {
+    background: linear-gradient(
+      117deg,
+      rgba(69, 69, 69, 0) -152.27%,
+      #202227 100.58%
+    );
+    box-shadow: none;
+    border-color: #282b31;
+  }
+}
+
+.list-group-material-1 {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.list-group-material-2 {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.list-group-material-3 {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+@include color-mode(dark) {
+  .list-group-material-1,
+  .list-group-material-2,
+  .list-group-material-3 {
+    box-shadow: none;
+  }
+}
+
+.card.card-shadow {
+  --bs-box-shadow: 0px 0px 35px 0px rgba(154, 161, 171, 0.15);
+  -webkit-box-shadow: var(--bs-box-shadow);
+  box-shadow: var(--bs-box-shadow);
+}
+
+.apexcharts-canvas {
+  @include media-breakpoint-down(sm) {
+    width: 260px !important;
   }
 }

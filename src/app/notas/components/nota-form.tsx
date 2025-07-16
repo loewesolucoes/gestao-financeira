@@ -76,7 +76,7 @@ export function NotaForm({ nota, cleanStyle, onClose, onCustomSubmit, onCustomDe
 
   const isAllLoading = !isDbOk || isLoading
 
-  return <form className={`nota-form w-100 ${!cleanStyle && 'card'}`} onSubmit={onSubmitForm}>
+  return <form className={`nota-form w-100 ${!cleanStyle && 'card card-material-1'}`} onSubmit={onSubmitForm}>
     {!cleanStyle && (<h5 className="card-header">Adicionar novo(a)</h5>)}
 
     <div className="d-flex flex-column px-3 py-2 gap-3">

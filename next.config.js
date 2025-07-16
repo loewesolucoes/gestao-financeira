@@ -15,7 +15,7 @@ module.exports = async (phase) => {
     },
     reactStrictMode: false,
     images: { unoptimized: true },
-    experimental: { missingSuspenseWithCSRBailout: false, },
+    // experimental: { missingSuspenseWithCSRBailout: false, },
     webpack: (config, { isServer }) => {
       config.module.rules.push({
         test: /\.svg$/,

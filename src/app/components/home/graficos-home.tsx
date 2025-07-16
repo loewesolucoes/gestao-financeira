@@ -1,189 +1,163 @@
 "use client";
 import { useEnv } from "@/app/contexts/env";
 import { NumberUtil } from "../../utils/number";
-import { Bar, Line } from "react-chartjs-2";
 import { TransacoesAcumuladasPorMesHome } from "@/app/repositories/transacoes";
 
-// TODO: try to change this by https://apexcharts.com/
+import type { ApexOptions } from "apexcharts";
+import { ChartWrapper, ChartPalette, defaultChartOptions } from "../general-chart";
 
 interface CustomProps {
   transacoesAcumuladasPorMes: TransacoesAcumuladasPorMesHome[];
 }
 
-const zoomOptions = {
-  pan: {
-    enabled: true,
-    mode: 'xy',
-  },
-  zoom: {
-    wheel: {
-      enabled: true,
-    },
-    pinch: {
-      enabled: true
-    },
-    mode: 'xy',
-    onZoomComplete({ chart }) {
-      // This update is needed to display up to date zoom level in the title.
-      // Without this, previous zoom level is displayed.
-      // The reason is: title uses the same beforeUpdate hook, and is evaluated before zoom.
-      chart.update('none');
-    }
-  }
-};
-
 export function GraficoCaixaAcumuladoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
-  return <Line data={{
-    labels: transacoesAcumuladasPorMes?.map(x => x.mes),
-    datasets: [
-      {
-        label: 'acumulado até o mes (R$)',
-        data: transacoesAcumuladasPorMes?.map(x => x.totalAcumulado),
-      },
-    ],
-  }} options={{
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-      zoom: zoomOptions,
-    } as any,
-    scales: {
-      y: {
-        ticks: {
-          // Include a dollar sign in the ticks
-          callback: function (value, index, values) {
-            return NumberUtil.toCurrency(value);
-          }
-        }
-      }
+  const series = [
+    {
+      name: "acumulado até o mes (R$)",
+      data: transacoesAcumuladasPorMes?.map(x => x.totalAcumulado?.toNumber()) || [],
     },
-  }} />;
+  ];
+
+  const options: ApexOptions = {
+    ...defaultChartOptions,
+    chart: {
+      ...defaultChartOptions.chart,
+      id: 'acumulado-mes',
+      group: "home",
+      type: "area" as const,
+      zoom: { enabled: true },
+    },
+    colors: [ChartPalette.teal],
+    xaxis: {
+      type: "datetime" as const,
+      categories: transacoesAcumuladasPorMes?.map(x => x.mes) || [],
+      min: getMinimumDateFromSerie(transacoesAcumuladasPorMes),
+    },
+  };
+
+  return <ChartWrapper options={options} series={series} type="area" height={350} />;
 }
+
 export function GraficoBalancoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
-  return <Bar data={{
-    labels: transacoesAcumuladasPorMes?.map(x => x.mes),
-    datasets: [
-      {
-        label: 'receitas (R$)',
-        data: transacoesAcumuladasPorMes?.map(x => x.receitasMes),
-      },
-      {
-        label: 'despesas (-R$)',
-        data: transacoesAcumuladasPorMes?.map(x => x.despesasMes?.abs()),
-      },
-    ],
-  }} options={{
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-      zoom: zoomOptions,
-    } as any,
-    scales: {
-      y: {
-        ticks: {
-          // Include a dollar sign in the ticks
-          callback: function (value, index, values) {
-            return NumberUtil.toCurrency(value);
-          }
-        }
-      },
-    }
-  }} />;
+  const series = [
+    {
+      name: "receitas (R$)",
+      data: transacoesAcumuladasPorMes?.map(x => x.receitasMes?.toNumber()) || [],
+    },
+    {
+      name: "despesas (-R$)",
+      data: transacoesAcumuladasPorMes?.map(x => x.despesasMes?.abs()?.toNumber()) || [],
+    },
+  ];
+
+  const options: ApexOptions = {
+    ...defaultChartOptions,
+    chart: {
+      ...defaultChartOptions.chart,
+      id: 'balanco-mes',
+      group: "home",
+      type: "area" as const,
+    },
+    colors: [ChartPalette.green, ChartPalette.red],
+    xaxis: {
+      type: "datetime" as const,
+      categories: transacoesAcumuladasPorMes?.map(x => x.mes) || [],
+      min: getMinimumDateFromSerie(transacoesAcumuladasPorMes),
+    },
+  };
+
+  return <ChartWrapper options={options} series={series} type="area" height={350} />;
 }
 
 export function GraficoCaixaVariacaoPercentualAcumuladoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
   const { isMobile } = useEnv();
 
-  return <Line data={{
-    labels: transacoesAcumuladasPorMes?.map(x => x.mes),
-    datasets: [
-      {
-        label: 'variação mensal (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualMes),
-      },
-      {
-        label: 'variação trimestral (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualTrimestral?.toNumber() > 1000 ? 0 : x?.variacaoPercentualTrimestral),
-        hidden: true,
-      },
-      !isMobile && {
-        label: 'variação semestral (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualSemestral?.toNumber() > 1000 ? 0 : x?.variacaoPercentualSemestral),
-        hidden: true,
-      },
-      !isMobile && {
-        label: 'variação anual (%)',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualAnual?.toNumber() > 1000 ? 0 : x?.variacaoPercentualAnual),
-        hidden: true,
-      },
-    ].filter(Boolean),
-  }} options={{
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-      zoom: zoomOptions,
-    } as any,
-    scales: {
-      y: {
-        ticks: {
-          // Include a dollar sign in the ticks
-          callback: function (value, index, values) {
-            return NumberUtil.toPercent(value);
-          }
-        }
-      }
-    }
-  }} />;
+  const series = [
+    {
+      name: "variação mensal (%)",
+      data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualMes?.toNumber()) || [],
+    },
+    {
+      name: "variação trimestral (%)",
+      data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualTrimestral?.isGreaterThan(1000) ? 0 : x?.variacaoPercentualTrimestral?.toNumber()) || [],
+      hidden: true,
+    },
+    !isMobile && {
+      name: "variação semestral (%)",
+      data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualSemestral?.isGreaterThan(1000) ? 0 : x?.variacaoPercentualSemestral?.toNumber()) || [],
+      hidden: true,
+    },
+    !isMobile && {
+      name: "variação anual (%)",
+      data: transacoesAcumuladasPorMes?.map(x => x.variacaoPercentualAnual?.isGreaterThan(1000) ? 0 : x?.variacaoPercentualAnual?.toNumber()) || [],
+      hidden: true,
+    },
+  ].filter(Boolean) as any[];
+
+  const options: ApexOptions = {
+    ...defaultChartOptions,
+    chart: {
+      ...defaultChartOptions.chart,
+      id: 'variacao-percentual-mes',
+      group: "home",
+      type: "area" as const,
+    },
+    xaxis: {
+      type: "datetime" as const,
+      categories: transacoesAcumuladasPorMes?.map(x => x.mes) || [],
+      min: getMinimumDateFromSerie(transacoesAcumuladasPorMes),
+    },
+    yaxis: { labels: { formatter: (value: number) => NumberUtil.toPercent(value), }, },
+  };
+
+  return <ChartWrapper options={options} series={series} type="area" height={350} />;
 }
+
 export function GraficoCaixaVariacaoAcumuladoMesAMes({ transacoesAcumuladasPorMes }: CustomProps) {
   const { isMobile } = useEnv();
+  const series = [
+    {
+      name: "variação mensal",
+      data: transacoesAcumuladasPorMes?.map(x => x.variacaoMes?.toNumber()) || [],
+    },
+    {
+      name: "variação trimestral",
+      data: transacoesAcumuladasPorMes?.map(x => x.variacaoTrimestral?.isGreaterThan(1000) ? 0 : x?.variacaoTrimestral?.toNumber()) || [],
+      hidden: true,
+    },
+    !isMobile && {
+      name: "variação semestral",
+      data: transacoesAcumuladasPorMes?.map(x => x.variacaoSemestral?.isGreaterThan(1000) ? 0 : x?.variacaoSemestral?.toNumber()) || [],
+      hidden: true,
+    },
+    !isMobile && {
+      name: "variação anual",
+      data: transacoesAcumuladasPorMes?.map(x => x.variacaoAnual?.isGreaterThan(1000) ? 0 : x?.variacaoAnual?.toNumber()) || [],
+      hidden: true,
+    },
+  ].filter(Boolean) as any[];
 
-  return <Line data={{
-    labels: transacoesAcumuladasPorMes?.map(x => x.mes),
-    datasets: [
-      {
-        label: 'variação mensal',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoMes),
-      },
-      {
-        label: 'variação trimestral',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoTrimestral?.toNumber() > 1000 ? 0 : x?.variacaoTrimestral),
-        hidden: true,
-      },
-      !isMobile && {
-        label: 'variação semestral',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoSemestral?.toNumber() > 1000 ? 0 : x?.variacaoSemestral),
-        hidden: true,
-      },
-      !isMobile && {
-        label: 'variação anual',
-        data: transacoesAcumuladasPorMes?.map(x => x.variacaoAnual?.toNumber() > 1000 ? 0 : x?.variacaoAnual),
-        hidden: true,
-      },
-    ].filter(Boolean),
-  }} options={{
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-      zoom: zoomOptions,
-    } as any,
-    scales: {
-      y: {
-        ticks: {
-          // Include a dollar sign in the ticks
-          callback: function (value, index, values) {
-            return NumberUtil.toCurrency(value);
-          }
-        }
-      }
-    }
-  }} />;
+  const options: ApexOptions = {
+    ...defaultChartOptions,
+    chart: {
+      ...defaultChartOptions.chart,
+      id: 'variacao-mes',
+      group: "home",
+      type: "area" as const,
+    },
+    xaxis: {
+      type: "datetime" as const,
+      categories: transacoesAcumuladasPorMes?.map(x => x.mes) || [],
+      min: getMinimumDateFromSerie(transacoesAcumuladasPorMes),
+    },
+  };
+
+  return <ChartWrapper options={options} series={series} type="area" height={350} />;
+}
+
+function getMinimumDateFromSerie(serie: { mes: string }[]) {
+  const lastFive = serie?.slice(-12) || [];
+  const minDate = lastFive.length > 0 ? Date.parse(lastFive[0]?.mes) : undefined;
+
+  return minDate;
 }

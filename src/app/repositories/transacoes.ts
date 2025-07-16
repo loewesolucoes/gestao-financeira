@@ -1,6 +1,6 @@
 import moment from 'moment';
 import BigNumber from 'bignumber.js';
-import { DefaultFields, DefaultRepository, MapperTypes, TableNames } from './default';
+import { DefaultFields, DefaultRepository, MapperTypes, TableNames, DEFAULT_MAPPING } from './default';
 import { Metas } from './metas';
 
 export interface Transacoes extends DefaultFields {
@@ -65,7 +65,7 @@ export enum PeriodoTransacoes {
 
 export class TransacoesRepository extends DefaultRepository {
   // @ts-ignore
-  public readonly DEFAULT_MAPPING = { ...super.DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE, categoriaId: MapperTypes.NUMBER };
+  public readonly DEFAULT_MAPPING = { ...DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE, categoriaId: MapperTypes.NUMBER };
 
   public async totais(yearAndMonth: Date): Promise<TotaisHome> {
     await Promise.resolve();

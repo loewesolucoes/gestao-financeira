@@ -1,4 +1,4 @@
-import { DefaultFields, DefaultRepository, TableNames } from "./default";
+import { DefaultFields, DefaultRepository, TableNames, DEFAULT_MAPPING } from "./default";
 
 export interface Parametro extends DefaultFields {
   chave: string
@@ -9,7 +9,7 @@ export const GOOGLE_DRIVE_REFRESH_TOKEN = 'GOOGLE_DRIVE_REFRESH_TOKEN';
 
 export class ParametrosRepository extends DefaultRepository {
   // @ts-ignore
-  public readonly DEFAULT_MAPPING = { ...super.DEFAULT_MAPPING }
+  public readonly DEFAULT_MAPPING = { ...DEFAULT_MAPPING }
   private _paramsDict?: { [key: string]: Parametro };
 
   public async getDict(): Promise<{ [key: string]: Parametro }> {

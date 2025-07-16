@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { DefaultFields, DefaultRepository, MapperTypes, TableNames } from './default';
+import { DefaultFields, DefaultRepository, MapperTypes, TableNames, DEFAULT_MAPPING } from './default';
 import { PeriodoTransacoes, TransacoesRepository } from './transacoes';
 
 export interface Patrimonio extends DefaultFields {
@@ -12,7 +12,7 @@ export interface Patrimonio extends DefaultFields {
 
 export class PatrimonioRepository extends DefaultRepository {
   // @ts-ignore
-  public readonly DEFAULT_MAPPING = { ...super.DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
+  public readonly DEFAULT_MAPPING = { ...DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
 
   public async listPatrimonio(periodo: PeriodoTransacoes): Promise<Patrimonio[]> {
     let query = TransacoesRepository.getQueryByPeriodo(periodo);

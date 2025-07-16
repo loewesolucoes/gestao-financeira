@@ -44,7 +44,7 @@ export function Modal({ children, title, onClose, hideFooter, hideHeader, fullSc
 
   return (
     <>
-      <div className={`modal modal-lg fade ${isOpen && 'show'}`} id="modal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ zIndex: 99, display: isOpen ? 'block' : 'none', ...style }} onClick={onCloseClickBackdrop}>
+      <div className={`modal modal-xl fade ${isOpen && 'show'}`} id="modal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true" style={{ zIndex: 99, display: isOpen ? 'block' : 'none', ...style }} onClick={onCloseClickBackdrop}>
         <div className={`modal-dialog ${fullScreen ? ' modal-fullscreen' : ''} ${isMobile ? 'modal-dialog-scrollable' : ''}`} style={{ zIndex: 99 }} onClick={(e) => e.stopPropagation()}>
           <div className="modal-content">
             {!hideHeader && (

@@ -1,4 +1,4 @@
-import { DefaultFields, DefaultRepository, MapperTypes } from './default';
+import { DefaultFields, DefaultRepository, MapperTypes, DEFAULT_MAPPING } from './default';
 
 export interface Metas extends DefaultFields {
   data: Date
@@ -14,5 +14,5 @@ export enum TipoDeMeta {
 
 export class MetasRepository extends DefaultRepository {
   // @ts-ignore
-  public readonly DEFAULT_MAPPING = { ...super.DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
+  public readonly DEFAULT_MAPPING = { ...DEFAULT_MAPPING, data: MapperTypes.DATE_TIME, tipo: MapperTypes.NUMBER, monthYear: MapperTypes.IGNORE };
 }
