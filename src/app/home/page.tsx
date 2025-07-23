@@ -1,7 +1,7 @@
 "use client";
 
-import { Home } from "./home/page-component";
-import { Layout } from "./shared/layout";
+import { Layout } from "../shared/layout";
+import { Home } from "./page-component";
 
 export default function Page() {
   return (

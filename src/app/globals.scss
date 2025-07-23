@@ -53,7 +53,7 @@ header {
     width: 30px;
     height: 30px;
 
-    @include media-breakpoint-up(lg) {
+    @include media-breakpoint-up(xl) {
       width: 40px;
       height: 40px;
     }
@@ -240,6 +240,6 @@ footer {
 
 .apexcharts-canvas {
   @include media-breakpoint-down(sm) {
-    width: 260px !important;
+    width: 260px;
   }
 }

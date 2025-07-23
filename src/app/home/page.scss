@@ -1,4 +1,4 @@
-@import "_bootstrap";
+@import "../_bootstrap";
 
 .valor-terreno,
 .compra-terreno-parcelada {
@@ -21,35 +21,10 @@
 }
 
 .home {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-
-  .card-metas,
-  .card-caixa {
-    order: -1;
-  }
-
-  @include media-breakpoint-up(lg) {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    order: initial;
-
-    .card {
-      grid-column: auto / span 2;
-
-      &.card-chart {
-        grid-column: auto / span 3;
-      }
-    }
-  }
-
   .home-loader {
     display: flex;
     align-items: center;
     justify-content: center;
-    grid-column: 1 / 8;
   }
 
   .card-chart {

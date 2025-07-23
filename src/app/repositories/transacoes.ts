@@ -47,20 +47,36 @@ export interface TotaisTransacoes {
   transacoesAcumuladaPorMes: TransacoesAcumuladasPorMes[]
 }
 
+export interface TransacoesComNotasECategoria {
+  mes: string,
+  totalMes: BigNumber,
+  totalAcumulado: BigNumber,
+  receitaMes: BigNumber,
+  despesasMes: BigNumber,
+  notaDescricao?: string,
+  notaComentario?: string,
+  notaTipo?: number
+  categoriaId?: number
+}
+
 export interface TotaisHome {
   valorEmCaixa: BigNumber
   receitas: BigNumber
   despesas: BigNumber
   transacoesAcumuladaPorMes: TransacoesAcumuladasPorMesHome[]
   metas: Metas[]
+  transacoesComNotasECategorias: TransacoesComNotasECategoria[]
+  transacoesDoMes: Transacoes[]
 }
 
 export enum PeriodoTransacoes {
-  ULTIMO_MES,
-  TRES_ULTIMOS_MESES,
-  SEIS_ULTIMOS_MESES,
-  ULTIMO_ANO,
-  TODO_HISTORICO,
+  ULTIMO_MES = 1,
+  TRES_ULTIMOS_MESES = 3,
+  SEIS_ULTIMOS_MESES = 6,
+  ULTIMO_ANO = 12,
+  DOIS_ULTIMOS_ANOS = 24,
+  TRES_ULTIMOS_ANOS = 36,
+  TODO_HISTORICO = -1,
 }
 
 export class TransacoesRepository extends DefaultRepository {
@@ -74,11 +90,11 @@ export class TransacoesRepository extends DefaultRepository {
     select SUM(t.valor) as valorEmCaixa FROM transacoes t;
     
     select SUM(t.valor) as receitas FROM transacoes t
-    WHERE t.valor >= 0
+    WHERE t.valor > 0
     and strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year;
 
     select SUM(t.valor) as despesas FROM transacoes t
-    WHERE t.valor < 0
+    WHERE t.valor <= 0
     and strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year;
 
     WITH Totais AS (
@@ -111,6 +127,24 @@ export class TransacoesRepository extends DefaultRepository {
 
     SELECT * FROM metas m
     WHERE strftime('%Y', m.data) = $year;
+
+    -- TODO: made a join with notas and transacoes to get the notes related to the transactions
+    WITH TransacoesComMes AS (
+      SELECT strftime('%Y-%m', t.data) AS mes,
+          t.categoriaId,
+          SUM(CASE WHEN t.valor >= 0 THEN t.valor ELSE 0 END) AS receitasMes,
+          SUM(CASE WHEN t.valor < 0 THEN t.valor ELSE 0 END) AS despesasMes,
+          SUM(t.valor) AS totalMes,
+          SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', data)) AS totalAcumulado
+      FROM transacoes t
+      GROUP BY mes, categoriaId
+    ) SELECT t.*, n.descricao as notaDescricao, n.comentario as notaComentario, n.tipo as notaTipo
+     FROM TransacoesComMes t
+     LEFT JOIN notas n ON t.mes = strftime('%Y-%m', n.data);
+
+    select * FROM transacoes t
+    WHERE strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year
+    ORDER BY t.ordem, t.data ASC;
     `;
 
     const result = await this.db.exec(query, { "$month": moment(yearAndMonth).format('MM'), "$year": moment(yearAndMonth).format('YYYY') });
@@ -123,6 +157,8 @@ export class TransacoesRepository extends DefaultRepository {
       despesas: parsedResult[2][0]?.despesas as any,
       transacoesAcumuladaPorMes: parsedResult[3] as any,
       metas: (parsedResult[4] as any)?.map(x => { x.tipo = x.tipo.toNumber(); return x; }),
+      transacoesComNotasECategorias: (parsedResult[5] as any)?.map(x => { x.categoriaId = x.categoriaId?.toNumber(); return x; }),
+      transacoesDoMes: parsedResult[6] || [],
     }
   }
 

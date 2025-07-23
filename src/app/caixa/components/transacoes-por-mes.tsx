@@ -91,7 +91,7 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
 
             return (
               <section key={key} className="my-3 d-flex flex-column gap-3">
-                <div className="d-flex justify-content-between align-items-center flex-column flex-lg-row gap-3">
+                <div className="d-flex justify-content-between align-items-center flex-column flex-xl-row gap-3">
                   <h4>Periodo de: {momentPeriod.format(groupDescFormat)}</h4>
                   {acumulado?.totalAcumulado && (<small>Valor em caixa no periodo: {NumberUtil.toCurrency(acumulado.totalAcumulado)}</small>)}
                   <div className="actions d-flex gap-3">
@@ -100,7 +100,7 @@ export function TransacoesPorMes({ groupByDay, periodo, transacoesAcumuladaPorMe
                     <Link href={`/${path}/copia?month=${key}`} className="btn btn-outline-dark btn-sm">Copiar mês</Link>
                   </div>
                 </div>
-                <div className="d-flex align-items-center align-items-lg-start flex-column-reverse flex-lg-row justify-content-lg-around gap-3">
+                <div className="d-flex align-items-center align-items-xl-start flex-column-reverse flex-xl-row justify-content-xl-around gap-3">
                   <ListaCaixa tableName={tableName} transacoesDoPeriodo={transacoesDoPeriodo} />
                   {!isPatrimonio && (
                     <CaixaTotaisDoMes transacoesDoPeriodo={transacoesDoPeriodo} transacoesAcumuladasPorMes={acumuladoAteOMes} />
