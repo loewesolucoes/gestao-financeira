@@ -3,6 +3,10 @@
 ## Status
 `Draft` — not yet started. Captured from a design discussion on 2026-07-26.
 
+## Tracking
+GitHub issue: [#36](https://github.com/loewesolucoes/gestao-financeira/issues/36)
+Related specs: [001-repository-migrations-refactor](../001-repository-migrations-refactor/spec.md) ([#35](https://github.com/loewesolucoes/gestao-financeira/issues/35))
+
 ## Problem statement
 The project has no GitHub Actions workflows. Nothing gates pull requests: a PR can be merged into `main` without lint, tests, or a successful build ever running. Deployment is also fully manual, per the README checklist: bump version with `npm version`, run `npm run build` locally, `git push`/`git push --tags`, then `npm run deploy` (which runs `gh-pages -d out --dotfiles` from the contributor's machine) to publish to the `gh-pages` branch, and finally create a GitHub Release by hand.
 

@@ -3,6 +3,10 @@
 ## Status
 `Draft` — not yet started. Captured from a design discussion on 2026-07-26.
 
+## Tracking
+GitHub issue: [#35](https://github.com/loewesolucoes/gestao-financeira/issues/35)
+Related specs: [002-github-actions-ci-cd](../002-github-actions-ci-cd/spec.md) ([#36](https://github.com/loewesolucoes/gestao-financeira/issues/36))
+
 ## Problem statement
 All database schema migrations currently live in a single, ever-growing method — `runMigrations()` in `src/app/repositories/default.ts`. Each migration is an inline template-literal SQL string guarded by a check against a `migrations` table:
 
