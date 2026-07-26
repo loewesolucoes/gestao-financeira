@@ -125,9 +125,6 @@ export class TransacoesRepository extends DefaultRepository {
     ORDER BY mes
     LIMIT -1 OFFSET 1;
 
-    SELECT * FROM metas m
-    WHERE strftime('%Y', m.data) = $year;
-
     -- TODO: made a join with notas and transacoes to get the notes related to the transactions
     WITH TransacoesComMes AS (
       SELECT strftime('%Y-%m', t.data) AS mes,
@@ -145,6 +142,9 @@ export class TransacoesRepository extends DefaultRepository {
     select * FROM transacoes t
     WHERE strftime('%m', t.data) = $month and strftime('%Y', t.data) = $year
     ORDER BY t.ordem, t.data ASC;
+
+    SELECT * FROM metas m
+    WHERE strftime('%Y', m.data) = $year;
     `;
 
     const result = await this.db.exec(query, { "$month": moment(yearAndMonth).format('MM'), "$year": moment(yearAndMonth).format('YYYY') });
@@ -156,9 +156,9 @@ export class TransacoesRepository extends DefaultRepository {
       receitas: parsedResult[1][0]?.receitas as any,
       despesas: parsedResult[2][0]?.despesas as any,
       transacoesAcumuladaPorMes: parsedResult[3] as any,
-      metas: (parsedResult[4] as any)?.map(x => { x.tipo = x.tipo.toNumber(); return x; }),
-      transacoesComNotasECategorias: (parsedResult[5] as any)?.map(x => { x.categoriaId = x.categoriaId?.toNumber(); return x; }),
-      transacoesDoMes: parsedResult[6] || [],
+      transacoesComNotasECategorias: (parsedResult[4] as any)?.map(x => { x.categoriaId = x.categoriaId?.toNumber(); return x; }),
+      transacoesDoMes: parsedResult[5] || [],
+      metas: (parsedResult[6] as any)?.map(x => { x.tipo = x.tipo?.toNumber(); return x; }),
     }
   }
 
