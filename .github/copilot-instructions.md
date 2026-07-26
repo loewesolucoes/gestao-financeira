@@ -44,6 +44,7 @@ Global state is provided via context, not a global store: `ErrorHandlerProvider`
 - Tests are **colocated** under a feature's `__tests__/` folder using `*.test.tsx` naming (e.g. `src/app/caixa/components/__tests__/transacao-form.test.tsx`).
 - Use **React Testing Library** (`render`, `screen`, `fireEvent`, `waitFor`, `getByLabelText`/`getByRole`) and `jest.mock(...)` to stub app contexts (e.g. storage/repository context) rather than hitting the real sql.js/localforage stack.
 - Run tests with `npm test` (or `npm run dev-test` to watch). Run lint with `npm run lint`.
+- Run a single test file: `npx jest src/app/caixa/components/__tests__/transacao-form.test.tsx`. Run a subset by name: `npx jest -t "nome do teste"`.
 
 ## Build & deploy
 - `npm run build` → static site in `out/`. `npm run deploy` publishes `out/` to the `gh-pages` branch (adds `.nojekyll` via `predeploy`).
