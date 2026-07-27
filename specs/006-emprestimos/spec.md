@@ -4,7 +4,7 @@
 `Draft` — not yet started. Captured from a design discussion on 2026-07-27.
 
 ## Tracking
-GitHub issue: _TBD_
+GitHub issue: https://github.com/loewesolucoes/gestao-financeira/issues/9
 Related specs: [001-repository-migrations-refactor](../001-repository-migrations-refactor/spec.md) (new migrations added by this feature should still follow whatever migration mechanism is current at implementation time — inline in `default.ts` if 001 hasn't landed yet, or the new per-repository mechanism if it has), [003-relatorios-ai-chat](../003-relatorios-ai-chat/spec.md) (see "Future ideas" below).
 
 ## Problem statement

@@ -4,6 +4,7 @@
 `Draft` — not yet started.
 
 ## Tracking
+GitHub issue: https://github.com/loewesolucoes/gestao-financeira/issues/8
 Related specs: none.
 
 ## Problem statement
