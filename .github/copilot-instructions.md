@@ -49,3 +49,6 @@ Global state is provided via context, not a global store: `ErrorHandlerProvider`
 ## Build & deploy
 - `npm run build` → static site in `out/`. `npm run deploy` publishes `out/` to the `gh-pages` branch (adds `.nojekyll` via `predeploy`).
 - Version bumps use `npm version <newversion>`, then `git push && git push --tags`, then `npm run deploy`, then create a GitHub Release. See `README.md` for the full release checklist.
+
+## Planning (SDD)
+- Feature/refactor planning docs live under `specs/NNN-slug/` (spec-driven development). See `specs/README.md` for the convention and `specs/_template/` for the file skeletons; the full process rules are in `.github/instructions/sdd.instructions.md`.
