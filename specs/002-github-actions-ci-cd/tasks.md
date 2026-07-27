@@ -11,15 +11,15 @@ Checklist for implementing `spec.md` / `plan.md`. Work top to bottom; each task 
   - `release` job: trigger on `push` of tag `v*.*.*` (guarded with `if: startsWith(github.ref, 'refs/tags/v')`); checkout, `softprops/action-gh-release@v2` with `generate_release_notes: true`.
   - Set `permissions: contents: write` at workflow (or job) level for both jobs.
 
-- [ ] **T3 — Validate CI workflow**
+- [x] **T3 — Validate CI workflow**
   - Open a PR touching a trivial file (or this spec) to confirm `ci.yml` runs and passes (lint/test/build all green).
   - Intentionally break lint/test locally-only (not committed) to sanity-check the workflow would fail — or verify by reading logs of a deliberately-failing throwaway branch/PR if feasible.
 
-- [ ] **T4 — Validate deploy workflow**
+- [x] **T4 — Validate deploy workflow**
   - Merge a PR to `main` and confirm the `deploy` job runs, `gh-pages` branch updates with fresh content, and https://loewesolucoes.github.io/gestao-financeira/ reflects the change.
   - Confirm `.nojekyll` is present on the `gh-pages` branch after the Action runs (via `peaceiris/actions-gh-pages`, no manual step needed).
 
-- [ ] **T5 — Validate release workflow**
+- [x] **T5 — Validate release workflow**
   - On the next real version bump, push the resulting `vX.Y.Z` tag and confirm a GitHub Release is auto-created with generated notes, without a manual "Create a release" step.
 
 - [x] **T6 — Update README's "Deploying" section**
