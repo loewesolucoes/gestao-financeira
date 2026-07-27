@@ -55,7 +55,7 @@ function CaixaPage() {
 
   return (
     <main className="caixa container mt-3">
-      <section className="d-flex justify-content-between flex-column flex-lg-row">
+      <section className="d-flex justify-content-between flex-column flex-xl-row">
         <h1>Caixa</h1>
         <div className="d-flex justify-content-between gap-3">
           <h5>Valor em caixa: </h5>

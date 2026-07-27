@@ -30,7 +30,7 @@ You can see our future features at our issues page: [Issues](https://github.com/
 
 ## Deploying
 
-To deploy this app, follow these steps:
+Deployment and release creation are automated via GitHub Actions (see `.github/workflows/deploy.yml`). To ship a new version, follow these steps:
 
 1. **Update the npm version**  
    Bump the version number as appropriate (major, minor, patch, or specify a version):
@@ -39,37 +39,33 @@ To deploy this app, follow these steps:
 npm version <newversion>
 ```
 
-2. **Build the app for production**  
-   Generate the production build:
-
-```bash
-npm run build
-```
-
-This will output the static files to the `out` directory.
-
-3. **Push changes and tags to GitHub**  
-   Make sure your changes and version tags are pushed:
+2. **Push changes and tags to GitHub**  
+   Make sure your changes and version tags are pushed to `main`:
 
 ```bash
 git push
 git push --tags
 ```
 
-4. **Deploy to GitHub Pages**  
-   Deploy the built app to the `gh-pages` branch:
+3. **Automatic build & deploy**  
+   Merging to `main` triggers the `deploy` workflow, which builds the app and publishes the static output to the [gh-pages branch](https://github.com/loewesolucoes/gestao-financeira/tree/gh-pages) automatically — no manual build/deploy step is needed.
+
+4. **Verify the deployment**  
+   Visit [https://loewesolucoes.github.io/gestao-financeira/](https://loewesolucoes.github.io/gestao-financeira/) to confirm your app is live.
+
+5. **Automatic GitHub Release**  
+   Pushing the `vX.Y.Z` tag triggers the `release` workflow, which creates a GitHub Release with generated release notes automatically — no manual release step is needed.
+
+### Manual fallback
+
+If you need to deploy locally instead of relying on the Actions workflow, you can still run:
 
 ```bash
+npm run build
 npm run deploy
 ```
 
-The deployment uses the [gh-pages branch](https://github.com/loewesolucoes/gestao-financeira/tree/gh-pages).
-
-5. **Verify the deployment**  
-   Visit [https://loewesolucoes.github.io/gestao-financeira/](https://loewesolucoes.github.io/gestao-financeira/) to confirm your app is live.
-
-6. **Create a GitHub Release**  
-   After deployment, create a new release on GitHub and include release notes for the new version.
+This builds the static site to `out/` and publishes it to `gh-pages` directly.
 
 ## Learn More
 

@@ -17,7 +17,7 @@ export function Header() {
 
   return (
     <>
-      <header className="d-flex d-lg-none navbar navbar-expand-lg">
+      <header className="d-flex d-xl-none navbar navbar-expand-xl">
         <div className="container-fluid">
           <button className="navbar-toggler btn-sm" type="button" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" onClick={e => setShow(!show)}>
             <span className="navbar-toggler-icon"></span>

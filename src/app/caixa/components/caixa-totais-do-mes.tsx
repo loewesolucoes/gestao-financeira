@@ -8,7 +8,7 @@ import { ChartWrapper } from "@/app/components/general-chart";
 export function CaixaTotaisDoMes({ transacoesDoPeriodo, transacoesAcumuladasPorMes }: { transacoesDoPeriodo: Transacoes[], transacoesAcumuladasPorMes: any }) {
   const somaPeriodo = transacoesDoPeriodo.reduce((p, n) => p.plus(n.valor || 0), BigNumber(0));
 
-  return <div className="totals d-flex flex-column gap-3">
+  return <div className="totals d-flex flex-xl-column flex-row flex-wrap justify-content-around gap-3">
     <div className="card card-material-1 w-100">
       <div className="card-body">
         <h5>Balanço do mês</h5>
