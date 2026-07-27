@@ -23,7 +23,8 @@ describe("TransacaoForm", () => {
   it("renderiza campos básicos", () => {
     render(<TransacaoForm />);
     expect(screen.getByLabelText(/Local/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Comentario/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Mostrar/i }));
+    expect(screen.getByPlaceholderText(/Comentario/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Valor aplicado/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Data/i)).toBeInTheDocument();
   });
@@ -43,7 +44,8 @@ describe("TransacaoForm", () => {
     const { container } = render(<TransacaoForm onCustomSubmit={onCustomSubmit} />);
 
     fireEvent.change(screen.getByLabelText(/Local/i), { target: { value: "Supermercado" } });
-    fireEvent.change(screen.getByLabelText(/Comentario/i), { target: { value: "Compra do mês" } });
+    fireEvent.click(screen.getByRole("button", { name: /Mostrar/i }));
+    fireEvent.change(screen.getByPlaceholderText(/Comentario/i), { target: { value: "Compra do mês" } });
     fireEvent.change(screen.getByLabelText(/Valor aplicado/i), { target: { value: "100" } });
     fireEvent.change(screen.getByLabelText(/Data/i), { target: { value: "2024-06-01" } });
     fireEvent.change(screen.getByLabelText(/Tipo de receita/i), { target: { value: TipoDeReceita.FIXO } });
