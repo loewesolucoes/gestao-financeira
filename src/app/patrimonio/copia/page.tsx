@@ -11,6 +11,8 @@ function CopiaPatrimonioPage() {
   const { params } = useLocation();
   const month = params.get('month');
   const momentMonth = moment(month, 'YYYY-MM');
+  
+  console.debug('CopiaPatrimonioPage month:', month, 'momentMonth:', momentMonth.format('YYYY-MM'));
 
   return (
     <main className="patrimonio container mt-3 d-flex flex-column gap-3">

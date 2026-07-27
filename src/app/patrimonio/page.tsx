@@ -17,6 +17,8 @@ function Patrimonio() {
     document.title = `Patrimônio | ${process.env.NEXT_PUBLIC_TITLE}`
   }, []);
 
+  console.debug('Patrimonio page periodo:', periodo);
+
   return (
     <main className="patrimonio container mt-3">
       <h1>Patrimônio</h1>
