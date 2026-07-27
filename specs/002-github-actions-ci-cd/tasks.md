@@ -2,11 +2,11 @@
 
 Checklist for implementing `spec.md` / `plan.md`. Work top to bottom; each task should be a small, reviewable commit.
 
-- [ ] **T1 — Add `.github/workflows/ci.yml`**
+- [x] **T1 — Add `.github/workflows/ci.yml`**
   - Trigger: `pull_request` targeting `main` only (no `push` trigger).
   - Steps: checkout, `actions/setup-node@v4` (Node 22, `cache: npm`), `npm ci`, `npm run lint`, `npm test`, `npm run build`.
 
-- [ ] **T2 — Add `.github/workflows/deploy.yml`**
+- [x] **T2 — Add `.github/workflows/deploy.yml`**
   - `deploy` job: trigger on `push` to `main` (guarded with `if: github.ref == 'refs/heads/main'`); checkout, setup-node (22), `npm ci`, `npm run build`, publish `out/` to `gh-pages` via `peaceiris/actions-gh-pages@v4` using `secrets.GITHUB_TOKEN`.
   - `release` job: trigger on `push` of tag `v*.*.*` (guarded with `if: startsWith(github.ref, 'refs/tags/v')`); checkout, `softprops/action-gh-release@v2` with `generate_release_notes: true`.
   - Set `permissions: contents: write` at workflow (or job) level for both jobs.
@@ -22,7 +22,7 @@ Checklist for implementing `spec.md` / `plan.md`. Work top to bottom; each task 
 - [ ] **T5 — Validate release workflow**
   - On the next real version bump, push the resulting `vX.Y.Z` tag and confirm a GitHub Release is auto-created with generated notes, without a manual "Create a release" step.
 
-- [ ] **T6 — Update README's "Deploying" section**
+- [x] **T6 — Update README's "Deploying" section**
   - Mark steps 4 (deploy) and 6 (create release) as automatic, triggered by merging to `main` / pushing a tag, respectively.
   - Keep steps 1–3 (bump version, build locally optional, push branch + tags) as the remaining manual steps; clarify local `npm run build`/`npm run deploy` remain available as a manual fallback.
 
