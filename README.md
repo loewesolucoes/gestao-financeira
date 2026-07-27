@@ -32,22 +32,18 @@ You can see our future features at our issues page: [Issues](https://github.com/
 
 Deployment and release creation are automated via GitHub Actions (see `.github/workflows/deploy.yml`). To ship a new version, follow these steps:
 
-1. **Update the npm version**  
-   Bump the version number as appropriate (major, minor, patch, or specify a version):
+1. **Update the npm version on your feature branch, without tagging yet**  
+   Bump the version number, but skip the local git tag for now (we'll create it on `main` after the merge, so the generated release notes can include the merged PRs — see the note below):
 
 ```bash
-npm version <newversion>
-```
-
-2. **Push changes and tags to GitHub**  
-   Make sure your changes and version tags are pushed to `main`:
-
-```bash
+npm version <newversion> --no-git-tag-version
+git add package.json package-lock.json
+git commit -m "chore: bump version to <newversion>"
 git push
-git push --tags
 ```
 
-> ⚠️ **Don't forget `git push --tags`!** `npm version` creates the `vX.Y.Z` tag **locally only** — it is not pushed automatically with a plain `git push`. If you skip this step, the tag never reaches GitHub and the `release` job in `deploy.yml` will never trigger (it stays "skipped" forever). If you notice this after the fact, just push the missing tag: `git push origin vX.Y.Z`.
+2. **Open/merge the PR into `main`**  
+   Once CI passes and the PR is merged, `main` now contains the version bump.
 
 3. **Automatic build & deploy**  
    Merging to `main` triggers the `deploy` workflow, which builds the app and publishes the static output to the [gh-pages branch](https://github.com/loewesolucoes/gestao-financeira/tree/gh-pages) automatically — no manual build/deploy step is needed.
@@ -55,8 +51,20 @@ git push --tags
 4. **Verify the deployment**  
    Visit [https://loewesolucoes.github.io/gestao-financeira/](https://loewesolucoes.github.io/gestao-financeira/) to confirm your app is live.
 
-5. **Automatic GitHub Release**  
-   Pushing the `vX.Y.Z` tag triggers the `release` workflow, which creates a GitHub Release with generated release notes automatically — no manual release step is needed.
+5. **Tag `main` (after the merge) and push the tag**  
+   Checkout and pull the latest `main`, then create and push the tag pointing at the merge commit:
+
+```bash
+git checkout main
+git pull
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+> ⚠️ **Tag `main` after merging, not your feature branch before merging!** `npm version` creates the `vX.Y.Z` tag **locally only** — a plain `git push` never pushes it, so always push it explicitly (`git push origin vX.Y.Z` or `git push --tags`). More importantly: if you tag your feature branch *before* it's merged, the tag's commit is an *ancestor* of the `Merge pull request #NN` commit on `main`, not a descendant of it — so GitHub's auto-generated release notes (`generate_release_notes: true`) can't see that PR and will only produce a bare "Full Changelog" compare link instead of a proper "What's Changed" list. Tagging `main` after the merge fixes this.
+
+6. **Automatic GitHub Release**  
+   Pushing the `vX.Y.Z` tag triggers the `release` workflow, which creates a GitHub Release with auto-generated notes (a "What's Changed" list of merged PRs, same as GitHub's UI "Generate release notes" button) — no manual release step is needed.
 
 ### Manual fallback
 
