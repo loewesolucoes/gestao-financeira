@@ -1,7 +1,7 @@
 # Spec: Perguntas reais do FAQ
 
 ## Status
-`Draft` — not yet started.
+`Done` — implemented and tested.
 
 ## Tracking
 GitHub issue: https://github.com/loewesolucoes/gestao-financeira/issues/8
@@ -87,14 +87,14 @@ backup, running entirely client-side (no backend).
   `<Link href="/termos-de-uso">`/`<Link href="/politica-de-privacidade">` pattern.
 
 ## Acceptance criteria
-- [ ] `specs/005-faq-real-questions/plan.md` lists the final drafted text for every
+- [x] `specs/005-faq-real-questions/plan.md` lists the final drafted text for every
       new question and answer, ready to be copy-pasted into `qea`.
-- [ ] `specs/005-faq-real-questions/tasks.md` provides a step-by-step checklist to
+- [x] `specs/005-faq-real-questions/tasks.md` provides a step-by-step checklist to
       implement the change and validate it (manual check + lint + tests if
       present).
-- [ ] No construction/works-management-themed question remains in the plan's final
+- [x] No construction/works-management-themed question remains in the plan's final
       content.
-- [ ] The final list has 10–12 items, includes the topics enumerated in Goal 2, and
+- [x] The final list has 10–12 items, includes the topics enumerated in Goal 2, and
       keeps the Termos/Política item.
-- [ ] The plan preserves the existing answer JSX shape so no styling regressions
+- [x] The plan preserves the existing answer JSX shape so no styling regressions
       are expected when implemented.

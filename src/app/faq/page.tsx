@@ -10,32 +10,44 @@ import Link from "next/link";
 // TODO: trocar pra um arquivo markdown
 const qea = [
   {
-    question: "Como faço para criar um orçamento detalhado?",
-    answer: <p className="mw-md mt-4 mb-0">Para criar um orçamento detalhado, acesse a seção de orçamentos no sistema. Insira os itens necessários, como materiais, mão de obra e outros recursos. O sistema calculará automaticamente os custos com base nas quantidades e preços definidos.</p>,
+    question: "Como faço para registrar minhas receitas e despesas do mês?",
+    answer: <p className="mw-md mt-4 mb-0">Na seção Caixa, adicione uma transação informando o valor, a data, a categoria e se é uma entrada ou saída. O sistema organiza tudo por mês, para você acompanhar facilmente o saldo e os gastos de cada período.</p>,
   },
   {
-    question: "Posso controlar os gastos por centro de custo?",
-    answer: <p className="mw-md mt-4 mb-0">Sim! O sistema permite que você associe cada despesa a um centro de custo específico. Dessa forma, você pode acompanhar os gastos de acordo com as diferentes áreas do projeto.</p>,
+    question: "Como funcionam as Metas de economia?",
+    answer: <p className="mw-md mt-4 mb-0">Em Metas, você define um objetivo (por exemplo, juntar um valor até uma data) e registra os aportes ao longo do tempo. O sistema mostra o progresso em relação ao valor planejado, ajudando você a acompanhar se está no caminho certo.</p>,
   },
   {
-    question: "Como faço para solicitar cotações de fornecedores?",
-    answer: <p className="mw-md mt-4 mb-0">Na seção de compras, você pode criar solicitações de cotação para os materiais necessários. O sistema enviará essas solicitações aos fornecedores cadastrados, facilitando o processo de comparação e escolha.</p>,
+    question: "O que é o módulo de Patrimônio e para que serve?",
+    answer: <p className="mw-md mt-4 mb-0">O Patrimônio permite registrar seus bens e investimentos (contas, aplicações, imóveis, veículos, etc.) para acompanhar a evolução do seu patrimônio líquido ao longo do tempo.</p>,
   },
   {
-    question: "Como acompanho o progresso da obra?",
-    answer: <p className="mw-md mt-4 mb-0">O sistema possui um módulo de acompanhamento de obra. Nele, você pode inserir informações sobre o avanço físico, marcos importantes e atualizações do cronograma. Isso ajuda a manter todos os envolvidos informados.</p>,
+    question: "Consigo controlar empréstimos que fiz ou recebi?",
+    answer: <p className="mw-md mt-4 mb-0">Sim! Em Empréstimos você pode cadastrar valores emprestados a terceiros ou tomados de terceiros, acompanhando parcelas, datas e o saldo devedor de cada um.</p>,
   },
   {
-    question: "Existe um portal do cliente para compartilhar informações?",
-    answer: <p className="mw-md mt-4 mb-0">Sim! O portal do cliente permite que os clientes acessem informações relevantes sobre a obra, como fotos, relatórios de progresso e documentos. É uma maneira eficiente de manter a transparência e a comunicação.</p>,
+    question: "Que tipo de relatórios o sistema oferece?",
+    answer: <p className="mw-md mt-4 mb-0">Em Relatórios você encontra gráficos e resumos sobre receitas, despesas e evolução financeira, ajudando a visualizar padrões de gastos e economia ao longo dos meses.</p>,
   },
   {
-    question: "Como registro informações sobre os funcionários?",
-    answer: <p className="mw-md mt-4 mb-0">No módulo de gestão de funcionários, você pode adicionar detalhes sobre cada membro da equipe, incluindo dados pessoais, documentos e alocação em projetos específicos.</p>,
+    question: "Para que serve a seção de Notas?",
+    answer: <p className="mw-md mt-4 mb-0">As Notas permitem registrar observações, lembretes ou informações relacionadas às suas finanças, como detalhes de uma negociação ou um lembrete de pagamento futuro.</p>,
   },
   {
-    question: "O sistema se integra com outras ferramentas?",
-    answer: <p className="mw-md mt-4 mb-0">Sim! Ele pode ser integrado com outros módulos, como recursos humanos, suprimentos e financeiro. Isso garante uma visão completa e centralizada de todas as operações.</p>,
+    question: "Onde meus dados financeiros ficam armazenados? É seguro?",
+    answer: <p className="mw-md mt-4 mb-0">Todos os seus dados ficam salvos apenas no seu próprio dispositivo, dentro do navegador. Não existe servidor recebendo ou armazenando suas informações financeiras — nada é enviado para fora do seu aparelho, a menos que você opte por fazer backup no Google Drive.</p>,
+  },
+  {
+    question: "Como faço backup dos meus dados?",
+    answer: <p className="mw-md mt-4 mb-0">Em Configurações, você pode ativar o backup no Google Drive, que salva uma cópia criptografada do seu banco de dados na sua própria conta Google. O uso do backup é opcional e você pode restaurar seus dados a partir dele quando quiser.</p>,
+  },
+  {
+    question: "O sistema funciona sem internet?",
+    answer: <p className="mw-md mt-4 mb-0">Sim! Por ser um aplicativo (PWA), ele pode ser instalado no seu celular ou computador e continua funcionando offline, já que todos os dados ficam armazenados localmente.</p>,
+  },
+  {
+    question: "É possível usar o sistema no modo escuro?",
+    answer: <p className="mw-md mt-4 mb-0">Sim! Em Configurações você pode alternar entre o tema claro e o tema escuro, e a preferência escolhida é lembrada nos próximos acessos.</p>,
   },
   {
     question: "Vocês possuem Termos de uso e Política de Privacidade?",
