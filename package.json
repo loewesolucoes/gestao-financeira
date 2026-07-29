@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "dev-test": "jest --watch"
+    "dev-test": "jest --watch",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@dnd-kit/core": "6.3.1",
@@ -54,7 +55,7 @@
     "jest-environment-jsdom": "29.7.0",
     "react-dom": "19.1.0",
     "sass": "1.77.6",
-    "serve": "^14.2.6",
+    "serve-handler": "^6.1.7",
     "serwist": "9.0.14",
     "ts-node": "10.9.2",
     "typescript": "5.8.3"

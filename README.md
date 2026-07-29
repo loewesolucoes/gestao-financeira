@@ -77,9 +77,18 @@ npm run deploy
 
 This builds the static site to `out/` and publishes it to `gh-pages` directly.
 
+## Testing
+
+- **Unit/component tests** (Jest + React Testing Library, colocated under `__tests__/` folders): `npm test` (or `npm run dev-test` to watch).
+- **E2E smoke tests** (Playwright): `npm run test:e2e`. Unlike `npm test`, this runs against the **production static export** (`out/`, built via `npm run build`) served with the real `/gestao-financeira` basePath, rather than `next dev` — so it also catches static-export/basePath-only regressions. It navigates the app's main routes and asserts each renders without an unhandled error, shows its expected content, and finishes client-side DB initialization.
+  - One-time setup: `npx playwright install --with-deps chromium`.
+  - Run a single spec: `npx playwright test e2e/smoke/caixa.spec.ts`.
+  - Because it builds the app first, `test:e2e` takes noticeably longer than `npm test`.
+
 ## Continuous Integration
 
-Every pull request targeting `main` runs the `ci.yml` workflow (`build-and-test` job): `npm ci` → `npm run lint` → `npm test` → `npm run build` on Node 22.
+Every pull request targeting `main` runs the `ci.yml` workflow: the `build-and-test` job (`npm ci` → `npm run lint` → `npm test` → `npm run build`) and a separate `e2e` job (`npm ci` → install Playwright's Chromium → `npm run test:e2e`), both on Node 22.
+
 
 `main` is protected by a repository ruleset that requires the `build-and-test` check to pass before a PR can be merged (merging without a passing pipeline is blocked). If a PR shows **"Merging is blocked"** even though checks are green, check for a stale/pending required reviewer (e.g. an automatic Copilot code review request left over from a rule change) — removing it or re-requesting the review usually clears the block.
 
