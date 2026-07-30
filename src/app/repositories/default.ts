@@ -235,20 +235,6 @@ export class DefaultRepository {
       }
     }
 
-    if (migrations['emprestimos'] == null) {
-      await this.db.exec(`CREATE TABLE IF NOT EXISTS "emprestimos" ("id" INTEGER NOT NULL,"tipo" INTEGER NOT NULL,"pessoa" TEXT NULL DEFAULT NULL,"valorTotal" REAL NULL DEFAULT NULL,"numeroParcelas" INTEGER NULL DEFAULT NULL,"dataInicio" DATETIME NOT NULL,"comentario" TEXT NULL DEFAULT NULL,"cancelado" INTEGER NULL DEFAULT 0,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
-      migrations['emprestimos'] = RUNNED_MIGRATION_CODE;
-    }
-
-    if (migrations['emprestimo_parcelas'] == null) {
-      await this.db.exec(`
-        PRAGMA foreign_keys = OFF;
-        CREATE TABLE IF NOT EXISTS "emprestimo_parcelas" ("id" INTEGER NOT NULL,"emprestimoId" INTEGER NOT NULL REFERENCES "emprestimos" ("id"),"numero" INTEGER NOT NULL,"valor" REAL NULL DEFAULT NULL,"dataVencimento" DATETIME NOT NULL,"pago" INTEGER NULL DEFAULT 0,"dataPagamento" DATETIME NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));
-        PRAGMA foreign_keys = ON;
-      `.trim());
-      migrations['emprestimo_parcelas'] = RUNNED_MIGRATION_CODE;
-    }
-
     const runnedMigrations = Object.keys(migrations).filter(x => migrations[x] === RUNNED_MIGRATION_CODE).reduce((p, n) => { p.push({ name: n, executedDate: new Date() }); return p; }, [])
 
     let allParams = {};

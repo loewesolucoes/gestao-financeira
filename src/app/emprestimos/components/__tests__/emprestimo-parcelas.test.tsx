@@ -6,7 +6,7 @@ import { EmprestimoParcelas } from "@/app/repositories/emprestimos";
 import BigNumber from "bignumber.js";
 
 const marcarParcelaPaga = jest.fn(async () => ({}));
-const editarParcela = jest.fn(async () => ({}));
+const editarParcela = jest.fn(async (_id: number, _data: any) => ({}));
 const refresh = jest.fn(async () => { });
 
 jest.mock("../../../contexts/storage", () => ({
