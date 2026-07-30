@@ -7,5 +7,5 @@ import { IDatabase } from "../database-connector";
 // migrations.
 export interface Migration {
   name: string;
-  run: (db: IDatabase) => Promise<void> | void;
+  run: (db: IDatabase) => Promise<unknown> | void;
 }
