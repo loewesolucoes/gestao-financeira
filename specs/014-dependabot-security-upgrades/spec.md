@@ -4,7 +4,7 @@
 `Draft` — not yet started. Captured from a design discussion on 2026-07-29.
 
 ## Tracking
-GitHub issue: _TBD_ (ask the user whether to create one before finishing)
+GitHub issue: [#49 — Corrigir alertas do Dependabot (dompurify, js-cookie, dev-tooling)](https://github.com/loewesolucoes/gestao-financeira/issues/49)
 Related specs:
 - `specs/012-upgrade-react-19-2/spec.md` — cobre os alertas de `react`/
   `react-dom`/`@types/react*`. **Fora do escopo aqui.**
