@@ -5,6 +5,7 @@ import { TRANSACOES_MIGRATIONS, TRANSACOES_CATEGORIA_FK_MIGRATIONS } from "./tra
 import { PATRIMONIO_MIGRATIONS } from "./patrimonio";
 import { NOTAS_MIGRATIONS } from "./notas";
 import { METAS_MIGRATIONS } from "./metas";
+import { NOTIFICACOES_MIGRATIONS } from "./notificacoes";
 
 // Single, explicit, ordered list of every migration across all repositories.
 // All tables live in one SQLite database, so cross-repository ordering
@@ -29,4 +30,5 @@ export const ALL_MIGRATIONS: Migration[] = [
   ...METAS_MIGRATIONS,
   ...CATEGORIA_TRANSACOES_MIGRATIONS,
   ...TRANSACOES_CATEGORIA_FK_MIGRATIONS,
+  ...NOTIFICACOES_MIGRATIONS,
 ];

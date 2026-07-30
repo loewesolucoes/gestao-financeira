@@ -42,7 +42,13 @@ describe("runMigrations() against a real pre-refactor exported DB fixture", () =
     const before = sqlJsDb.exec(`SELECT name FROM "migrations" ORDER BY "id"`);
     const namesBefore = (before[0] ? before[0].values : []).map((v) => v[0]);
 
-    expect(namesBefore).toEqual(migrationsSnapshot.orderedMigrationNames);
+    // The fixture predates the `notificacoes` migrations (spec 011), so it
+    // only has the migrations up to that point already applied.
+    const preExistingMigrationNames = migrationsSnapshot.orderedMigrationNames.filter(
+      (name) => !["notificacoes", "notificacoes_seed_mensagens"].includes(name)
+    );
+
+    expect(namesBefore).toEqual(preExistingMigrationNames);
 
     const db = new InMemorySqlJsDatabase(sqlJsDb);
     const repo = new DefaultRepository(db);
@@ -53,8 +59,9 @@ describe("runMigrations() against a real pre-refactor exported DB fixture", () =
     const after = sqlJsDb.exec(`SELECT name FROM "migrations" ORDER BY "id"`);
     const namesAfter = (after[0] ? after[0].values : []).map((v) => v[0]);
 
-    // No new rows: the fixture was already fully migrated, so re-running
-    // runMigrations() against it must be a no-op for the migrations table.
-    expect(namesAfter).toEqual(namesBefore);
+    // The fixture predates the `notificacoes` migrations (spec 011), so
+    // re-running runMigrations() against it is expected to append exactly
+    // those 2 new rows — any already-applied migration must not be re-run.
+    expect(namesAfter).toEqual([...namesBefore, "notificacoes", "notificacoes_seed_mensagens"]);
   });
 });
