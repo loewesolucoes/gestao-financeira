@@ -1,7 +1,8 @@
 # Spec: Testes unitários básicos (utils, repositório padrão, formulários)
 
 ## Status
-`Draft` — not yet started. Captured from a design discussion on 2026-07-27.
+`Done` — implemented on 2026-07-29 (see `tasks.md`). Originally captured from a
+design discussion on 2026-07-27.
 
 ## Tracking
 GitHub issue: https://github.com/loewesolucoes/gestao-financeira/issues/13
@@ -75,16 +76,16 @@ feature repository extends, and every other form/component
   against the existing pt-br labels/text.
 
 ## Acceptance criteria
-- [ ] `NumberUtil`, `DateUtil`, and `EnumUtil` each have a `__tests__` file
+- [x] `NumberUtil`, `DateUtil`, and `EnumUtil` each have a `__tests__` file
       covering their public methods, including edge cases (`null`/`NaN`/
       `Infinity` inputs for `NumberUtil`, hour boundaries for
       `DateUtil.generateGreetings`).
-- [ ] `DefaultRepository` has a `__tests__` file with a mocked `IDatabase`
+- [x] `DefaultRepository` has a `__tests__` file with a mocked `IDatabase`
       covering `save` (insert + update), `delete`, `list`, `get`, and mapper
       behavior for every `MapperTypes` value.
-- [ ] `metas-form.tsx` and `nota-form.tsx` each have a smoke test (render +
+- [x] `metas-form.tsx` and `nota-form.tsx` each have a smoke test (render +
       basic submit) following the `transacao-form.test.tsx` pattern.
-- [ ] `npm run lint` and `npm test` (including new tests) pass once
+- [x] `npm run lint` and `npm test` (including new tests) pass once
       implemented.
 
 ## Future ideas (documented only — not implemented by this spec)

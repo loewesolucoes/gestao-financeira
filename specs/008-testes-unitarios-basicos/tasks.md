@@ -3,21 +3,21 @@
 Checklist for implementing `spec.md` / `plan.md`. Work top to bottom; each
 task should be a small, reviewable commit.
 
-- [ ] **T1 — `NumberUtil` unit tests**
+- [x] **T1 — `NumberUtil` unit tests**
   - `src/app/utils/__tests__/number.test.ts`: `bigNumberToNumber`,
     `extenso`, `toCurrency`, `toCurrencyAbbreviated` (k/M/B thresholds),
     `toPercent` (with/without `div`); include `null`/`NaN`/`Infinity`/string
     input edge cases.
 
-- [ ] **T2 — `DateUtil` unit tests**
+- [x] **T2 — `DateUtil` unit tests**
   - `src/app/utils/__tests__/date.test.ts`: `generateGreetings` across the
     4 hour bands, using fake timers to control the current hour.
 
-- [ ] **T3 — `EnumUtil` unit tests**
+- [x] **T3 — `EnumUtil` unit tests**
   - `src/app/utils/__tests__/enum.test.ts`: `keyFromValue` and `values`
     against an existing numeric enum (e.g. `TipoDeMeta`).
 
-- [ ] **T4 — `DefaultRepository` unit tests**
+- [x] **T4 — `DefaultRepository` unit tests**
   - `src/app/repositories/__tests__/default.test.ts`: build a mocked
     `IDatabase` (`exec`/`export`/`open` as `jest.fn()`) and mock
     `RepositoryUtil.persistLocalDump` (and/or `localforage`) so
@@ -31,21 +31,21 @@ task should be a small, reviewable commit.
     `BigNumber`→`.toNumber()` serialization (via the `save` insert/update
     assertions on `params`).
 
-- [ ] **T5 — `metas-form.tsx` smoke test**
+- [x] **T5 — `metas-form.tsx` smoke test**
   - `src/app/metas/components/__tests__/metas-form.test.tsx`, mirroring
     `transacao-form.test.tsx`: mock `useStorage`, render, assert key pt-br
     fields, fill + submit, assert save/submit callback invoked.
 
-- [ ] **T6 — `nota-form.tsx` smoke test**
+- [x] **T6 — `nota-form.tsx` smoke test**
   - `src/app/notas/components/__tests__/nota-form.test.tsx`, same pattern
     as T5.
 
-- [ ] **T7 — Manual verification**
+- [x] **T7 — Manual verification**
   - Run `npm test` locally; confirm all new test files pass alongside the
     existing suite (no flakiness from fake timers/mocks leaking between
     tests).
 
-- [ ] **T8 — Lint/build/test gate**
+- [x] **T8 — Lint/build/test gate**
   - Run `npm run lint` and `npm test` (full suite) and confirm everything
     passes before merging.
 
