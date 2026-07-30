@@ -123,8 +123,8 @@ protected async runMigrations() {
 Not every future migration will be pure static SQL. Keep `Migration.run` as a function (not just a raw SQL string) so a rare migration needing JS logic (e.g. conditional statements, data transformation) can still be defined inline in a repo's migration list without a `.sql` file — the `.sql` file approach is the *default*, not the *only* option.
 
 ## Testing strategy
-- Unit test: build a fresh in-memory sql.js DB, run `ALL_MIGRATIONS` end-to-end, assert final schema (table/column existence) matches current expectations.
-- Regression test: verify migration `name`s in the new registry exactly match the full set of names currently produced by `runMigrations()` today (snapshot the list before refactoring, diff after).
+- **Baseline test written first (before any refactor code changes)**: build a fresh in-memory sql.js DB, run **today's unmodified** `runMigrations()`, and assert the final schema (table/column existence, types, the `transacoes.categoriaId` FK) plus the exact ordered `migrations` name list from the T1 snapshot. This must pass against the pre-refactor code before T3 (build tooling) starts — it's the safety net the rest of the work is built against, not an after-the-fact check.
+- **Re-run unchanged as the equivalence gate**: after the refactor (T3–T6), re-run the identical baseline suite against `ALL_MIGRATIONS`/the new `runMigrations()` with zero test edits. It must still pass, proving statement-for-statement equivalence.
 - Manual test: run the app against an existing exported/persisted DB (pre-refactor) and confirm no migrations re-run (i.e., `migrations` table state after refactor matches what it would've been before).
 
 ## Rollout / risk mitigation
