@@ -22,6 +22,11 @@ module.exports = async (phase) => {
         use: ["@svgr/webpack"]
       });
 
+      config.module.rules.push({
+        test: /\.sql$/,
+        type: "asset/source"
+      });
+
       config.resolve.fallback = {
         ...config.resolve.fallback,
         net: false,

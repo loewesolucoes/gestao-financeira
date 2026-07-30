@@ -1,0 +1,399 @@
+{
+  "orderedMigrationNames": [
+    "parametros",
+    "transacoes",
+    "transacoes_campo_ordem",
+    "saldos",
+    "rename_saldos_to_patrimonio",
+    "notas",
+    "notas_campo_comentario_e_tipo",
+    "metas",
+    "categoria_transacoes",
+    "categoria_transacoes_chave_estrangeira"
+  ],
+  "schema": {
+    "categoria_transacoes": {
+      "createSql": "CREATE TABLE \"categoria_transacoes\" (\"id\" INTEGER NOT NULL, \"descricao\" TEXT NULL DEFAULT NULL, \"comentario\" TEXT NULL, \"tipo\" INTEGER NULL, \"active\" INTEGER NULL,\"createdDate\" DATETIME NOT NULL,\"updatedDate\" DATETIME NULL DEFAULT NULL,PRIMARY KEY (\"id\"))",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "name": "descricao",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "comentario",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "tipo",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "active",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "createdDate",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "updatedDate",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        }
+      ]
+    },
+    "metas": {
+      "createSql": "CREATE TABLE \"metas\" (\"id\" INTEGER NOT NULL,\"data\" DATETIME NOT NULL,\"descricao\" TEXT NULL DEFAULT NULL, \"comentario\" TEXT NULL, \"tipo\" INTEGER NULL, \"done\" INTEGER NULL,\"createdDate\" DATETIME NOT NULL,\"updatedDate\" DATETIME NULL DEFAULT NULL,PRIMARY KEY (\"id\"))",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "name": "data",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "descricao",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "comentario",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "tipo",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "done",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "createdDate",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "updatedDate",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        }
+      ]
+    },
+    "migrations": {
+      "createSql": "CREATE TABLE \"migrations\" (\"id\" INTEGER NOT NULL,\"name\" TEXT NULL DEFAULT NULL,\"executedDate\" DATETIME NULL,PRIMARY KEY (\"id\"))",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "executedDate",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ]
+    },
+    "notas": {
+      "createSql": "CREATE TABLE \"notas\" (\"id\" INTEGER NOT NULL,\"data\" DATETIME NOT NULL,\"descricao\" TEXT NULL DEFAULT NULL,\"createdDate\" DATETIME NOT NULL,\"updatedDate\" DATETIME NULL DEFAULT NULL, \"tipo\" INTEGER NULL, \"comentario\" TEXT NULL,PRIMARY KEY (\"id\"))",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "name": "data",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "descricao",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "createdDate",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "updatedDate",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "tipo",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "comentario",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        }
+      ]
+    },
+    "parametros": {
+      "createSql": "CREATE TABLE \"parametros\" (\"id\" INTEGER NOT NULL,\"chave\" TEXT NOT NULL,\"valor\" TEXT NULL, \"createdDate\" DATETIME NOT NULL, \"updatedDate\" DATETIME NULL DEFAULT NULL,PRIMARY KEY (\"id\"))",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "name": "chave",
+          "type": "TEXT",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "valor",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "createdDate",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "updatedDate",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        }
+      ]
+    },
+    "patrimonio": {
+      "createSql": "CREATE TABLE \"patrimonio\" (\"id\" INTEGER NOT NULL,\"valor\" REAL NULL DEFAULT NULL,\"data\" DATETIME NOT NULL,\"local\" TEXT NULL DEFAULT NULL,\"comentario\" TEXT NULL DEFAULT NULL, \"ordem\" INTEGER NULL DEFAULT NULL,\"createdDate\" DATETIME NOT NULL,\"updatedDate\" DATETIME NULL DEFAULT NULL,PRIMARY KEY (\"id\"))",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "name": "valor",
+          "type": "REAL",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "data",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "local",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "comentario",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "ordem",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "createdDate",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "updatedDate",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        }
+      ]
+    },
+    "transacoes": {
+      "createSql": "CREATE TABLE \"transacoes\" (\"id\" INTEGER NOT NULL,\"valor\" REAL NULL DEFAULT NULL,\"data\" DATETIME NOT NULL,\"tipo\" INTEGER NULL DEFAULT NULL,\"local\" TEXT NULL DEFAULT NULL,\"comentario\" TEXT NULL DEFAULT NULL,\"createdDate\" DATETIME NOT NULL,\"updatedDate\" DATETIME NULL DEFAULT NULL, \"ordem\" INTEGER NULL, \"categoriaId\" INTEGER NOT NULL REFERENCES \"categoria_transacoes\" (\"id\") DEFAULT 1,PRIMARY KEY (\"id\"))",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "name": "valor",
+          "type": "REAL",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "data",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "tipo",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "local",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "comentario",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "createdDate",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "updatedDate",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "ordem",
+          "type": "INTEGER",
+          "notnull": 0,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "categoriaId",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": "1",
+          "pk": 0
+        }
+      ]
+    }
+  },
+  "transacoesForeignKeys": [
+    [
+      0,
+      0,
+      "categoria_transacoes",
+      "categoriaId",
+      "id",
+      "NO ACTION",
+      "NO ACTION",
+      "NONE"
+    ]
+  ]
+}
