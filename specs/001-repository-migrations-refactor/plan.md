@@ -58,23 +58,21 @@ Keeping the exact existing `name` strings (e.g. `'transacoes_campo_ordem'`, `'re
 
 ## Build/tooling changes required
 
-1. **`migrations/load-sql.ts`** — a small helper built on webpack's `require.context`, so migration entries can reference a `.sql` file **by filename string** instead of a manual `import` per file:
+1. **`migrations/load-sql.ts`** — a small helper wrapping `db.exec(sqlContent)`. Each per-repo migration list does a plain static `import` of its `.sql` file(s) and passes the imported string to `importAndExec`:
    ```ts
    // migrations/load-sql.ts
-   const sqlFiles = require.context('./sql', true, /\.sql$/); // scans at build time
-
-   export function importAndExec(db: SqlDb, fileName: string) {
-     const content = sqlFiles(`./${fileName}`);
-     return db.exec(content);
+   export function importAndExec(db: IDatabase, sqlContent: string) {
+     return db.exec(sqlContent);
    }
    ```
    Usage in a repo's migration list:
    ```ts
-   { name: 'transacoes__001_create', run: db => importAndExec(db, 'transacoes/001_create.sql') }
+   import parametrosCreateSql from './sql/parametros/001_create.sql';
+   { name: 'parametros', run: db => importAndExec(db, parametrosCreateSql) }
    ```
-   Note: `require.context` is a **webpack-specific** API. It works today because `next.config.js` already runs a custom webpack function (no Turbopack in use). If the project ever migrates to Turbopack, this helper is the one place that would need an equivalent swap (e.g. `import.meta.glob`-style pattern) — everything else in this plan is unaffected.
-2. Verify the static export build still bundles these correctly (`npm run build`) — `require.context` resolves and inlines matched files at build time, so no extra `public/` copy step is needed (unlike the sql.js WASM assets, which use `copy-webpack-plugin` for a different reason: they must remain fetchable as separate worker/wasm assets, not inlined).
-3. Add a small startup/unit check that every filename referenced across `ALL_MIGRATIONS` actually resolves via `sqlFiles(...)` — since the lookup is string-keyed, a typo would only fail at runtime otherwise.
+   **Implementation deviation from the original design (documented during T4/T5):** the original design used webpack's `require.context` so migration entries could reference a `.sql` file **by filename string** rather than a manual `import` per file. That was dropped in favor of plain static imports because `require.context` is webpack-only and has no equivalent under Jest's SWC-based transform — since the T2/T7 regression tests must actually execute `ALL_MIGRATIONS` under Jest, the loader has to work identically in both the webpack build and the test runner. Static imports satisfy both: `next.config.js`'s `asset/source` rule inlines the raw string at webpack build time, and a small Jest transform (`jest.sql-transformer.js`, wired via `jest.config.ts`'s `transform` map) does the same for `.sql` files under Jest. This also removes the need for the "verify every filename string resolves" runtime check below, since TypeScript now type-checks each import path at compile time.
+2. Verify the static export build still bundles these correctly (`npm run build`) — confirmed: the webpack compile stage succeeds with real `.sql` imports in place (an unrelated, pre-existing "You must set env variables" prerender failure reproduces identically with or without this change, in environments missing certain secrets — not something this refactor introduced or needs to fix).
+3. ~~Add a small startup/unit check that every filename referenced across `ALL_MIGRATIONS` actually resolves~~ — superseded by static imports (point 1): an unresolvable `.sql` path is now a compile-time error, not a runtime lookup failure.
 
 ## Registry (cross-repo ordering)
 
@@ -82,23 +80,32 @@ Keeping the exact existing `name` strings (e.g. `'transacoes_campo_ordem'`, `'re
 // migrations/registry.ts
 import { PARAMETROS_MIGRATIONS } from './parametros';
 import { CATEGORIA_TRANSACOES_MIGRATIONS } from './categoria-transacoes';
-import { TRANSACOES_MIGRATIONS } from './transacoes';
+import { TRANSACOES_MIGRATIONS, TRANSACOES_CATEGORIA_FK_MIGRATIONS } from './transacoes';
 import { PATRIMONIO_MIGRATIONS } from './patrimonio';
 import { NOTAS_MIGRATIONS } from './notas';
 import { METAS_MIGRATIONS } from './metas';
 
-// Order matters: categoria_transacoes must run before transacoes' FK migration.
+// This exact order reproduces the historical order migrations ran in
+// default.ts#runMigrations() prior to the refactor (parametros, transacoes
+// x2, patrimonio x2, notas x2, metas, categoria_transacoes, then the FK
+// migration) — required so the `migrations` tracking table's row order
+// matches the T1/T2/T7 regression snapshot exactly.
 export const ALL_MIGRATIONS: Migration[] = [
   ...PARAMETROS_MIGRATIONS,
-  ...CATEGORIA_TRANSACOES_MIGRATIONS,
   ...TRANSACOES_MIGRATIONS,
   ...PATRIMONIO_MIGRATIONS,
   ...NOTAS_MIGRATIONS,
   ...METAS_MIGRATIONS,
+  ...CATEGORIA_TRANSACOES_MIGRATIONS,
+  ...TRANSACOES_CATEGORIA_FK_MIGRATIONS,
 ];
 ```
 
+**Implementation deviation from the original design:** the original sketch grouped `CATEGORIA_TRANSACOES_MIGRATIONS` right after `PARAMETROS_MIGRATIONS` (a natural-looking dependency order), but that does **not** match the actual historical execution order in `default.ts` — historically, `categoria_transacoes` and its FK migration ran *last*, after `transacoes`/`patrimonio`/`notas`/`metas` were already created. Since the T1 snapshot and T2/T7 tests assert the exact ordered migration-name list, the FK migration (`categoria_transacoes_chave_estrangeira`) was pulled out of `TRANSACOES_MIGRATIONS` into its own exported `TRANSACOES_CATEGORIA_FK_MIGRATIONS` list (still colocated in `transacoes.ts`/`sql/transacoes/003_add_categoria_fk.sql`), so the registry can place it — and `CATEGORIA_TRANSACOES_MIGRATIONS` — at the end, exactly reproducing history.
+
 Add a short code comment (as above) documenting *why* a given order is required whenever there's a cross-repo dependency — this is the one place ordering subtleties must stay visible.
+
+**Post-implementation follow-up (after spec 001 was marked done):** the per-repository migration list files (`parametros.ts`, `transacoes.ts`, `patrimonio.ts`, `notas.ts`, `metas.ts`, `categoria-transacoes.ts`), `registry.ts`, `types.ts`, and `load-sql.ts` were consolidated into a single `migrations/index.ts` exporting `Migration`, `importAndExec`, and `ALL_MIGRATIONS` — at the user's request, to reduce the number of small `.ts` files in the directory. The `.sql` files (one per migration) were kept separate and reformatted for readability (multi-line `CREATE TABLE` column lists, consistent double-quoted identifiers). A new DB-less unit test, `migrations/__tests__/index.test.ts`, asserts `ALL_MIGRATIONS`' name order directly against the T1 snapshot (in addition to the existing DB-execution-based regression tests), and that FK-dependent migrations are ordered correctly.
 
 ## `default.ts` changes
 
@@ -123,8 +130,8 @@ protected async runMigrations() {
 Not every future migration will be pure static SQL. Keep `Migration.run` as a function (not just a raw SQL string) so a rare migration needing JS logic (e.g. conditional statements, data transformation) can still be defined inline in a repo's migration list without a `.sql` file — the `.sql` file approach is the *default*, not the *only* option.
 
 ## Testing strategy
-- Unit test: build a fresh in-memory sql.js DB, run `ALL_MIGRATIONS` end-to-end, assert final schema (table/column existence) matches current expectations.
-- Regression test: verify migration `name`s in the new registry exactly match the full set of names currently produced by `runMigrations()` today (snapshot the list before refactoring, diff after).
+- **Baseline test written first (before any refactor code changes)**: build a fresh in-memory sql.js DB, run **today's unmodified** `runMigrations()`, and assert the final schema (table/column existence, types, the `transacoes.categoriaId` FK) plus the exact ordered `migrations` name list from the T1 snapshot. This must pass against the pre-refactor code before T3 (build tooling) starts — it's the safety net the rest of the work is built against, not an after-the-fact check.
+- **Re-run unchanged as the equivalence gate**: after the refactor (T3–T6), re-run the identical baseline suite against `ALL_MIGRATIONS`/the new `runMigrations()` with zero test edits. It must still pass, proving statement-for-statement equivalence.
 - Manual test: run the app against an existing exported/persisted DB (pre-refactor) and confirm no migrations re-run (i.e., `migrations` table state after refactor matches what it would've been before).
 
 ## Rollout / risk mitigation

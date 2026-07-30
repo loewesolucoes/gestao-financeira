@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 import moment from "moment";
 import { RepositoryUtil } from "../utils/repository";
 import { IDatabase } from "./database-connector";
+import { ALL_MIGRATIONS } from "./migrations";
 
 export enum MapperTypes {
   TEXT,
@@ -225,59 +226,11 @@ export class DefaultRepository {
     const result = await this.db.exec('select * from "migrations"');
     const migrations = (this.parseSqlResultToObj(result)[0] || []).reduce((p, n) => { p[n.name] = n; return p; }, {} as any);
 
-    if (migrations['parametros'] == null) {
-      await this.db.exec(`CREATE TABLE IF NOT EXISTS "parametros" ("id" INTEGER NOT NULL,"chave" TEXT NOT NULL,"valor" TEXT NULL, "createdDate" DATETIME NOT NULL, "updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
-      migrations['parametros'] = RUNNED_MIGRATION_CODE;
-    }
-
-    if (migrations['transacoes'] == null) {
-      await this.db.exec(`CREATE TABLE IF NOT EXISTS "transacoes" ("id" INTEGER NOT NULL,"valor" REAL NULL DEFAULT NULL,"data" DATETIME NOT NULL,"tipo" INTEGER NULL DEFAULT NULL,"local" TEXT NULL DEFAULT NULL,"comentario" TEXT NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
-      migrations['transacoes'] = RUNNED_MIGRATION_CODE;
-    }
-
-    if (migrations['transacoes_campo_ordem'] == null) {
-      await this.db.exec(`ALTER TABLE "transacoes" ADD COLUMN "ordem" INTEGER NULL;`);
-      migrations['transacoes_campo_ordem'] = RUNNED_MIGRATION_CODE;
-    }
-
-    if (migrations['saldos'] == null) {
-      await this.db.exec(`CREATE TABLE IF NOT EXISTS "saldos" ("id" INTEGER NOT NULL,"valor" REAL NULL DEFAULT NULL,"data" DATETIME NOT NULL,"local" TEXT NULL DEFAULT NULL,"comentario" TEXT NULL DEFAULT NULL, "ordem" INTEGER NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
-      migrations['saldos'] = RUNNED_MIGRATION_CODE;
-    }
-
-    if (migrations['rename_saldos_to_patrimonio'] == null) {
-      await this.db.exec(`ALTER TABLE 'saldos' RENAME TO 'patrimonio'`);
-      migrations['rename_saldos_to_patrimonio'] = RUNNED_MIGRATION_CODE;
-    }
-
-    if (migrations['notas'] == null) {
-      await this.db.exec(`CREATE TABLE IF NOT EXISTS "notas" ("id" INTEGER NOT NULL,"data" DATETIME NOT NULL,"descricao" TEXT NULL DEFAULT NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
-      migrations['notas'] = RUNNED_MIGRATION_CODE;
-    }
-
-    if (migrations['notas_campo_comentario_e_tipo'] == null) {
-      await this.db.exec(`ALTER TABLE "notas" ADD COLUMN "tipo" INTEGER NULL; ALTER TABLE "notas" ADD COLUMN "comentario" TEXT NULL;`);
-      migrations['notas_campo_comentario_e_tipo'] = RUNNED_MIGRATION_CODE;
-    }
-
-    if (migrations['metas'] == null) {
-      await this.db.exec(`CREATE TABLE IF NOT EXISTS "metas" ("id" INTEGER NOT NULL,"data" DATETIME NOT NULL,"descricao" TEXT NULL DEFAULT NULL, "comentario" TEXT NULL, "tipo" INTEGER NULL, "done" INTEGER NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
-      migrations['metas'] = RUNNED_MIGRATION_CODE;
-    }
-
-    if (migrations['categoria_transacoes'] == null) {
-      await this.db.exec(`CREATE TABLE IF NOT EXISTS "categoria_transacoes" ("id" INTEGER NOT NULL, "descricao" TEXT NULL DEFAULT NULL, "comentario" TEXT NULL, "tipo" INTEGER NULL, "active" INTEGER NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));`);
-      this.db.exec(`INSERT INTO "categoria_transacoes" (descricao, comentario, active, createdDate) VALUES ('Outros', 'Categoria para transações diversas', 1, datetime('now'));`);
-      migrations['categoria_transacoes'] = RUNNED_MIGRATION_CODE;
-    }
-
-    if (migrations['categoria_transacoes_chave_estrangeira'] == null) {
-      await this.db.exec(`
-        PRAGMA foreign_keys = OFF;
-        ALTER TABLE "transacoes" ADD COLUMN "categoriaId" INTEGER NOT NULL REFERENCES "categoria_transacoes" ("id") DEFAULT 1;
-        PRAGMA foreign_keys = ON;
-      `.trim());
-      migrations['categoria_transacoes_chave_estrangeira'] = RUNNED_MIGRATION_CODE;
+    for (const migration of ALL_MIGRATIONS) {
+      if (migrations[migration.name] == null) {
+        await migration.run(this.db);
+        migrations[migration.name] = RUNNED_MIGRATION_CODE;
+      }
     }
 
     const runnedMigrations = Object.keys(migrations).filter(x => migrations[x] === RUNNED_MIGRATION_CODE).reduce((p, n) => { p.push({ name: n, executedDate: new Date() }); return p; }, [])
