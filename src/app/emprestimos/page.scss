@@ -1,0 +1,15 @@
+.emprestimos {
+  .list-group-item h5 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .list-group-item-secondary {
+    opacity: 0.7;
+  }
+
+  .emprestimo-parcelas .list-group-item {
+    padding: 0.5rem 1rem;
+  }
+}

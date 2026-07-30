@@ -14,6 +14,7 @@ import { TransacoesRepository } from "../repositories/transacoes";
 import { PatrimonioRepository } from "../repositories/patrimonio";
 import { CategoriaTransacoesRepository } from "../repositories/categoria-transacoes";
 import { AuthUtil } from "../utils/auth";
+import { EmprestimosRepository } from "../repositories/emprestimos";
 
 interface Repo extends DefaultRepository {
   params: ParametrosRepository
@@ -22,6 +23,7 @@ interface Repo extends DefaultRepository {
   transacoes: TransacoesRepository
   patrimonio: PatrimonioRepository
   categoriaTransacoes: CategoriaTransacoesRepository
+  emprestimos: EmprestimosRepository
 }
 
 interface StorageProviderContext {
@@ -78,6 +80,7 @@ export function StorageProvider(props: any) {
     repository.transacoes = new TransacoesRepository(sqldb);
     repository.patrimonio = new PatrimonioRepository(sqldb);
     repository.categoriaTransacoes = await CategoriaTransacoesRepository.create(sqldb);
+    repository.emprestimos = new EmprestimosRepository(sqldb);
 
     setRepository(repository);
     setIsDbOk(true);

@@ -1,7 +1,7 @@
 # Spec: Empréstimos (dados e recebidos)
 
 ## Status
-`Draft` — not yet started. Captured from a design discussion on 2026-07-27.
+`Implemented` — implemented on 2026-07-29 following the plan below.
 
 ## Tracking
 GitHub issue: https://github.com/loewesolucoes/gestao-financeira/issues/9
@@ -116,28 +116,28 @@ installments are due in the current month.
   consistent with how "current month" is computed for the Home dashboard.
 
 ## Acceptance criteria
-- [ ] Creating a new `emprestimo` (tipo, pessoa, valorTotal, numeroParcelas,
+- [x] Creating a new `emprestimo` (tipo, pessoa, valorTotal, numeroParcelas,
       dataInicio, comentário opcional) persists the loan and automatically
       generates `numeroParcelas` installment records with equal values
       (`valorTotal / numeroParcelas`) and monthly-spaced due dates starting at
       `dataInicio`.
-- [ ] Each installment can be individually marked/unmarked as
+- [x] Each installment can be individually marked/unmarked as
       paga/recebida, and this is persisted independently per installment.
-- [ ] An individual installment's due date and/or value can be edited after
+- [x] An individual installment's due date and/or value can be edited after
       creation without affecting the other installments of the same loan.
-- [ ] A loan's status is correctly derived as **ativo** when it has any
+- [x] A loan's status is correctly derived as **ativo** when it has any
       unpaid installment, and **quitado** when all installments are paid.
-- [ ] A loan can be manually cancelled/archived regardless of installment
+- [x] A loan can be manually cancelled/archived regardless of installment
       state; cancelled loans are excluded from "ativo" totals and from the
       Home widget, but remain visible in the `/emprestimos` listing.
-- [ ] `/emprestimos` clearly visually distinguishes "emprestei" (a receber)
+- [x] `/emprestimos` clearly visually distinguishes "emprestei" (a receber)
       from "peguei emprestado" (a pagar), shows installment progress and
       status per loan, and supports creating/editing loans and their
       installments.
-- [ ] The Home page shows a new component listing the current month's
+- [x] The Home page shows a new component listing the current month's
       installments due, split into "a receber" and "a pagar" totals,
       excluding cancelled loans.
-- [ ] `npm run lint` and `npm test` (including new tests for the repository
+- [x] `npm run lint` and `npm test` (including new tests for the repository
       and the new components) pass once implemented.
 
 ## Future ideas (documented only — not implemented by this spec)
