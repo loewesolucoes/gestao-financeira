@@ -6,12 +6,17 @@ Checklist for implementing `spec.md` / `plan.md`. Work top to bottom; each task 
   - Record the exact ordered list of migration names currently produced by `runMigrations()` in `src/app/repositories/default.ts`.
   - Export a real SQLite DB from a running instance of the app (via the existing export/import feature) to use as a regression fixture (confirms no re-run/skip after refactor).
 
-- [ ] **T2 — Add build/tooling support for `.sql` imports**
+- [ ] **T2 — Write baseline migration tests against the CURRENT implementation**
+  - Before touching any code, add a Jest test (e.g. `src/app/repositories/__tests__/migrations.test.ts`) that runs today's `runMigrations()` (via `DefaultRepository`) against a fresh in-memory sql.js DB and asserts the resulting schema: exact set of tables, exact set of columns per table (name/type/nullability), and the FK on `transacoes.categoriaId`.
+  - Add a second assertion in the same test (or a companion test) that the `migrations` table ends up with exactly the T1-snapshotted list of names, in order.
+  - Run this test now and confirm it **passes against the pre-refactor code** — this is the regression harness the refactor must keep green throughout T3–T7, not just a final check.
+
+- [ ] **T3 — Add build/tooling support for `.sql` imports**
   - Add a webpack rule in `next.config.js` (`{ test: /\.sql$/, type: 'asset/source' }`).
   - Add ambient module declaration for `*.sql` (e.g. `src/types/sql.d.ts`).
   - Verify `npm run build` bundles a trivial test `.sql` import correctly (static export still works).
 
-- [ ] **T3 — Introduce `migrations/types.ts`**
+- [ ] **T3b — Introduce `migrations/types.ts`**
   - Define the `Migration` interface (`name`, `run`).
 
 - [ ] **T4 — Extract migrations per repository into `.sql` files + per-repo migration lists**
@@ -31,9 +36,9 @@ Checklist for implementing `spec.md` / `plan.md`. Work top to bottom; each task 
   - Replace the inline `if (migrations['x'] == null) {...}` blocks with a loop over `ALL_MIGRATIONS` from the registry.
   - Keep the `migrations` table bootstrap/read/persist logic unchanged.
 
-- [ ] **T7 — Automated tests**
-  - Unit test: fresh in-memory DB + run `ALL_MIGRATIONS` → assert final schema (tables/columns) matches current expectations.
-  - Regression test: assert the flattened `ALL_MIGRATIONS` name list exactly matches the T1 snapshot (same names, same order).
+- [ ] **T7 — Re-run baseline tests against the refactored code**
+  - Re-run the T2 baseline test suite unchanged against the refactored `runMigrations()`/`ALL_MIGRATIONS` — it must pass with zero modifications, proving schema and migration-name-list equivalence.
+  - Add any additional targeted assertions the refactor surfaced as useful (e.g. `ALL_MIGRATIONS` name list exactly matches the T1 snapshot, same order), but the T2 suite is the primary equivalence gate.
 
 - [ ] **T8 — Manual regression pass**
   - Load the T1 exported DB fixture in the refactored app; confirm zero migrations re-run (check `migrations` table row count/content before vs after).
