@@ -1,0 +1,1 @@
+ALTER TABLE "transacoes" ADD COLUMN "ordem" INTEGER NULL;

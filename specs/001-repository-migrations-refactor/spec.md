@@ -1,7 +1,7 @@
 # Spec: Repository-Scoped SQL Migrations
 
 ## Status
-`Draft` — not yet started. Captured from a design discussion on 2026-07-26.
+`Implemented` — completed 2026-07-29. Captured from a design discussion on 2026-07-26.
 
 ## Tracking
 GitHub issue: [#35](https://github.com/loewesolucoes/gestao-financeira/issues/35)
@@ -44,9 +44,9 @@ This has grown to ~10 blocks covering `parametros`, `transacoes`, `saldos`/`patr
 - Existing migrations table schema (`id`, `name`, `executedDate`) must not change — old migration names already recorded in users' persisted DBs need to keep matching, or the same migrations would re-run.
 
 ## Acceptance criteria
-- [ ] Each repository (`transacoes`, `metas`, `patrimonio`, `notas`, `categoria-transacoes`, `parametros`) has its own migrations list colocated with (or next to) its repository file.
-- [ ] Each migration's SQL lives in its own `.sql` file, loaded via a build-time raw import.
-- [ ] A single ordered manifest/registry still exists, making cross-repository ordering (e.g. `categoria_transacoes` before `transacoes`' FK migration) explicit and documented.
-- [ ] Migration `name` values used for the `migrations` tracking table are unchanged from today (so existing users' local databases don't re-run already-applied migrations).
-- [ ] `runMigrations()` (or its replacement) executes the full flattened, ordered list exactly as before, statement-for-statement equivalent.
-- [ ] Existing app behavior and schema end state are unchanged; adding a new migration in the future only requires adding a new `.sql` file + one line in the relevant repo's migration list (no touching a shared giant function).
+- [x] Each repository (`transacoes`, `metas`, `patrimonio`, `notas`, `categoria-transacoes`, `parametros`) has its own migrations list colocated with (or next to) its repository file.
+- [x] Each migration's SQL lives in its own `.sql` file, loaded via a build-time raw import.
+- [x] A single ordered manifest/registry still exists, making cross-repository ordering (e.g. `categoria_transacoes` before `transacoes`' FK migration) explicit and documented.
+- [x] Migration `name` values used for the `migrations` tracking table are unchanged from today (so existing users' local databases don't re-run already-applied migrations).
+- [x] `runMigrations()` (or its replacement) executes the full flattened, ordered list exactly as before, statement-for-statement equivalent.
+- [x] Existing app behavior and schema end state are unchanged; adding a new migration in the future only requires adding a new `.sql` file + one line in the relevant repo's migration list (no touching a shared giant function).
