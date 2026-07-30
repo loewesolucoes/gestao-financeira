@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import moment from "moment";
 import { RepositoryUtil } from "../utils/repository";
 import { IDatabase } from "./database-connector";
-import { ALL_MIGRATIONS } from "./migrations/registry";
+import { ALL_MIGRATIONS } from "./migrations";
 
 export enum MapperTypes {
   TEXT,

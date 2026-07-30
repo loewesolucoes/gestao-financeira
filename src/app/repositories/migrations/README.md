@@ -1,7 +1,10 @@
 # Repository migrations
 
-All database schema changes are tracked here, split per repository, instead
-of one giant function. This directory implements spec
+All database schema changes are tracked here — SQL lives in its own file per
+migration, but the migration list/registry itself lives in a single
+`index.ts` (kept as one file on purpose, instead of one file per repository,
+so there's one place to read the full ordered history). This directory
+implements spec
 [001-repository-migrations-refactor](../../../../specs/001-repository-migrations-refactor/spec.md).
 
 ## Adding a new migration
@@ -10,34 +13,37 @@ of one giant function. This directory implements spec
    (`NNN` = next local number for that repo folder, e.g. `004_...`). Keep the
    file to the exact SQL you want executed — no comments needed, but multiple
    statements (e.g. `PRAGMA` + `ALTER` + `PRAGMA`) are fine in one file.
-2. Import it in your repository's migration list file (e.g. `metas.ts`) and
-   append a new entry with a **new, unique, stable `name`** — this is the id
-   stored in the `migrations` tracking table, so never reuse or rename an
-   existing one:
+2. In `index.ts`, import the new file and append a new entry to
+   `ALL_MIGRATIONS`, in the right position, with a **new, unique, stable
+   `name`** — this is the id stored in the `migrations` tracking table, so
+   never reuse or rename an existing one:
    ```ts
    import metasAddAlgoSql from "./sql/metas/002_add_algo.sql";
 
-   export const METAS_MIGRATIONS: Migration[] = [
+   export const ALL_MIGRATIONS: Migration[] = [
+     // ...
      { name: "metas", run: (db) => importAndExec(db, metasCreateSql) },
      { name: "metas_campo_algo", run: (db) => importAndExec(db, metasAddAlgoSql) },
+     // ...
    ];
    ```
-3. If your migration must run after another repository's migration (e.g. it
-   adds a FK to a table another repo owns), add/adjust the ordering in
-   `registry.ts` and document *why* in a comment there — `registry.ts` is the
-   single place cross-repository ordering is decided.
+3. If your migration must run after another table's migration (e.g. it adds a
+   FK to a table another migration owns), place it accordingly in
+   `ALL_MIGRATIONS` and document *why* with a comment — `index.ts` is the
+   single place cross-table ordering is decided.
 4. Run `npm test` — the baseline regression tests in
    `../__tests__/migrations.test.ts` and
    `../__tests__/migrations-fixture-regression.test.ts` will catch schema or
    ordering mistakes.
 
-## Why per-repo `.sql` files instead of one big function?
+## Why one `.sql` file per migration, but one `index.ts` for the list?
 
 See `specs/001-repository-migrations-refactor/spec.md` for the full
-rationale (colocation, no merge-conflict hotspot, reviewable raw SQL). In
-short: each repository owns its own schema history, `registry.ts` is the only
-place that needs to reason about cross-repository ordering, and `.sql` files
-get proper SQL syntax highlighting instead of being escaped TS strings.
+rationale. In short: `.sql` files get proper SQL syntax highlighting instead
+of being escaped TS strings, and are easy to diff/review in isolation. The
+migration *list*, however, is kept in a single `index.ts` rather than split
+per repository, since all tables live in one SQLite database and the full,
+exact historical run order only needs to be reasoned about in one place.
 
 ## How `.sql` files are loaded
 
@@ -52,6 +58,6 @@ get proper SQL syntax highlighting instead of being escaped TS strings.
 - TypeScript sees `.sql` imports as `string` via the ambient declaration in
   `src/types/sql.d.ts`.
 
-`importAndExec(db, sqlContent)` (in `load-sql.ts`) is just a thin
-`db.exec(sqlContent)` wrapper — each per-repo migration list statically
-`import`s its own `.sql` file(s) and passes the content through.
+`importAndExec(db, sqlContent)` (in `index.ts`) is just a thin
+`db.exec(sqlContent)` wrapper — each migration entry statically `import`s its
+own `.sql` file(s) and passes the content through.
