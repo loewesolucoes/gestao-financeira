@@ -1,1 +1,1 @@
-ALTER TABLE 'saldos' RENAME TO 'patrimonio';
+ALTER TABLE "saldos" RENAME TO "patrimonio";

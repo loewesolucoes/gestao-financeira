@@ -1,2 +1,3 @@
 ALTER TABLE "notas" ADD COLUMN "tipo" INTEGER NULL;
+
 ALTER TABLE "notas" ADD COLUMN "comentario" TEXT NULL;

@@ -105,6 +105,8 @@ export const ALL_MIGRATIONS: Migration[] = [
 
 Add a short code comment (as above) documenting *why* a given order is required whenever there's a cross-repo dependency — this is the one place ordering subtleties must stay visible.
 
+**Post-implementation follow-up (after spec 001 was marked done):** the per-repository migration list files (`parametros.ts`, `transacoes.ts`, `patrimonio.ts`, `notas.ts`, `metas.ts`, `categoria-transacoes.ts`), `registry.ts`, `types.ts`, and `load-sql.ts` were consolidated into a single `migrations/index.ts` exporting `Migration`, `importAndExec`, and `ALL_MIGRATIONS` — at the user's request, to reduce the number of small `.ts` files in the directory. The `.sql` files (one per migration) were kept separate and reformatted for readability (multi-line `CREATE TABLE` column lists, consistent double-quoted identifiers). A new DB-less unit test, `migrations/__tests__/index.test.ts`, asserts `ALL_MIGRATIONS`' name order directly against the T1 snapshot (in addition to the existing DB-execution-based regression tests), and that FK-dependent migrations are ordered correctly.
+
 ## `default.ts` changes
 
 `runMigrations()` shrinks to:

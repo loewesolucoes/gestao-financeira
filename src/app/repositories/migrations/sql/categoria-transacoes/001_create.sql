@@ -1,2 +1,13 @@
-CREATE TABLE IF NOT EXISTS "categoria_transacoes" ("id" INTEGER NOT NULL, "descricao" TEXT NULL DEFAULT NULL, "comentario" TEXT NULL, "tipo" INTEGER NULL, "active" INTEGER NULL,"createdDate" DATETIME NOT NULL,"updatedDate" DATETIME NULL DEFAULT NULL,PRIMARY KEY ("id"));
-INSERT INTO "categoria_transacoes" (descricao, comentario, active, createdDate) VALUES ('Outros', 'Categoria para transações diversas', 1, datetime('now'));
+CREATE TABLE IF NOT EXISTS "categoria_transacoes" (
+  "id" INTEGER NOT NULL,
+  "descricao" TEXT NULL DEFAULT NULL,
+  "comentario" TEXT NULL,
+  "tipo" INTEGER NULL,
+  "active" INTEGER NULL,
+  "createdDate" DATETIME NOT NULL,
+  "updatedDate" DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY ("id")
+);
+
+INSERT INTO "categoria_transacoes" (descricao, comentario, active, createdDate)
+VALUES ('Outros', 'Categoria para transações diversas', 1, datetime('now'));
