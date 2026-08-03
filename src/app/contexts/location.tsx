@@ -31,9 +31,22 @@ function LocationParamsSync({ onParamsChange }: { onParamsChange: (params: Reado
   return null;
 }
 
+// Synchronously derive the initial params from the browser's current URL
+// (instead of starting from `defaultParams` and waiting for an effect to
+// sync). This matters for consumers that read a query param once on mount
+// (e.g. `/auth/redirect` reading `code` in a `useEffect(..., [])`) — they
+// must see the real value on the very first render, not a null placeholder
+// that only becomes real one commit later.
+function initialParamsFromWindow(): ReadonlyURLSearchParams {
+  if (typeof window === 'undefined')
+    return defaultParams;
+
+  return new URLSearchParams(window.location.search) as unknown as ReadonlyURLSearchParams;
+}
+
 export function LocationProvider({ children, ...props }: any) {
   const router = useRouter()
-  const [params, setParams] = useState<ReadonlyURLSearchParams>(defaultParams);
+  const [params, setParams] = useState<ReadonlyURLSearchParams>(initialParamsFromWindow);
 
   function redirectTo(path: string) {
     router.push(path);
