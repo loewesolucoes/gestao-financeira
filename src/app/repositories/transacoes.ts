@@ -45,6 +45,9 @@ export interface TransacoesAcumuladasPorMesHome {
 export interface TotaisTransacoes {
   valorEmCaixa?: BigNumber
   transacoesAcumuladaPorMes: TransacoesAcumuladasPorMes[]
+  mesPatrimonio?: string
+  valorPatrimonio?: BigNumber
+  diferencaPatrimonioCaixa?: BigNumber
 }
 
 export interface TransacoesComNotasECategoria {
@@ -165,22 +168,55 @@ export class TransacoesRepository extends DefaultRepository {
   public async totaisCaixa(): Promise<TotaisTransacoes> {
     await Promise.resolve();
 
-    const result = await this.db.exec(`select SUM(t.valor) as valorEmCaixa FROM transacoes t`);
+    // Nota: sql.js só inclui uma entrada no array retornado por `db.exec()`
+    // para statements que retornam ao menos 1 linha (ver
+    // Database.prototype.exec no sql.js: `curresult` só é criado dentro do
+    // loop `while (stmt.step())`). Isso significa que um SELECT com
+    // `GROUP BY` que não retorna nenhuma linha (ex.: tabela vazia) some do
+    // array de resultados, deslocando os índices das queries seguintes.
+    // Por isso: (1) a busca do último mês de patrimônio usa um LEFT JOIN
+    // contra uma subquery de 1 linha garantida, para sempre retornar
+    // exatamente 1 linha (mesmo com `patrimonio` vazia); (2) a lista de
+    // `transacoesAcumuladaPorMes`, que pode legitimamente ter 0 linhas, fica
+    // por último, para que sua ausência nunca desloque os índices das
+    // queries anteriores.
+    const query = `
+    select SUM(t.valor) as valorEmCaixa FROM transacoes t;
 
-    const { valorEmCaixa } = this.parseSqlResultToObj(result)[0][0] || {};
+    SELECT patrimonioMes.mesPatrimonio, patrimonioMes.valorPatrimonio
+    FROM (SELECT 1) dummy
+    LEFT JOIN (
+      SELECT strftime('%Y-%m', p.data) AS mesPatrimonio, SUM(p.valor) AS valorPatrimonio
+      FROM patrimonio p
+      GROUP BY mesPatrimonio
+      ORDER BY mesPatrimonio DESC
+      LIMIT 1
+    ) patrimonioMes ON 1 = 1;
 
-    const query = `SELECT strftime('%Y-%m', t.data) AS mes,
+    SELECT strftime('%Y-%m', t.data) AS mes,
     SUM(t.valor) AS totalMes,
     SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', t.data)) AS totalAcumulado
     FROM transacoes t
-    GROUP BY strftime('%Y-%m', t.data)
+    GROUP BY strftime('%Y-%m', t.data);
       `;
 
-    const result2 = await this.db.exec(query);
+    const result = await this.db.exec(query);
 
-    const transacoesAcumuladaPorMes = this.parseSqlResultToObj(result2)[0] || [];
+    const parsedResult = this.parseSqlResultToObj(result);
 
-    return { valorEmCaixa, transacoesAcumuladaPorMes }
+    const { valorEmCaixa } = parsedResult[0]?.[0] || {};
+    const { mesPatrimonio, valorPatrimonio } = parsedResult[1]?.[0] || {};
+    const transacoesAcumuladaPorMes = parsedResult[2] || [];
+
+    // Sem patrimônio registrado ainda: não há o que comparar.
+    // Sem transações no caixa (valorEmCaixa == null): considera o saldo como
+    // zero para o cálculo, já que não representa "sem diferença" e sim que
+    // todo o patrimônio ainda não passou pelo caixa.
+    const diferencaPatrimonioCaixa = valorPatrimonio != null
+      ? (valorPatrimonio as BigNumber).minus((valorEmCaixa as BigNumber) ?? BigNumber(0))
+      : undefined;
+
+    return { valorEmCaixa, transacoesAcumuladaPorMes, mesPatrimonio, valorPatrimonio, diferencaPatrimonioCaixa }
   }
 
   public static getQueryByPeriodo(periodo: PeriodoTransacoes) {
