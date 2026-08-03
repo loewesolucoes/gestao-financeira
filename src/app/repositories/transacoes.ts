@@ -45,6 +45,9 @@ export interface TransacoesAcumuladasPorMesHome {
 export interface TotaisTransacoes {
   valorEmCaixa?: BigNumber
   transacoesAcumuladaPorMes: TransacoesAcumuladasPorMes[]
+  mesPatrimonio?: string
+  valorPatrimonio?: BigNumber
+  diferencaPatrimonioCaixa?: BigNumber
 }
 
 export interface TransacoesComNotasECategoria {
@@ -165,22 +168,35 @@ export class TransacoesRepository extends DefaultRepository {
   public async totaisCaixa(): Promise<TotaisTransacoes> {
     await Promise.resolve();
 
-    const result = await this.db.exec(`select SUM(t.valor) as valorEmCaixa FROM transacoes t`);
+    const query = `
+    select SUM(t.valor) as valorEmCaixa FROM transacoes t;
 
-    const { valorEmCaixa } = this.parseSqlResultToObj(result)[0][0] || {};
-
-    const query = `SELECT strftime('%Y-%m', t.data) AS mes,
+    SELECT strftime('%Y-%m', t.data) AS mes,
     SUM(t.valor) AS totalMes,
     SUM(SUM(t.valor)) OVER (ORDER BY strftime('%Y-%m', t.data)) AS totalAcumulado
     FROM transacoes t
-    GROUP BY strftime('%Y-%m', t.data)
+    GROUP BY strftime('%Y-%m', t.data);
+
+    SELECT strftime('%Y-%m', p.data) AS mesPatrimonio, SUM(p.valor) AS valorPatrimonio
+    FROM patrimonio p
+    GROUP BY mesPatrimonio
+    ORDER BY mesPatrimonio DESC
+    LIMIT 1;
       `;
 
-    const result2 = await this.db.exec(query);
+    const result = await this.db.exec(query);
 
-    const transacoesAcumuladaPorMes = this.parseSqlResultToObj(result2)[0] || [];
+    const parsedResult = this.parseSqlResultToObj(result);
 
-    return { valorEmCaixa, transacoesAcumuladaPorMes }
+    const { valorEmCaixa } = parsedResult[0][0] || {};
+    const transacoesAcumuladaPorMes = parsedResult[1] || [];
+    const { mesPatrimonio, valorPatrimonio } = parsedResult[2][0] || {};
+
+    const diferencaPatrimonioCaixa = valorPatrimonio != null && valorEmCaixa != null
+      ? (valorPatrimonio as BigNumber).minus(valorEmCaixa as BigNumber)
+      : undefined;
+
+    return { valorEmCaixa, transacoesAcumuladaPorMes, mesPatrimonio, valorPatrimonio, diferencaPatrimonioCaixa }
   }
 
   public static getQueryByPeriodo(periodo: PeriodoTransacoes) {

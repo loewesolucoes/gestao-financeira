@@ -13,6 +13,7 @@ import { NumberUtil } from "../utils/number";
 import BigNumber from "bignumber.js";
 import { TransacoesPorMes } from "./components/transacoes-por-mes";
 import { Loader } from "../components/loader";
+import { DiferencaPatrimonioBadge } from "./components/diferenca-patrimonio-badge";
 
 function CaixaPage() {
   const { isDbOk, repository } = useStorage();
@@ -21,6 +22,8 @@ function CaixaPage() {
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [valorEmCaixa, setValorEmCaixa] = useState<BigNumber>();
+  const [mesPatrimonio, setMesPatrimonio] = useState<string>();
+  const [diferencaPatrimonioCaixa, setDiferencaPatrimonioCaixa] = useState<BigNumber>();
   const [transacoesAcumuladaPorMes, setTransacoesAcumuladaPorMes] = useState<{ [key: string]: TransacoesAcumuladasPorMes }>({});
 
   useEffect(() => {
@@ -43,6 +46,8 @@ function CaixaPage() {
     console.info('loadTotals', result);
 
     setValorEmCaixa(result.valorEmCaixa);
+    setMesPatrimonio(result.mesPatrimonio);
+    setDiferencaPatrimonioCaixa(result.diferencaPatrimonioCaixa);
 
     const dict = result.transacoesAcumuladaPorMes?.reduce((previous, next) => {
       previous[next.mes] = next;
@@ -62,9 +67,10 @@ function CaixaPage() {
           {isLoading
             ? (<Loader />)
             : (
-              <p className="d-flex flex-column">
+              <p className="d-flex flex-column flex-wrap gap-1">
                 {NumberUtil.toCurrency(valorEmCaixa)}
                 <small>{NumberUtil.extenso(valorEmCaixa, { mode: 'currency', currency: { type: 'BRL' } })}</small>
+                <DiferencaPatrimonioBadge mesPatrimonio={mesPatrimonio} diferencaPatrimonioCaixa={diferencaPatrimonioCaixa} />
               </p>)}
         </div>
       </section>
