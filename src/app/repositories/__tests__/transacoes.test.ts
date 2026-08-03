@@ -70,5 +70,18 @@ describe("TransacoesRepository", () => {
       expect(result.valorPatrimonio).toBeUndefined();
       expect(result.diferencaPatrimonioCaixa).toBeUndefined();
     });
+
+    it("trata valorEmCaixa ausente (sem transações) como zero ao calcular a diferença", async () => {
+      (db.exec as jest.Mock).mockResolvedValueOnce([
+        { columns: ["valorEmCaixa"], values: [[null]] }, // SUM sem linhas em transacoes retorna NULL
+        { columns: ["mes", "totalMes", "totalAcumulado"], values: [] },
+        { columns: ["mesPatrimonio", "valorPatrimonio"], values: [["2024-06", 1500]] },
+      ]);
+
+      const result = await repository.totaisCaixa();
+
+      expect(result.valorEmCaixa).toBeNull();
+      expect((result.diferencaPatrimonioCaixa as BigNumber).toNumber()).toBe(1500);
+    });
   });
 });

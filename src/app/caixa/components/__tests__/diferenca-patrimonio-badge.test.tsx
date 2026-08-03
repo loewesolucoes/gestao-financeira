@@ -42,4 +42,12 @@ describe("DiferencaPatrimonioBadge", () => {
     const badge = screen.getByText(/Diferença/i);
     expect(badge).toHaveTextContent("Sem diferença");
   });
+
+  it("mostra 'Sem diferença' quando o valor arredonda para zero (evita '-R$ 0,00')", () => {
+    render(<DiferencaPatrimonioBadge mesPatrimonio="2026-07" diferencaPatrimonioCaixa={BigNumber(-0.001)} />);
+
+    const badge = screen.getByText(/Diferença/i);
+    expect(badge).toHaveTextContent("Sem diferença");
+    expect(badge).not.toHaveTextContent("R$");
+  });
 });

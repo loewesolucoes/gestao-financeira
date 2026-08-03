@@ -11,7 +11,11 @@ export function DiferencaPatrimonioBadge({ mesPatrimonio, diferencaPatrimonioCai
   if (mesPatrimonio == null)
     return null;
 
-  const semDiferenca = diferencaPatrimonioCaixa == null || diferencaPatrimonioCaixa.isZero();
+  // Arredonda para centavos antes de comparar com zero, para evitar mostrar
+  // algo como "-R$ 0,00" quando a diferença é infinitesimal (ex.: erro de
+  // arredondamento de ponto flutuante) mas seria exibida como zero.
+  const semDiferenca = diferencaPatrimonioCaixa == null
+    || diferencaPatrimonioCaixa.decimalPlaces(2, BigNumber.ROUND_HALF_UP).isZero();
 
   return (
     <span

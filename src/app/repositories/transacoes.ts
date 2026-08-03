@@ -192,8 +192,12 @@ export class TransacoesRepository extends DefaultRepository {
     const transacoesAcumuladaPorMes = parsedResult[1] || [];
     const { mesPatrimonio, valorPatrimonio } = parsedResult[2][0] || {};
 
-    const diferencaPatrimonioCaixa = valorPatrimonio != null && valorEmCaixa != null
-      ? (valorPatrimonio as BigNumber).minus(valorEmCaixa as BigNumber)
+    // Sem patrimônio registrado ainda: não há o que comparar.
+    // Sem transações no caixa (valorEmCaixa == null): considera o saldo como
+    // zero para o cálculo, já que não representa "sem diferença" e sim que
+    // todo o patrimônio ainda não passou pelo caixa.
+    const diferencaPatrimonioCaixa = valorPatrimonio != null
+      ? (valorPatrimonio as BigNumber).minus((valorEmCaixa as BigNumber) ?? BigNumber(0))
       : undefined;
 
     return { valorEmCaixa, transacoesAcumuladaPorMes, mesPatrimonio, valorPatrimonio, diferencaPatrimonioCaixa }
