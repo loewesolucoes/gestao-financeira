@@ -28,11 +28,18 @@ describe("TransacoesRepository", () => {
   });
 
   describe("totaisCaixa", () => {
+    // Nota importante sobre estes mocks: sql.js's `db.exec()` só inclui uma
+    // entrada no array retornado para statements que retornam ao menos 1
+    // linha — um SELECT com GROUP BY que não bate nenhuma linha (ex.:
+    // tabela vazia) NÃO aparece no array (não é uma entrada com
+    // `values: []`, ela simplesmente não existe). Os mocks abaixo replicam
+    // esse comportamento fielmente para pegar regressões de index shifting.
+
     it("faz uma única chamada ao banco e calcula a diferença positiva (patrimônio acima do caixa)", async () => {
       (db.exec as jest.Mock).mockResolvedValueOnce([
         { columns: ["valorEmCaixa"], values: [[1000]] },
-        { columns: ["mes", "totalMes", "totalAcumulado"], values: [["2024-06", 500, 1000]] },
         { columns: ["mesPatrimonio", "valorPatrimonio"], values: [["2024-06", 1500]] },
+        { columns: ["mes", "totalMes", "totalAcumulado"], values: [["2024-06", 500, 1000]] },
       ]);
 
       const result = await repository.totaisCaixa();
@@ -48,8 +55,8 @@ describe("TransacoesRepository", () => {
     it("calcula a diferença negativa (patrimônio abaixo do caixa)", async () => {
       (db.exec as jest.Mock).mockResolvedValueOnce([
         { columns: ["valorEmCaixa"], values: [[2000]] },
-        { columns: ["mes", "totalMes", "totalAcumulado"], values: [] },
         { columns: ["mesPatrimonio", "valorPatrimonio"], values: [["2024-07", 1200]] },
+        { columns: ["mes", "totalMes", "totalAcumulado"], values: [["2024-07", -800, 2000]] },
       ]);
 
       const result = await repository.totaisCaixa();
@@ -57,31 +64,37 @@ describe("TransacoesRepository", () => {
       expect((result.diferencaPatrimonioCaixa as BigNumber).toNumber()).toBe(-800);
     });
 
-    it("retorna campos de patrimônio undefined quando não há registros de patrimonio", async () => {
+    it("não lança erro e retorna campos de patrimônio undefined quando patrimonio e transacoes estão vazias", async () => {
+      // Sem nenhuma linha em `patrimonio` ou `transacoes`: a query de
+      // patrimônio ainda retorna 1 linha (mesPatrimonio/valorPatrimonio
+      // NULL) graças ao LEFT JOIN contra uma subquery de 1 linha garantida.
+      // A query de `transacoesAcumuladaPorMes` (GROUP BY) retorna 0 linhas
+      // e, por isso, nem aparece no array de resultados do sql.js.
       (db.exec as jest.Mock).mockResolvedValueOnce([
-        { columns: ["valorEmCaixa"], values: [[1000]] },
-        { columns: ["mes", "totalMes", "totalAcumulado"], values: [] },
-        { columns: ["mesPatrimonio", "valorPatrimonio"], values: [] },
+        { columns: ["valorEmCaixa"], values: [[null]] },
+        { columns: ["mesPatrimonio", "valorPatrimonio"], values: [[null, null]] },
       ]);
 
       const result = await repository.totaisCaixa();
 
-      expect(result.mesPatrimonio).toBeUndefined();
-      expect(result.valorPatrimonio).toBeUndefined();
+      expect(result.mesPatrimonio).toBeNull();
+      expect(result.valorPatrimonio).toBeNull();
       expect(result.diferencaPatrimonioCaixa).toBeUndefined();
+      expect(result.transacoesAcumuladaPorMes).toEqual([]);
     });
 
-    it("trata valorEmCaixa ausente (sem transações) como zero ao calcular a diferença", async () => {
+    it("trata valorEmCaixa ausente (sem transações) como zero, mesmo quando a query de transacoesAcumuladaPorMes some do resultado", async () => {
       (db.exec as jest.Mock).mockResolvedValueOnce([
         { columns: ["valorEmCaixa"], values: [[null]] }, // SUM sem linhas em transacoes retorna NULL
-        { columns: ["mes", "totalMes", "totalAcumulado"], values: [] },
         { columns: ["mesPatrimonio", "valorPatrimonio"], values: [["2024-06", 1500]] },
+        // sem entrada para transacoesAcumuladaPorMes: transacoes vazia -> 0 grupos -> sql.js não inclui o result set
       ]);
 
       const result = await repository.totaisCaixa();
 
       expect(result.valorEmCaixa).toBeNull();
       expect((result.diferencaPatrimonioCaixa as BigNumber).toNumber()).toBe(1500);
+      expect(result.transacoesAcumuladaPorMes).toEqual([]);
     });
   });
 });
