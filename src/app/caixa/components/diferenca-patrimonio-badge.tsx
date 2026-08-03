@@ -11,14 +11,14 @@ export function DiferencaPatrimonioBadge({ mesPatrimonio, diferencaPatrimonioCai
   if (mesPatrimonio == null)
     return null;
 
-  const isPositivo = diferencaPatrimonioCaixa == null || diferencaPatrimonioCaixa.isGreaterThanOrEqualTo(0);
+  const semDiferenca = diferencaPatrimonioCaixa == null || diferencaPatrimonioCaixa.isZero();
 
   return (
     <span
-      className={`badge rounded-pill ${isPositivo ? 'text-bg-success' : 'text-bg-danger'} align-self-start text-wrap`}
+      className="badge rounded-pill text-bg-info align-self-center text-wrap"
       title={`Diferença entre o patrimônio de ${moment(mesPatrimonio, 'YYYY-MM').format('MMMM YYYY')} e o valor em caixa`}
     >
-      Diferença ({moment(mesPatrimonio, 'YYYY-MM').format('MMMM YYYY')}): {NumberUtil.toCurrency(diferencaPatrimonioCaixa)}
+      Diferença ({moment(mesPatrimonio, 'YYYY-MM').format('MMMM YYYY')}): {semDiferenca ? 'Sem diferença' : NumberUtil.toCurrency(diferencaPatrimonioCaixa)}
     </span>
   );
 }

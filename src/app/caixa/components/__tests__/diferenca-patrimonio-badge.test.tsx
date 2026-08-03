@@ -11,20 +11,35 @@ describe("DiferencaPatrimonioBadge", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("renderiza badge de sucesso quando a diferença é positiva", () => {
+  it("renderiza badge com estilo info e o valor quando há diferença positiva", () => {
     render(<DiferencaPatrimonioBadge mesPatrimonio="2024-06" diferencaPatrimonioCaixa={BigNumber(500)} />);
 
     const badge = screen.getByText(/Diferença/i);
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass("text-bg-success");
+    expect(badge).toHaveClass("text-bg-info");
     expect(badge).toHaveTextContent("2024");
+    expect(badge).not.toHaveTextContent("Sem diferença");
   });
 
-  it("renderiza badge de perigo quando a diferença é negativa", () => {
+  it("renderiza badge com estilo info quando há diferença negativa", () => {
     render(<DiferencaPatrimonioBadge mesPatrimonio="2024-07" diferencaPatrimonioCaixa={BigNumber(-800)} />);
 
     const badge = screen.getByText(/Diferença/i);
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass("text-bg-danger");
+    expect(badge).toHaveClass("text-bg-info");
+  });
+
+  it("mostra 'Sem diferença' quando o valor é zero", () => {
+    render(<DiferencaPatrimonioBadge mesPatrimonio="2024-08" diferencaPatrimonioCaixa={BigNumber(0)} />);
+
+    const badge = screen.getByText(/Diferença/i);
+    expect(badge).toHaveTextContent("Sem diferença");
+  });
+
+  it("mostra 'Sem diferença' quando o valor é undefined", () => {
+    render(<DiferencaPatrimonioBadge mesPatrimonio="2024-09" diferencaPatrimonioCaixa={undefined} />);
+
+    const badge = screen.getByText(/Diferença/i);
+    expect(badge).toHaveTextContent("Sem diferença");
   });
 });

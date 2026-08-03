@@ -67,10 +67,12 @@ function CaixaPage() {
           {isLoading
             ? (<Loader />)
             : (
-              <p className="d-flex flex-column flex-wrap gap-1">
-                {NumberUtil.toCurrency(valorEmCaixa)}
+              <p className="d-flex flex-column gap-1">
+                <span className="d-flex align-items-center flex-wrap gap-2">
+                  {NumberUtil.toCurrency(valorEmCaixa)}
+                  <DiferencaPatrimonioBadge mesPatrimonio={mesPatrimonio} diferencaPatrimonioCaixa={diferencaPatrimonioCaixa} />
+                </span>
                 <small>{NumberUtil.extenso(valorEmCaixa, { mode: 'currency', currency: { type: 'BRL' } })}</small>
-                <DiferencaPatrimonioBadge mesPatrimonio={mesPatrimonio} diferencaPatrimonioCaixa={diferencaPatrimonioCaixa} />
               </p>)}
         </div>
       </section>
