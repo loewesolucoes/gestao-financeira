@@ -6,6 +6,7 @@ export interface Parametro extends DefaultFields {
 }
 
 export const GOOGLE_DRIVE_REFRESH_TOKEN = 'GOOGLE_DRIVE_REFRESH_TOKEN';
+export const GOOGLE_GENERATIVE_AI_API_KEY = 'GOOGLE_GENERATIVE_AI_API_KEY';
 
 export class ParametrosRepository extends DefaultRepository {
   // @ts-ignore
@@ -25,6 +26,7 @@ export class ParametrosRepository extends DefaultRepository {
     const nextParams = params;
 
     nextParams[GOOGLE_DRIVE_REFRESH_TOKEN] = params[GOOGLE_DRIVE_REFRESH_TOKEN] || { chave: GOOGLE_DRIVE_REFRESH_TOKEN, valor: '' };
+    nextParams[GOOGLE_GENERATIVE_AI_API_KEY] = params[GOOGLE_GENERATIVE_AI_API_KEY] || { chave: GOOGLE_GENERATIVE_AI_API_KEY, valor: '' };
 
     const newParams = Object.keys(nextParams).map(x => nextParams[x]).filter(x => x.id == null);
 

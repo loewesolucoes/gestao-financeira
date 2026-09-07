@@ -1,7 +1,14 @@
 import BigNumber from "bignumber.js";
 import moment from "moment";
 import { RepositoryUtil } from "../utils/repository";
+import { sanitizeReadOnlyQuery } from "../utils/sql-query-guard";
 import { IDatabase } from "./database-connector";
+
+export interface ReadOnlyQueryResult {
+  success: boolean
+  rows?: any[]
+  error?: string
+}
 
 export enum MapperTypes {
   TEXT,
@@ -103,6 +110,40 @@ export class DefaultRepository {
       throw new Error(`${tableName} não encontrado (a)`);
 
     return this.parseSqlResultToObj(result, this.DEFAULT_MAPPING)[0] || [];
+  }
+
+  // Runs an arbitrary, sandboxed read-only query (used by the AI chat tool-calling loop).
+  // Never throws: guard/execution failures are returned as a structured error so the caller
+  // (the model, via the tool result) can see why the query failed and retry.
+  public async runReadOnlyQuery(sql: string): Promise<ReadOnlyQueryResult> {
+    try {
+      const sanitizedSql = sanitizeReadOnlyQuery(sql);
+      const result = await this.db.exec(sanitizedSql);
+      const rows = (this.parseSqlResultToObj(result, this.DEFAULT_MAPPING)[0] || [])
+        .map(row => this.serializeRowForToolResult(row));
+
+      return { success: true, rows };
+    } catch (error: any) {
+      return { success: false, error: error?.message ?? String(error) };
+    }
+  }
+
+  private serializeRowForToolResult(row: any) {
+    const nextRow: any = {};
+
+    for (const key in row) {
+      const value = row[key];
+
+      if (value instanceof Date) {
+        nextRow[key] = value.toISOString();
+      } else if (value?._isBigNumber) {
+        nextRow[key] = value.toNumber();
+      } else {
+        nextRow[key] = value;
+      }
+    }
+
+    return nextRow;
   }
 
   public async get<T>(tableName: TableNames, id: string): Promise<T> {

@@ -22,6 +22,11 @@ module.exports = async (phase) => {
         use: ["@svgr/webpack"]
       });
 
+      config.module.rules.push({
+        test: /\.md$/,
+        use: ["raw-loader"]
+      });
+
       config.resolve.fallback = {
         ...config.resolve.fallback,
         net: false,

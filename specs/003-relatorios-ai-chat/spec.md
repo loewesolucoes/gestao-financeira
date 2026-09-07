@@ -1,7 +1,7 @@
 # Spec: Relatórios AI Chat (Gemini + RAG via SQL)
 
 ## Status
-`Draft` — not yet started. Captured from a design discussion on 2026-07-26.
+`Implemented` — core feature landed (parameter, SQL guard, AI context, chat UI, tests, lint/build green). Manual verification with a real Gemini API key (T10) is still pending — captured from a design discussion on 2026-07-26.
 
 ## Tracking
 GitHub issue: _TBD_
@@ -39,10 +39,10 @@ We want to add a chat interface on `/relatorios` backed by a Google Gemini model
 - `next.config.js` already has custom webpack rules (`@svgr/webpack`, `copy-webpack-plugin` for sql.js WASM) — importing prompt files as raw text (`.md`) requires adding a new webpack rule there, mirroring what `ai-translate` already does with `raw-loader`.
 
 ## Acceptance criteria
-- [ ] `/configuracoes` → Parâmetros lists a `GOOGLE_GENERATIVE_AI_API_KEY` entry (empty by default) that the user can set, using the existing generic Parâmetros UI (no new UI needed there).
-- [ ] `/relatorios` renders a chat card; if no API key is configured, it shows a clear pt-br message pointing the user to Configurações instead of attempting any model call.
-- [ ] When a key is configured, the user can type a financial question and receive an answer grounded in real data from their local DB (verified by asking a question whose correct answer requires querying `transacoes`, e.g. total spent in a given month).
-- [ ] The model can only run read-only `SELECT`/`WITH` queries against `transacoes`, `patrimonio`, `metas`, `notas`, `categoria_transacoes`; any attempt to reference `parametros`, `migrations`, or to run DML/DDL is rejected before reaching the database, with the rejection surfaced back to the model (not a silent crash).
-- [ ] The chat has a bounded number of tool-call round-trips per question (to cap latency/cost) and fails gracefully with a pt-br error message if that bound is exceeded or the API call errors (invalid key, quota, network).
-- [ ] Chat history resets on page reload/navigation — nothing related to chat messages is added to the exported/imported DB dump or the Google Drive backup.
-- [ ] `npm run lint` and `npm test` (including new tests for the query guard, the AI context, and the chat component) pass.
+- [x] `/configuracoes` → Parâmetros lists a `GOOGLE_GENERATIVE_AI_API_KEY` entry (empty by default) that the user can set, using the existing generic Parâmetros UI (no new UI needed there).
+- [x] `/relatorios` renders a chat card; if no API key is configured, it shows a clear pt-br message pointing the user to Configurações instead of attempting any model call.
+- [ ] When a key is configured, the user can type a financial question and receive an answer grounded in real data from their local DB (verified by asking a question whose correct answer requires querying `transacoes`, e.g. total spent in a given month). _(requires manual verification with a real API key — T10)_
+- [x] The model can only run read-only `SELECT`/`WITH` queries against `transacoes`, `patrimonio`, `metas`, `notas`, `categoria_transacoes`; any attempt to reference `parametros`, `migrations`, or to run DML/DDL is rejected before reaching the database, with the rejection surfaced back to the model (not a silent crash).
+- [x] The chat has a bounded number of tool-call round-trips per question (to cap latency/cost) and fails gracefully with a pt-br error message if that bound is exceeded or the API call errors (invalid key, quota, network).
+- [x] Chat history resets on page reload/navigation — nothing related to chat messages is added to the exported/imported DB dump or the Google Drive backup.
+- [x] `npm run lint` and `npm test` (including new tests for the query guard, the AI context, and the chat component) pass.

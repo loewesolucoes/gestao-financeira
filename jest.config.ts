@@ -11,6 +11,9 @@ const config: Config = {
   coverageProvider: 'v8',
   testEnvironment: 'jsdom',
   moduleDirectories: ['node_modules', __dirname],
+  moduleNameMapper: {
+    '\\.md$': '<rootDir>/src/app/__mocks__/markdown-text-mock.js',
+  },
   // Add more setup options before each test is run
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   // Playwright e2e specs (e2e/**/*.spec.ts) use @playwright/test, not Jest — exclude
