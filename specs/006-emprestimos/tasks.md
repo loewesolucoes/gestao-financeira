@@ -3,7 +3,7 @@
 Checklist for implementing `spec.md` / `plan.md`. Work top to bottom; each
 task should be a small, reviewable commit.
 
-- [ ] **T1 — Add `emprestimos` and `emprestimo_parcelas` tables**
+- [x] **T1 — Add `emprestimos` and `emprestimo_parcelas` tables**
   - In `src/app/repositories/default.ts`, add `EMPRESTIMOS = "emprestimos"`
     and `EMPRESTIMO_PARCELAS = "emprestimo_parcelas"` to the `TableNames`
     enum.
@@ -13,7 +13,7 @@ task should be a small, reviewable commit.
     per-repository migration mechanism instead, with the same SQL/migration
     names (so existing local DBs don't re-run anything).
 
-- [ ] **T2 — Build `EmprestimosRepository`**
+- [x] **T2 — Build `EmprestimosRepository`**
   - Create `src/app/repositories/emprestimos.ts` with `Emprestimos`,
     `TipoDeEmprestimo`, `EmprestimoParcelas`, `EmprestimoComParcelas`,
     `StatusEmprestimo`, `TotaisEmprestimosDoMes` types, and
@@ -30,7 +30,7 @@ task should be a small, reviewable commit.
   - Implement `totaisDoMes(yearAndMonth)`: sums parcelas due in the given
     month grouped by `tipo`, excluding `cancelado` loans.
 
-- [ ] **T3 — Repository unit tests**
+- [x] **T3 — Repository unit tests**
   - Add tests covering: installment generation (equal split + monthly
     spacing, including an edge case like `valorTotal` not evenly divisible
     by `numeroParcelas`), status derivation for all three states, toggling
@@ -38,12 +38,12 @@ task should be a small, reviewable commit.
     without affecting siblings, `cancelar`, and `totaisDoMes` correctly
     summing/grouping and excluding cancelled loans.
 
-- [ ] **T4 — Register the repository**
+- [x] **T4 — Register the repository**
   - Update `src/app/contexts/storage.tsx`: add `emprestimos:
     EmprestimosRepository` to the `Repo` interface and instantiate it in
     `startStorage()`, same one-line pattern as `metas`/`notas`/`patrimonio`.
 
-- [ ] **T5 — Build `emprestimo-form.tsx`**
+- [x] **T5 — Build `emprestimo-form.tsx`**
   - Create `src/app/emprestimos/components/emprestimo-form.tsx`: fields for
     `tipo` (select: "Emprestei dinheiro" / "Peguei emprestado"), `pessoa`
     (text), `valorTotal` (currency `Input`), `numeroParcelas` (number
@@ -55,13 +55,13 @@ task should be a small, reviewable commit.
     a "Cancelar empréstimo" button (calls `cancelar()`) if not already
     cancelado/quitado.
 
-- [ ] **T6 — Build `emprestimo-parcelas.tsx`**
+- [x] **T6 — Build `emprestimo-parcelas.tsx`**
   - Create `src/app/emprestimos/components/emprestimo-parcelas.tsx`: renders
     the list of `EmprestimoParcelas` for a given loan, each with a checkbox
     (calls `marcarParcelaPaga`) and inline-editable `valor`/`dataVencimento`
     (calls `editarParcela`).
 
-- [ ] **T7 — Component tests for form and parcelas list**
+- [x] **T7 — Component tests for form and parcelas list**
   - `emprestimos/components/__tests__/emprestimo-form.test.tsx`: mock
     `useStorage`; validate required fields, assert `criarComParcelas` is
     called with the right shape on submit, assert "Cancelar empréstimo"
@@ -70,7 +70,7 @@ task should be a small, reviewable commit.
     `useStorage`; assert checkbox toggling and inline edits call the right
     repository methods.
 
-- [ ] **T8 — Rebuild the `/emprestimos` page**
+- [x] **T8 — Rebuild the `/emprestimos` page**
   - Replace the placeholder in `src/app/emprestimos/page.tsx` with a real
     listing (via `repository.emprestimos.listComParcelas()`): "Novo
     empréstimo" button + `<EmprestimoForm />` in a `<Modal>`, loans grouped/
@@ -81,7 +81,7 @@ task should be a small, reviewable commit.
   - Update `src/app/emprestimos/page.scss` with any new styles needed
     (progress indicator, cancelado styling).
 
-- [ ] **T9 — Build the Home widget**
+- [x] **T9 — Build the Home widget**
   - Create `src/app/home/components/emprestimos-do-mes.tsx`: calls
     `repository.emprestimos.totaisDoMes(yearAndMonth)`, renders "A receber
     este mês" / "A pagar este mês" totals (via `NumberUtil.toCurrency`/
@@ -89,12 +89,12 @@ task should be a small, reviewable commit.
   - Wire it into `src/app/home/page-component.tsx`, placed alongside/after
     `<HomeCashAndGoals />`.
 
-- [ ] **T10 — Home widget test**
+- [x] **T10 — Home widget test**
   - `home/components/__tests__/emprestimos-do-mes.test.tsx`: mock
     `useStorage`; assert totals render for a given month, assert empty
     state, assert cancelled loans are excluded from totals.
 
-- [ ] **T11 — Manual verification**
+- [x] **T11 — Manual verification**
   - Create one loan of each `tipo` and confirm parcelas are generated with
     correct values/dates.
   - Mark and unmark parcelas as paid/received; confirm the loan's derived
@@ -106,7 +106,7 @@ task should be a small, reviewable commit.
   - Confirm the Home widget's current-month totals match the sum of the
     relevant parcelas.
 
-- [ ] **T12 — Lint/build/test gate**
+- [x] **T12 — Lint/build/test gate**
   - Run `npm run lint` and `npm test` (full suite) and confirm everything
     passes before merging.
 
