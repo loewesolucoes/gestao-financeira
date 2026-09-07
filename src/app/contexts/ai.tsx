@@ -92,30 +92,32 @@ export function AiProvider(props: any) {
   // and match one of the standard chat tiers (pro/flash/lite). Falls back to a fixed list on any
   // failure (network, CORS, invalid key, unexpected shape).
   async function listAvailableModels(): Promise<AiModelOption[]> {
-    if (!apiKey) return FALLBACK_MODELS;
+    // if (!apiKey) return FALLBACK_MODELS;
 
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    // try {
+    //   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
 
-      if (!response.ok) return FALLBACK_MODELS;
+    //   if (!response.ok) return FALLBACK_MODELS;
 
-      const data = await response.json();
-      const models: AiModelOption[] = (data?.models || [])
-        .filter((m: any) => {
-          if (typeof m?.name !== 'string' || !m.name.includes('gemini')) return false;
-          if (!Array.isArray(m.supportedGenerationMethods) || !m.supportedGenerationMethods.includes('generateContent')) return false;
+    //   const data = await response.json();
+    //   const models: AiModelOption[] = (data?.models || [])
+    //     .filter((m: any) => {
+    //       if (typeof m?.name !== 'string' || !m.name.includes('gemini')) return false;
+    //       if (!Array.isArray(m.supportedGenerationMethods) || !m.supportedGenerationMethods.includes('generateContent')) return false;
 
-          const nameLower = m.name.toLowerCase();
+    //       const nameLower = m.name.toLowerCase();
 
-          return CHAT_MODEL_NAME_KEYWORDS.some(keyword => nameLower.includes(keyword));
-        })
-        .map((m: any) => ({ id: (m.name as string).replace(/^models\//, ''), label: m.displayName || m.name }));
+    //       return CHAT_MODEL_NAME_KEYWORDS.some(keyword => nameLower.includes(keyword));
+    //     })
+    //     .map((m: any) => ({ id: (m.name as string).replace(/^models\//, ''), label: m.displayName || m.name }));
 
-      return models.length > 0 ? models : FALLBACK_MODELS;
-    } catch (error) {
-      console.error('listAvailableModels error:', error);
-      return FALLBACK_MODELS;
-    }
+    //   return models.length > 0 ? models : FALLBACK_MODELS;
+    // } catch (error) {
+    //   console.error('listAvailableModels error:', error);
+    //   return FALLBACK_MODELS;
+    // }
+
+    return FALLBACK_MODELS;
   }
 
   async function askRelatoriosChat(messages: ChatMessage[], model: string = DEFAULT_MODEL): Promise<string | undefined> {
