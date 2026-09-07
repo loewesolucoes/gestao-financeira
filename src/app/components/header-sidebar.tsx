@@ -9,11 +9,31 @@ import IconCog from '@material-design-icons/svg/filled/settings.svg';
 import { ThemeSelector } from "./theme-selector";
 import { AuthButton } from "./auth-button";
 import { useAuth } from "../contexts/auth";
+import { useStorage } from "../contexts/storage";
+import { TipoDeNotificacao } from "../repositories/notificacoes";
 import { Loader } from "./loader";
+import { useEffect, useState } from "react";
 
 
 function UserInfo() {
   const { userInfo, isLoadingAuth } = useAuth();
+  const { isDbOk, repository } = useStorage();
+  const [naoLidasNotificacoes, setNaoLidasNotificacoes] = useState<number>(0);
+  const [naoLidasMensagens, setNaoLidasMensagens] = useState<number>(0);
+
+  useEffect(() => {
+    isDbOk && loadContadores();
+  }, [isDbOk]);
+
+  async function loadContadores() {
+    const [notificacoes, mensagens] = await Promise.all([
+      repository.notificacoes.countUnread(TipoDeNotificacao.NOTIFICACAO),
+      repository.notificacoes.countUnread(TipoDeNotificacao.MENSAGEM),
+    ]);
+
+    setNaoLidasNotificacoes(notificacoes);
+    setNaoLidasMensagens(mensagens);
+  }
 
   function getUserPhotoLink(): string {
     return (userInfo?.user?.photoLink?.replace('=s64', '=s240')) || `${process.env.BASE_PATH || ''}/user.jpg`;
@@ -34,15 +54,19 @@ function UserInfo() {
             <h6 className="fw-bold mb-3">{userInfo?.user?.displayName}</h6>
             <ul className="list-inline">
               <li className="list-inline-item position-relative me-3">
-                <Link className="nav-link p-0" href="#" role="button" aria-expanded="false">
+                <Link className="nav-link p-0" href="/notificacoes?tipo=notificacao" role="button" aria-expanded="false">
                   <IconBell />
-                  <span className="position-absolute top-0 start-100 translate-middle p-1 bg-secondary border rounded-circle"></span>
+                  {naoLidasNotificacoes > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle p-1 bg-secondary border rounded-circle"></span>
+                  )}
                 </Link>
               </li>
               <li className="list-inline-item position-relative me-3">
-                <Link className="nav-link p-0" href="#" role="button" aria-expanded="false">
+                <Link className="nav-link p-0" href="/notificacoes?tipo=mensagem" role="button" aria-expanded="false">
                   <IconEnvelope />
-                  <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                  {naoLidasMensagens > 0 && (
+                    <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                  )}
                 </Link>
               </li>
               <li className="list-inline-item position-relative">

@@ -16,6 +16,9 @@ import metasCreateSql from "./sql/metas/001_create.sql";
 
 import categoriaTransacoesCreateSql from "./sql/categoria-transacoes/001_create.sql";
 
+import notificacoesCreateSql from "./sql/notificacoes/001_create.sql";
+import notificacoesSeedMensagensSql from "./sql/notificacoes/002_seed_mensagens.sql";
+
 // A single guarded schema migration. `name` is the stable id stored in the
 // `migrations` tracking table — for migrations that already shipped, this
 // MUST match the exact string used historically in
@@ -72,4 +75,8 @@ export const ALL_MIGRATIONS: Migration[] = [
 
   // transacoes -> categoria_transacoes foreign key (must run after categoria_transacoes exists)
   { name: "categoria_transacoes_chave_estrangeira", run: (db) => importAndExec(db, transacoesAddCategoriaFkSql) },
+
+  // notificacoes (new table, must run after all previously-shipped migrations above)
+  { name: "notificacoes", run: (db) => importAndExec(db, notificacoesCreateSql) },
+  { name: "notificacoes_seed_mensagens", run: (db) => importAndExec(db, notificacoesSeedMensagensSql) },
 ];

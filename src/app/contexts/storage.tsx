@@ -13,6 +13,8 @@ import { NotasRepository } from "../repositories/notas";
 import { TransacoesRepository } from "../repositories/transacoes";
 import { PatrimonioRepository } from "../repositories/patrimonio";
 import { CategoriaTransacoesRepository } from "../repositories/categoria-transacoes";
+import { NotificacoesRepository, TipoDeNotificacao } from "../repositories/notificacoes";
+import { TableNames } from "../repositories/default";
 import { AuthUtil } from "../utils/auth";
 
 interface Repo extends DefaultRepository {
@@ -22,6 +24,7 @@ interface Repo extends DefaultRepository {
   transacoes: TransacoesRepository
   patrimonio: PatrimonioRepository
   categoriaTransacoes: CategoriaTransacoesRepository
+  notificacoes: NotificacoesRepository
 }
 
 interface StorageProviderContext {
@@ -78,6 +81,7 @@ export function StorageProvider(props: any) {
     repository.transacoes = new TransacoesRepository(sqldb);
     repository.patrimonio = new PatrimonioRepository(sqldb);
     repository.categoriaTransacoes = await CategoriaTransacoesRepository.create(sqldb);
+    repository.notificacoes = new NotificacoesRepository(sqldb);
 
     setRepository(repository);
     setIsDbOk(true);
@@ -109,6 +113,8 @@ export function StorageProvider(props: any) {
 
     await repository.categoriaTransacoes.loadAll();
     await loadRefreshTokenIfExistsAndSetIfNeed();
+
+    repository.notificacoes.limparLidas(30).catch(ex => console.error('erro ao limpar notificações lidas antigas:', ex));
   }
 
   async function loadRefreshTokenIfExistsAndSetIfNeed() {
@@ -139,7 +145,22 @@ export function StorageProvider(props: any) {
 
       if (AuthUtil.isAuthOk()) {
         NotificationUtil.send('Nenhum token de autenticação encontrado. Por favor, faça logout e login novamente no Google Drive.');
+        await persistNotificacaoDeErro('Falha na autenticação do Google Drive', 'Nenhum token de autenticação válido foi encontrado. Faça logout e login novamente no Google Drive.');
       }
+    }
+  }
+
+  async function persistNotificacaoDeErro(titulo: string, descricao: string) {
+    try {
+      await repository.notificacoes.save(TableNames.NOTIFICACOES, {
+        tipo: TipoDeNotificacao.NOTIFICACAO,
+        titulo,
+        descricao,
+        lida: false,
+        data: new Date(),
+      });
+    } catch (ex) {
+      console.error('erro ao persistir notificação de erro:', ex);
     }
   }
 
@@ -198,6 +219,7 @@ export function StorageProvider(props: any) {
       console.error('doGDriveSave error:', ex);
 
       NotificationUtil.send('Erro ao salvar dados no Google Drive.');
+      await persistNotificacaoDeErro('Falha ao salvar no Google Drive', 'Não foi possível salvar os dados no Google Drive. Tente novamente mais tarde.');
     }
 
     console.debug('doGDriveSave end');
@@ -214,14 +236,21 @@ export function StorageProvider(props: any) {
     if (!isAuthOk)
       throw new Error('you must login on gdrive')
 
-    const file = await loadGDrive();
-    console.debug('doGDriveLoad end');
-    await refresh();
+    try {
+      const file = await loadGDrive();
+      console.debug('doGDriveLoad end');
+      await refresh();
 
-    if (file)
-      NotificationUtil.send('Dados carregados do Google Drive.');
-    else
-      NotificationUtil.send('Nenhum arquivo encontrado no Google Drive.');
+      if (file)
+        NotificationUtil.send('Dados carregados do Google Drive.');
+      else
+        NotificationUtil.send('Nenhum arquivo encontrado no Google Drive.');
+    } catch (ex) {
+      console.error('doGDriveLoad error:', ex);
+
+      NotificationUtil.send('Erro ao carregar dados do Google Drive.');
+      await persistNotificacaoDeErro('Falha ao carregar do Google Drive', 'Não foi possível carregar os dados do Google Drive. Tente novamente mais tarde.');
+    }
 
     setIsGDriveLoadLoading(false);
   }
