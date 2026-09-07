@@ -13,6 +13,7 @@ import { NotasRepository } from "../repositories/notas";
 import { TransacoesRepository } from "../repositories/transacoes";
 import { PatrimonioRepository } from "../repositories/patrimonio";
 import { CategoriaTransacoesRepository } from "../repositories/categoria-transacoes";
+import { NotificacoesRepository } from "../repositories/notificacoes";
 import { AuthUtil } from "../utils/auth";
 import { EmprestimosRepository } from "../repositories/emprestimos";
 
@@ -24,6 +25,7 @@ interface Repo extends DefaultRepository {
   patrimonio: PatrimonioRepository
   categoriaTransacoes: CategoriaTransacoesRepository
   emprestimos: EmprestimosRepository
+  notificacoes: NotificacoesRepository
 }
 
 interface StorageProviderContext {
@@ -81,6 +83,7 @@ export function StorageProvider(props: any) {
     repository.patrimonio = new PatrimonioRepository(sqldb);
     repository.categoriaTransacoes = await CategoriaTransacoesRepository.create(sqldb);
     repository.emprestimos = new EmprestimosRepository(sqldb);
+    repository.notificacoes = new NotificacoesRepository(sqldb);
 
     setRepository(repository);
     setIsDbOk(true);
@@ -141,7 +144,7 @@ export function StorageProvider(props: any) {
       await repository.params.set(GOOGLE_DRIVE_REFRESH_TOKEN, undefined);
 
       if (AuthUtil.isAuthOk()) {
-        NotificationUtil.send('Nenhum token de autenticação encontrado. Por favor, faça logout e login novamente no Google Drive.');
+        NotificationUtil.send('Nenhum token de autenticação válido foi encontrado. Faça logout e login novamente no Google Drive.', 'Falha na autenticação do Google Drive');
       }
     }
   }
@@ -200,7 +203,7 @@ export function StorageProvider(props: any) {
     } catch (ex) {
       console.error('doGDriveSave error:', ex);
 
-      NotificationUtil.send('Erro ao salvar dados no Google Drive.');
+      NotificationUtil.send('Não foi possível salvar os dados no Google Drive. Tente novamente mais tarde.', 'Falha ao salvar no Google Drive');
     }
 
     console.debug('doGDriveSave end');
@@ -217,14 +220,20 @@ export function StorageProvider(props: any) {
     if (!isAuthOk)
       throw new Error('you must login on gdrive')
 
-    const file = await loadGDrive();
-    console.debug('doGDriveLoad end');
-    await refresh();
+    try {
+      const file = await loadGDrive();
+      console.debug('doGDriveLoad end');
+      await refresh();
 
-    if (file)
-      NotificationUtil.send('Dados carregados do Google Drive.');
-    else
-      NotificationUtil.send('Nenhum arquivo encontrado no Google Drive.');
+      if (file)
+        NotificationUtil.send('Dados carregados do Google Drive.');
+      else
+        NotificationUtil.send('Nenhum arquivo encontrado no Google Drive.');
+    } catch (ex) {
+      console.error('doGDriveLoad error:', ex);
+
+      NotificationUtil.send('Não foi possível carregar os dados do Google Drive. Tente novamente mais tarde.', 'Falha ao carregar do Google Drive');
+    }
 
     setIsGDriveLoadLoading(false);
   }

@@ -207,6 +207,67 @@
         }
       ]
     },
+    "notificacoes": {
+      "createSql": "CREATE TABLE \"notificacoes\" (\"id\" INTEGER NOT NULL,\"tipo\" INTEGER NOT NULL,\"titulo\" TEXT NULL DEFAULT NULL,\"descricao\" TEXT NULL DEFAULT NULL,\"lida\" INTEGER NOT NULL DEFAULT 0,\"data\" DATETIME NOT NULL,\"createdDate\" DATETIME NOT NULL,\"updatedDate\" DATETIME NULL DEFAULT NULL,PRIMARY KEY (\"id\"))",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 1
+        },
+        {
+          "name": "tipo",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "titulo",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "descricao",
+          "type": "TEXT",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        },
+        {
+          "name": "lida",
+          "type": "INTEGER",
+          "notnull": 1,
+          "dflt_value": "0",
+          "pk": 0
+        },
+        {
+          "name": "data",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "createdDate",
+          "type": "DATETIME",
+          "notnull": 1,
+          "dflt_value": null,
+          "pk": 0
+        },
+        {
+          "name": "updatedDate",
+          "type": "DATETIME",
+          "notnull": 0,
+          "dflt_value": "NULL",
+          "pk": 0
+        }
+      ]
+    },
     "parametros": {
       "createSql": "CREATE TABLE \"parametros\" (\"id\" INTEGER NOT NULL,\"chave\" TEXT NOT NULL,\"valor\" TEXT NULL, \"createdDate\" DATETIME NOT NULL, \"updatedDate\" DATETIME NULL DEFAULT NULL,PRIMARY KEY (\"id\"))",
       "columns": [
