@@ -6,11 +6,13 @@ import { GOOGLE_GENERATIVE_AI_API_KEY } from "../../repositories/parametros";
 
 const generateTextMock = jest.fn();
 const toolMock = jest.fn((config: any) => config);
+const stepCountIsMock = jest.fn((...args: any[]) => ({ __stepCountIs: args[0] }));
 const createGoogleGenerativeAIMock = jest.fn(() => (modelName: string) => ({ modelName }));
 
 jest.mock("ai", () => ({
   generateText: (...args: any[]) => generateTextMock(...args),
   tool: (config: any) => toolMock(config),
+  stepCountIs: (...args: any[]) => stepCountIsMock(...args),
 }));
 
 jest.mock("@ai-sdk/google", () => ({
@@ -94,7 +96,8 @@ describe("AiProvider / useAi", () => {
 
     expect(callArgs.system).toBe("MOCKED_MARKDOWN_CONTENT");
     expect(callArgs.messages).toBe(messages);
-    expect(callArgs.maxSteps).toBe(6);
+    expect(stepCountIsMock).toHaveBeenCalledWith(6);
+    expect(callArgs.stopWhen).toEqual({ __stepCountIs: 6 });
     expect(callArgs.tools.consultarBancoDados).toBeDefined();
 
     await callArgs.tools.consultarBancoDados.execute({ sql: "SELECT * FROM transacoes" });

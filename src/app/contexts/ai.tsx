@@ -10,7 +10,7 @@ declare global {
 
 import React, { createContext, useEffect, useState } from "react"
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { generateText, tool } from 'ai';
+import { generateText, stepCountIs, tool } from 'ai';
 import { z } from 'zod';
 import { useStorage } from "./storage";
 import { GOOGLE_GENERATIVE_AI_API_KEY } from "../repositories/parametros";
@@ -70,11 +70,11 @@ export function AiProvider(props: any) {
         model: google('gemini-3.5-flash-lite'),
         system: systemPrompt,
         messages,
-        maxSteps: MAX_STEPS,
+        stopWhen: stepCountIs(MAX_STEPS),
         tools: {
           consultarBancoDados: tool({
             description: 'Executa uma consulta SQL somente leitura (SELECT/WITH) contra o banco de dados financeiro local do usuário e retorna as linhas do resultado. Use sempre que precisar de números ou fatos reais para responder.',
-            parameters: z.object({
+            inputSchema: z.object({
               sql: z.string().describe('A consulta SQL SELECT/WITH a ser executada.'),
             }),
             execute: async ({ sql }) => repository.runReadOnlyQuery(sql),
