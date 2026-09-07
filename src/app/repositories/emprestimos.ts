@@ -112,17 +112,36 @@ export class EmprestimosRepository extends DefaultRepository {
     return this.update(TableNames.EMPRESTIMOS, { ...emprestimo, cancelado: true }) as Promise<Emprestimos>;
   }
 
+  // Exclusão definitiva (não é o "cancelar" acima): remove o empréstimo e
+  // todas as suas parcelas do banco, sem possibilidade de desfazer. Útil para
+  // corrigir um empréstimo cadastrado errado.
+  public async excluir(emprestimoId: number): Promise<void> {
+    await this.db.exec(`DELETE FROM ${TableNames.EMPRESTIMO_PARCELAS} WHERE emprestimoId = $emprestimoId`, { "$emprestimoId": emprestimoId });
+    await this.db.exec(`DELETE FROM ${TableNames.EMPRESTIMOS} WHERE id = $emprestimoId`, { "$emprestimoId": emprestimoId });
+
+    await this.persistDb();
+  }
+
   public async totaisDoMes(yearAndMonth: Date): Promise<TotaisEmprestimosDoMes> {
+    // Traz as parcelas com vencimento exatamente no mês/ano selecionado
+    // (comportamento original) e também qualquer parcela ainda não paga com
+    // vencimento até o fim desse mês, para incluir atrasadas de meses
+    // anteriores (não só as do mês corrente) na visão da Home.
+    const fimDoMes = moment(yearAndMonth).endOf('month').format();
+
     const query = `
       SELECT p.*, e.pessoa as pessoa, e.tipo as tipo
       FROM ${TableNames.EMPRESTIMO_PARCELAS} p
       INNER JOIN ${TableNames.EMPRESTIMOS} e ON e.id = p.emprestimoId
-      WHERE strftime('%m', p.dataVencimento) = $month AND strftime('%Y', p.dataVencimento) = $year
-      AND (e.cancelado IS NULL OR e.cancelado = 0)
+      WHERE (e.cancelado IS NULL OR e.cancelado = 0)
+      AND (
+        (strftime('%m', p.dataVencimento) = $month AND strftime('%Y', p.dataVencimento) = $year)
+        OR ((p.pago IS NULL OR p.pago = 0) AND p.dataVencimento <= $fimDoMes)
+      )
       ORDER BY p.dataVencimento ASC;
     `;
 
-    const result = await this.db.exec(query, { "$month": moment(yearAndMonth).format('MM'), "$year": moment(yearAndMonth).format('YYYY') });
+    const result = await this.db.exec(query, { "$month": moment(yearAndMonth).format('MM'), "$year": moment(yearAndMonth).format('YYYY'), "$fimDoMes": fimDoMes });
 
     const mapper = { ...this.PARCELAS_MAPPING, tipo: MapperTypes.NUMBER };
     const parcelasDoMes = (this.parseSqlResultToObj(result, mapper)[0] || []) as (EmprestimoParcelas & { pessoa?: string; tipo: TipoDeEmprestimo })[];

@@ -19,9 +19,9 @@ export function EmprestimosDoMes({ totais, yearAndMonth }: EmprestimosDoMesProps
   return (
     <section className="card card-emprestimos card-material-1">
       <div className="card-body">
-        <h4 className="card-title">Empréstimos em {moment(yearAndMonth).format('MMMM YYYY')} <IconAtm width={30} height={30} viewBox="0 0 24 24" fill="var(--bs-primary)" /></h4>
+        <h4 className="card-title">Empréstimos em aberto (até {moment(yearAndMonth).format('MMMM YYYY')}) <IconAtm width={30} height={30} viewBox="0 0 24 24" fill="var(--bs-primary)" /></h4>
         {semParcelas
-          ? (<div className="alert alert-info" role="alert">Nenhuma parcela de empréstimo neste mês.</div>)
+          ? (<div className="alert alert-info" role="alert">Nenhuma parcela de empréstimo em aberto.</div>)
           : (
             <div className="d-flex flex-column flex-md-row gap-3">
               <div className="d-flex gap-3">

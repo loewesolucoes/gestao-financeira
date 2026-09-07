@@ -34,6 +34,11 @@ function Emprestimos() {
     const result = await repository.emprestimos.listComParcelas();
 
     setEmprestimos(result);
+    // Ressincroniza o empréstimo em edição (se houver modal aberta) com os
+    // dados recém-carregados, senão a modal continua mostrando um snapshot
+    // antigo (ex.: parcela marcada como paga não refletia sem dar refresh na
+    // página). Se o empréstimo foi excluído, fecha a modal.
+    setEmprestimoAEditar(atual => atual && result.find(e => e.id === atual.id));
     setIsLoading(false);
   }
 

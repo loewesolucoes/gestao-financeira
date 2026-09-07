@@ -36,7 +36,10 @@ export function EmprestimoForm({ emprestimo, cleanStyle, onClose, onCustomSubmit
     setIsLoading(true);
 
     const numeroParcelasNumerico = Number((numeroParcelas as any)?.toNumber ? (numeroParcelas as any).toNumber() : numeroParcelas);
-    const dadosAtualizados = { ...emprestimo, tipo, pessoa, valorTotal, numeroParcelas: numeroParcelasNumerico, dataInicio, comentario };
+    // Monta apenas os campos reais da tabela "emprestimos" — espalhar o objeto
+    // `emprestimo` inteiro incluiria `parcelas`/`status` (não são colunas) e
+    // fazia o UPDATE falhar silenciosamente.
+    const dadosAtualizados = { id: emprestimo?.id, tipo, pessoa, valorTotal, numeroParcelas: numeroParcelasNumerico, dataInicio, comentario };
 
     if (onCustomSubmit == null) {
       const result = isEditing
@@ -61,6 +64,23 @@ export function EmprestimoForm({ emprestimo, cleanStyle, onClose, onCustomSubmit
     if (emprestimo == null) throw new Error("emprestimo invalido");
 
     await repository.emprestimos.cancelar(emprestimo.id);
+
+    await refresh();
+
+    setIsLoading(false);
+
+    onClose && onClose();
+  }
+
+  async function onExcluirEmprestimo() {
+    if (emprestimo == null) throw new Error("emprestimo invalido");
+
+    if (!window.confirm('Tem certeza que deseja excluir este empréstimo e todas as suas parcelas para sempre? Essa ação não pode ser desfeita.'))
+      return;
+
+    setIsLoading(true);
+
+    await repository.emprestimos.excluir(emprestimo.id);
 
     await refresh();
 
@@ -117,12 +137,12 @@ export function EmprestimoForm({ emprestimo, cleanStyle, onClose, onCustomSubmit
           <Input type="mdtextarea" className="form-control" id="comentario" onChange={x => setComentario(x)} value={comentario} placeholder="Comentário" />
         </div>
       </div>
-      <FormButtons isAllLoading={isAllLoading} isEditing={isEditing} podeCancelar={podeCancelar} onClose={onClose} onCancelarEmprestimo={onCancelarEmprestimo} onReset={onReset} />
+      <FormButtons isAllLoading={isAllLoading} isEditing={isEditing} podeCancelar={podeCancelar} onClose={onClose} onCancelarEmprestimo={onCancelarEmprestimo} onExcluirEmprestimo={onExcluirEmprestimo} onReset={onReset} />
     </div>
   </form>;
 }
 
-function FormButtons({ isAllLoading, isEditing, podeCancelar, onClose, onCancelarEmprestimo, onReset }: any) {
+function FormButtons({ isAllLoading, isEditing, podeCancelar, onClose, onCancelarEmprestimo, onExcluirEmprestimo, onReset }: any) {
   const loadingState = <>
     <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
     <span role="status">{" "}...</span>
@@ -133,6 +153,11 @@ function FormButtons({ isAllLoading, isEditing, podeCancelar, onClose, onCancela
       {onClose && (
         <button type="button" onClick={onClose} className="btn btn-secondary align-self-end mt-2" disabled={isAllLoading}>
           {isAllLoading ? loadingState : 'Fechar'}
+        </button>
+      )}
+      {isEditing && (
+        <button type="button" onClick={onExcluirEmprestimo} className="btn btn-outline-danger align-self-end mt-2" disabled={isAllLoading}>
+          {isAllLoading ? loadingState : 'Excluir para sempre'}
         </button>
       )}
       {podeCancelar && (

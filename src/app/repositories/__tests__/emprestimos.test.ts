@@ -213,6 +213,26 @@ describe("EmprestimosRepository", () => {
     });
   });
 
+  describe("excluir", () => {
+    it("apaga as parcelas e depois o empréstimo, e persiste o banco", async () => {
+      (db.exec as jest.Mock)
+        .mockResolvedValueOnce([]) // delete parcelas
+        .mockResolvedValueOnce([]); // delete emprestimo
+
+      await repository.excluir(7);
+
+      expect(db.exec).toHaveBeenCalledTimes(2);
+
+      const [parcelasCommand, parcelasParams] = (db.exec as jest.Mock).mock.calls[0];
+      expect(parcelasCommand).toContain(`DELETE FROM ${TableNames.EMPRESTIMO_PARCELAS}`);
+      expect(parcelasParams.$emprestimoId).toBe(7);
+
+      const [emprestimoCommand, emprestimoParams] = (db.exec as jest.Mock).mock.calls[1];
+      expect(emprestimoCommand).toContain(`DELETE FROM ${TableNames.EMPRESTIMOS}`);
+      expect(emprestimoParams.$emprestimoId).toBe(7);
+    });
+  });
+
   describe("totaisDoMes", () => {
     it("soma e agrupa parcelas do mês por tipo, excluindo empréstimos cancelados", async () => {
       const columns = ["id", "emprestimoId", "numero", "valor", "dataVencimento", "pago", "dataPagamento", "createdDate", "updatedDate", "pessoa", "tipo"];
@@ -234,6 +254,7 @@ describe("EmprestimosRepository", () => {
       expect(query).toContain("cancelado IS NULL OR e.cancelado = 0");
       expect(params.$month).toBe("06");
       expect(params.$year).toBe("2024");
+      expect(params.$fimDoMes).toBeDefined();
     });
 
     it("retorna totais zerados quando não há parcelas no mês", async () => {
@@ -244,6 +265,29 @@ describe("EmprestimosRepository", () => {
       expect(result.aReceber.toNumber()).toBe(0);
       expect(result.aPagar.toNumber()).toBe(0);
       expect(result.parcelasDoMes).toEqual([]);
+    });
+
+    it("inclui parcelas não pagas de meses anteriores (atrasadas) além das do mês selecionado", async () => {
+      const columns = ["id", "emprestimoId", "numero", "valor", "dataVencimento", "pago", "dataPagamento", "createdDate", "updatedDate", "pessoa", "tipo"];
+      (db.exec as jest.Mock).mockResolvedValueOnce([{
+        columns,
+        values: [
+          // parcela atrasada de abril, ainda não paga
+          [1, 10, 1, 100, "2024-04-01 00:00:00", 0, null, "2024-01-01 00:00:00", null, "João", TipoDeEmprestimo.EMPRESTEI],
+          // parcela do mês selecionado (junho)
+          [2, 11, 1, 50, "2024-06-15 00:00:00", 0, null, "2024-01-01 00:00:00", null, "Maria", TipoDeEmprestimo.TOMEI_EMPRESTADO],
+        ],
+      }]);
+
+      const result = await repository.totaisDoMes(moment("2024-06-01").toDate());
+
+      expect(result.parcelasDoMes).toHaveLength(2);
+      expect(result.aReceber.toNumber()).toBe(100);
+      expect(result.aPagar.toNumber()).toBe(50);
+
+      const [query] = (db.exec as jest.Mock).mock.calls[0];
+      expect(query).toContain("p.pago IS NULL OR p.pago = 0");
+      expect(query).toContain("p.dataVencimento <= $fimDoMes");
     });
   });
 });
