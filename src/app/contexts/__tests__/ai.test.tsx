@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import React from "react";
 import { render, screen, waitFor, act } from "@testing-library/react";
-import { AiProvider, useAi } from "../ai";
+import { AiProvider, useAi, DEFAULT_MODEL, FALLBACK_MODELS } from "../ai";
 import { GOOGLE_GENERATIVE_AI_API_KEY } from "../../repositories/parametros";
 
 const generateTextMock = jest.fn();
@@ -9,6 +9,9 @@ const toolMock = jest.fn((config: any) => config);
 const stepCountIsMock = jest.fn((...args: any[]) => ({ __stepCountIs: args[0] }));
 const createGoogleGenerativeAIMock = jest.fn(() => (modelName: string) => ({ modelName }));
 
+// @ai-sdk/google, ai and zod are dynamically imported (import()) inside ai.tsx so they're only
+// fetched when the chat is actually used, not bundled/loaded globally. jest.mock intercepts both
+// static and dynamic import resolution, so these mocks work the same way as before.
 jest.mock("ai", () => ({
   generateText: (...args: any[]) => generateTextMock(...args),
   tool: (config: any) => toolMock(config),
@@ -18,6 +21,8 @@ jest.mock("ai", () => ({
 jest.mock("@ai-sdk/google", () => ({
   createGoogleGenerativeAI: (...args: any[]) => createGoogleGenerativeAIMock(...args),
 }));
+
+const fetchMock = jest.fn();
 
 let mockIsDbOk = false;
 let mockGetValorByKey = jest.fn();
@@ -48,6 +53,8 @@ describe("AiProvider / useAi", () => {
     mockGetValorByKey = jest.fn();
     mockRunReadOnlyQuery = jest.fn();
     delete (window as any).__google;
+    fetchMock.mockReset();
+    (global as any).fetch = fetchMock;
   });
 
   it("não fica pronto e não chama o modelo quando não há chave de API configurada", async () => {
@@ -71,7 +78,7 @@ describe("AiProvider / useAi", () => {
     expect(generateTextMock).not.toHaveBeenCalled();
   });
 
-  it("fica pronto e chama generateText com system/tools/messages corretos quando há chave configurada", async () => {
+  it("fica pronto e chama generateText com system/tools/messages corretos quando há chave configurada, usando o modelo default", async () => {
     mockIsDbOk = true;
     mockGetValorByKey.mockResolvedValue("fake-api-key");
     generateTextMock.mockResolvedValue({ text: "resposta do modelo" });
@@ -96,12 +103,33 @@ describe("AiProvider / useAi", () => {
 
     expect(callArgs.system).toBe("MOCKED_MARKDOWN_CONTENT");
     expect(callArgs.messages).toBe(messages);
+    expect(callArgs.model).toEqual({ modelName: DEFAULT_MODEL });
     expect(stepCountIsMock).toHaveBeenCalledWith(6);
     expect(callArgs.stopWhen).toEqual({ __stepCountIs: 6 });
     expect(callArgs.tools.consultarBancoDados).toBeDefined();
 
     await callArgs.tools.consultarBancoDados.execute({ sql: "SELECT * FROM transacoes" });
     expect(mockRunReadOnlyQuery).toHaveBeenCalledWith("SELECT * FROM transacoes");
+  });
+
+  it("usa o modelo informado explicitamente ao invés do default", async () => {
+    mockIsDbOk = true;
+    mockGetValorByKey.mockResolvedValue("fake-api-key");
+    generateTextMock.mockResolvedValue({ text: "resposta do modelo" });
+
+    let ai: ReturnType<typeof useAi> | undefined;
+
+    render(
+      <AiProvider>
+        <TestComponent onReady={(a) => { ai = a; }} />
+      </AiProvider>
+    );
+
+    await waitFor(() => expect(screen.getByText("ready")).toBeInTheDocument());
+
+    await act(() => ai!.askRelatoriosChat([{ role: "user", content: "oi" }], "gemini-3.5-pro"));
+
+    expect(generateTextMock.mock.calls[0][0].model).toEqual({ modelName: "gemini-3.5-pro" });
   });
 
   it("roteia erros do modelo (chave inválida, cota, rede) para o NotificationUtil sem lançar exceção", async () => {
@@ -125,5 +153,45 @@ describe("AiProvider / useAi", () => {
 
     expect(result).toBeUndefined();
     expect(notificationSendSpy).toHaveBeenCalled();
+  });
+
+  it("listAvailableModels retorna o fallback quando não há chave de API", async () => {
+    mockIsDbOk = true;
+    mockGetValorByKey.mockResolvedValue("");
+
+    let ai: ReturnType<typeof useAi> | undefined;
+
+    render(
+      <AiProvider>
+        <TestComponent onReady={(a) => { ai = a; }} />
+      </AiProvider>
+    );
+
+    await waitFor(() => expect(screen.getByText("not-ready")).toBeInTheDocument());
+
+    const models = await act(() => ai!.listAvailableModels());
+
+    expect(models).toEqual(FALLBACK_MODELS);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("listAvailableModels retorna o fallback e não chama a API do Google (busca de modelos desativada temporariamente)", async () => {
+    mockIsDbOk = true;
+    mockGetValorByKey.mockResolvedValue("fake-api-key");
+
+    let ai: ReturnType<typeof useAi> | undefined;
+
+    render(
+      <AiProvider>
+        <TestComponent onReady={(a) => { ai = a; }} />
+      </AiProvider>
+    );
+
+    await waitFor(() => expect(screen.getByText("ready")).toBeInTheDocument());
+
+    const models = await act(() => ai!.listAvailableModels());
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(models).toEqual(FALLBACK_MODELS);
   });
 });
