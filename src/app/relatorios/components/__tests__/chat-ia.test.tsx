@@ -22,6 +22,15 @@ jest.mock("../../../contexts/ai", () => ({
   }),
 }));
 
+// The real Input(type="mdtextarea") mounts EasyMDE/CodeMirror, which isn't meaningful
+// to exercise in jsdom. ChatIa only relies on Input's onChange(value)/value contract,
+// so stand in with a plain textarea that honors that same contract.
+jest.mock("../../../components/input", () => ({
+  Input: ({ onChange, value, ...props }: any) => (
+    <textarea {...props} value={value ?? ""} onChange={(e: any) => onChange(e.target.value)} />
+  ),
+}));
+
 // `marked`/`dompurify` aren't transformable in this project's Jest setup (ESM-only
 // build), so use a tiny stand-in that covers the markdown constructs exercised below.
 jest.mock("../../../utils/markdown", () => ({
@@ -57,7 +66,7 @@ describe("ChatIa", () => {
     render(<ChatIa />);
 
     await waitFor(() => expect(screen.getByText(/configure sua chave/i)).toBeInTheDocument());
-    expect(screen.queryByPlaceholderText(/Digite sua pergunta/i)).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/Escreva sua pergunta/i)).not.toBeInTheDocument();
   });
 
   it("permite enviar uma pergunta e renderiza a resposta do assistente", async () => {
@@ -66,7 +75,7 @@ describe("ChatIa", () => {
 
     render(<ChatIa />);
 
-    const textarea = await screen.findByPlaceholderText(/Digite sua pergunta/i);
+    const textarea = await screen.findByPlaceholderText(/Escreva sua pergunta/i);
 
     fireEvent.change(textarea, { target: { value: "Quanto gastei em julho?" } });
     fireEvent.click(screen.getByRole("button", { name: /enviar/i }));
@@ -83,7 +92,7 @@ describe("ChatIa", () => {
 
     render(<ChatIa />);
 
-    const textarea = await screen.findByPlaceholderText(/Digite sua pergunta/i);
+    const textarea = await screen.findByPlaceholderText(/Escreva sua pergunta/i);
 
     fireEvent.change(textarea, { target: { value: "Quais foram os maiores gastos?" } });
     fireEvent.click(screen.getByRole("button", { name: /enviar/i }));
@@ -102,7 +111,7 @@ describe("ChatIa", () => {
 
     render(<ChatIa />);
 
-    const textarea = await screen.findByPlaceholderText(/Digite sua pergunta/i);
+    const textarea = await screen.findByPlaceholderText(/Escreva sua pergunta/i);
 
     fireEvent.change(textarea, { target: { value: "Oi" } });
     fireEvent.click(screen.getByRole("button", { name: /enviar/i }));
@@ -119,7 +128,7 @@ describe("ChatIa", () => {
 
     render(<ChatIa />);
 
-    const textarea = await screen.findByPlaceholderText(/Digite sua pergunta/i);
+    const textarea = await screen.findByPlaceholderText(/Escreva sua pergunta/i);
 
     fireEvent.change(textarea, { target: { value: "Oi" } });
     fireEvent.click(screen.getByRole("button", { name: /enviar/i }));

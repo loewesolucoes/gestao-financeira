@@ -5,6 +5,7 @@ import { useStorage } from "../../contexts/storage";
 import { useAi, ChatMessage } from "../../contexts/ai";
 import { GOOGLE_GENERATIVE_AI_API_KEY } from "../../repositories/parametros";
 import { Loader } from "../../components/loader";
+import { Input } from "../../components/input";
 import { MarkdownUtils } from "../../utils/markdown";
 
 export function ChatIa() {
@@ -28,13 +29,6 @@ export function ChatIa() {
     const apiKey = await repository.params.getValorByKey(GOOGLE_GENERATIVE_AI_API_KEY);
 
     setHasApiKey(!!apiKey?.trim());
-  }
-
-  function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      handleSend();
-    }
   }
 
   async function handleSend() {
@@ -92,15 +86,16 @@ export function ChatIa() {
         <div ref={messagesEndRef} />
       </div>
       <div className="chat-ia-input d-flex flex-column gap-2">
-        <textarea
-          className="form-control"
-          rows={2}
-          placeholder="Digite sua pergunta (Enter para enviar, Shift+Enter para nova linha)"
-          value={input}
-          disabled={isLoading}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
+        <div className="chat-ia-mdtextarea flex-grow-1">
+          <Input
+            type="mdtextarea"
+            className="form-control"
+            id="chat-ia-pergunta"
+            placeholder="Escreva sua pergunta em markdown e clique em Enviar"
+            value={input}
+            onChange={setInput}
+          />
+        </div>
         <div className="d-flex gap-2">
           <button type="button" className="btn btn-secondary flex-grow-1" disabled={isLoading || !input.trim()} onClick={handleSend}>
             Enviar

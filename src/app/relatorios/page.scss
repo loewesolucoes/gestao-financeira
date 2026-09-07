@@ -46,4 +46,15 @@
   .chat-ia-notice {
     margin: 0;
   }
+
+  .chat-ia-mdtextarea {
+    .form-control {
+      min-height: 6rem;
+    }
+
+    .EasyMDEContainer .CodeMirror,
+    .EasyMDEContainer .CodeMirror-scroll {
+      max-height: 15vh;
+    }
+  }
 }
