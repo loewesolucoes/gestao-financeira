@@ -38,6 +38,11 @@ export const FALLBACK_MODELS: AiModelOption[] = [
   { id: 'gemini-3.5-pro', label: 'Gemini 3.5 Pro' },
 ];
 
+// Only the standard chat-oriented tiers the user cares about: pro, flash and flash-lite.
+// Excludes other generateContent-capable gemini variants (live, tts, image-generation,
+// computer-use, robotics, thinking/preview experiments, etc.) that don't fit this chat UI.
+const CHAT_MODEL_NAME_KEYWORDS = ['pro', 'flash', 'lite'];
+
 const AiContext = createContext({
   isReady: false,
   askRelatoriosChat: async (messages: ChatMessage[], model?: string): Promise<string | undefined> => {
@@ -83,8 +88,9 @@ export function AiProvider(props: any) {
   }
 
   // Lists the models actually available for this API key via the Generative Language REST API
-  // (no SDK needed for this, just fetch), filtered to gemini-* models that support generateContent.
-  // Falls back to a fixed list on any failure (network, CORS, invalid key, unexpected shape).
+  // (no SDK needed for this, just fetch), filtered to gemini-* models that support generateContent
+  // and match one of the standard chat tiers (pro/flash/lite). Falls back to a fixed list on any
+  // failure (network, CORS, invalid key, unexpected shape).
   async function listAvailableModels(): Promise<AiModelOption[]> {
     if (!apiKey) return FALLBACK_MODELS;
 
@@ -95,10 +101,14 @@ export function AiProvider(props: any) {
 
       const data = await response.json();
       const models: AiModelOption[] = (data?.models || [])
-        .filter((m: any) => typeof m?.name === 'string'
-          && m.name.includes('gemini')
-          && Array.isArray(m.supportedGenerationMethods)
-          && m.supportedGenerationMethods.includes('generateContent'))
+        .filter((m: any) => {
+          if (typeof m?.name !== 'string' || !m.name.includes('gemini')) return false;
+          if (!Array.isArray(m.supportedGenerationMethods) || !m.supportedGenerationMethods.includes('generateContent')) return false;
+
+          const nameLower = m.name.toLowerCase();
+
+          return CHAT_MODEL_NAME_KEYWORDS.some(keyword => nameLower.includes(keyword));
+        })
         .map((m: any) => ({ id: (m.name as string).replace(/^models\//, ''), label: m.displayName || m.name }));
 
       return models.length > 0 ? models : FALLBACK_MODELS;
