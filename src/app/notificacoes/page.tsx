@@ -3,12 +3,13 @@
 import "./page.scss";
 
 import { Layout } from "../shared/layout";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNotification } from "../contexts/notification";
 import { useLocation } from "../contexts/location";
 import { Loader } from "../components/loader";
 import { TipoDeNotificacao } from "../repositories/notificacoes";
 import { NotificacaoItem } from "./components/notificacao-item";
+import { useStorage } from "../contexts/storage";
 
 function tipoFromParam(value: string | null): TipoDeNotificacao {
   return value === 'mensagem' ? TipoDeNotificacao.MENSAGEM : TipoDeNotificacao.NOTIFICACAO;
@@ -19,8 +20,8 @@ function paramFromTipo(tipo: TipoDeNotificacao): string {
 }
 
 function NotificacoesPage() {
+  const { isDbOk, refresh } = useStorage();
   const {
-    isDbOk,
     itens,
     isLoadingItens,
     carregarNotificacoes,
@@ -29,16 +30,22 @@ function NotificacoesPage() {
     limparLidas,
   } = useNotification();
   const { params, redirectTo } = useLocation();
-  const tipo = tipoFromParam(params.get('tipo'));
+  const tipoParam = params.get('tipo');
+  const [tipo, setTipo] = useState<TipoDeNotificacao>(TipoDeNotificacao.NOTIFICACAO);
 
   useEffect(() => {
     document.title = `Notificações | ${process.env.NEXT_PUBLIC_TITLE}`
   }, []);
 
   useEffect(() => {
+    console.log('useEffect carregarNotificacoes', { isDbOk, tipo });
     isDbOk && carregarNotificacoes(tipo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDbOk, tipo]);
+
+  useEffect(() => {
+    setTipo(tipoFromParam(tipoParam));
+  }, [tipoParam]);
 
   function trocarTab(novoTipo: TipoDeNotificacao) {
     redirectTo(`/notificacoes?tipo=${paramFromTipo(novoTipo)}`);
@@ -49,7 +56,10 @@ function NotificacoesPage() {
       return;
 
     await limparLidas();
+    await refresh();
   }
+
+  console.log('render NotificacoesPage', { tipo, itens, isLoadingItens });
 
   const tituloAba = tipo === TipoDeNotificacao.MENSAGEM ? 'mensagem' : 'notificação';
   const existeNaoLida = itens.some(x => !x.lida);

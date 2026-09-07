@@ -47,20 +47,7 @@ export function NotificationProvider(props: any) {
   const [naoLidasMensagens, setNaoLidasMensagens] = useState<number>(0);
   const [itens, setItens] = useState<Notificacao[]>([]);
   const [isLoadingItens, setIsLoadingItens] = useState<boolean>(false);
-  const { isDbOk, repository } = useStorage();
-
-  // Refs para o listener do BroadcastChannel e para as funções de acesso ao repositório
-  // sempre enxergarem o repository/isDbOk mais recentes, sem precisar recriar o canal a
-  // cada mudança de estado. tipoAtualRef guarda o tipo atualmente carregado em `itens`,
-  // pra recarregar a mesma lista depois de uma mutação sem quem chamou precisar informar de novo.
-  const isDbOkRef = useRef(isDbOk);
-  const repositoryRef = useRef(repository);
-  const tipoAtualRef = useRef<TipoDeNotificacao | null>(null);
-
-  useEffect(() => {
-    isDbOkRef.current = isDbOk;
-    repositoryRef.current = repository;
-  }, [isDbOk, repository]);
+  const { isDbOk, repository, refresh } = useStorage();
 
   useEffect(() => {
     const broadcast = new BroadcastChannel(NotificationUtil.NOTIFICATION_BROADCAST_CHANNEL_KEY);
@@ -74,7 +61,7 @@ export function NotificationProvider(props: any) {
 
     return () => broadcast.close();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isDbOk]);
 
   useEffect(() => {
     isDbOk && carregarDoBanco();
@@ -94,12 +81,14 @@ export function NotificationProvider(props: any) {
   }
 
   async function refreshContadores() {
-    if (!isDbOkRef.current || !repositoryRef.current?.notificacoes)
+    if (!isDbOk || !repository?.notificacoes) {
+      console.warn('banco ainda não está pronto');
       return;
+    }
 
     const [notificacoes, mensagens] = await Promise.all([
-      repositoryRef.current.notificacoes.countUnread(TipoDeNotificacao.NOTIFICACAO),
-      repositoryRef.current.notificacoes.countUnread(TipoDeNotificacao.MENSAGEM),
+      repository.notificacoes.countUnread(TipoDeNotificacao.NOTIFICACAO),
+      repository.notificacoes.countUnread(TipoDeNotificacao.MENSAGEM),
     ]);
 
     setNaoLidasNotificacoes(notificacoes);
@@ -107,7 +96,7 @@ export function NotificationProvider(props: any) {
   }
 
   async function persistirNotificacaoRecebida(payload: NotificationBroadcastPayload) {
-    if (!isDbOkRef.current || !repositoryRef.current?.notificacoes) {
+    if (!isDbOk || !repository?.notificacoes) {
       console.warn('banco ainda não está pronto, notificação recebida não será persistida:', payload);
       return;
     }
@@ -115,7 +104,7 @@ export function NotificationProvider(props: any) {
     const tipo = payload.tipo ?? TipoDeNotificacao.NOTIFICACAO;
 
     try {
-      await repositoryRef.current.notificacoes.save(TableNames.NOTIFICACOES, {
+      await repository.notificacoes.save(TableNames.NOTIFICACOES, {
         tipo,
         titulo: payload.titulo,
         descricao: payload.message,
@@ -124,36 +113,20 @@ export function NotificationProvider(props: any) {
       });
 
       await refreshContadores();
-
-      // Se a aba de notificações estiver aberta no mesmo tipo recebido, atualiza a lista na hora.
-      if (tipoAtualRef.current === tipo)
-        await recarregarItens();
+      await refresh();
     } catch (ex) {
       console.error('erro ao persistir notificação recebida:', ex);
     }
   }
 
-  // Recarrega `itens` com o tipo atualmente exibido (guardado em tipoAtualRef), usado após
-  // qualquer mutação (marcar como lida, limpar lidas etc.) pra manter a lista compartilhada em dia.
-  async function recarregarItens() {
-    if (!isDbOkRef.current || !repositoryRef.current?.notificacoes || tipoAtualRef.current === null)
-      return;
-
-    const result = await repositoryRef.current.notificacoes.listByTipo(tipoAtualRef.current);
-
-    setItens(result);
-  }
-
   async function carregarNotificacoes(tipo: TipoDeNotificacao) {
-    tipoAtualRef.current = tipo;
-
-    if (!isDbOkRef.current || !repositoryRef.current?.notificacoes)
+    if (!isDbOk || !repository?.notificacoes)
       return;
 
     setIsLoadingItens(true);
 
     try {
-      const result = await repositoryRef.current.notificacoes.listByTipo(tipo);
+      const result = await repository.notificacoes.listByTipo(tipo);
 
       setItens(result);
     } finally {
@@ -162,36 +135,33 @@ export function NotificationProvider(props: any) {
   }
 
   async function marcarComoLida(id: number) {
-    if (!repositoryRef.current?.notificacoes)
+    if (!repository?.notificacoes)
       return;
 
-    await repositoryRef.current.notificacoes.marcarComoLida(id);
-    await recarregarItens();
+    await repository.notificacoes.marcarComoLida(id);
     await refreshContadores();
+    await refresh();
   }
 
   async function marcarTodasComoLidas(tipo: TipoDeNotificacao) {
-    if (!repositoryRef.current?.notificacoes)
+    if (!repository?.notificacoes)
       return;
 
-    await repositoryRef.current.notificacoes.marcarTodasComoLidas(tipo);
-    await recarregarItens();
+    await repository.notificacoes.marcarTodasComoLidas(tipo);
     await refreshContadores();
   }
 
   async function limparLidas(diasRetencao?: number) {
-    if (!repositoryRef.current?.notificacoes)
+    if (!repository?.notificacoes)
       return;
 
-    await repositoryRef.current.notificacoes.limparLidas(diasRetencao);
-    await recarregarItens();
+    await repository.notificacoes.limparLidas(diasRetencao);
     await refreshContadores();
   }
 
   return (
     <NotificationContext.Provider
       value={{
-        isDbOk,
         notifications,
         naoLidasNotificacoes,
         naoLidasMensagens,
