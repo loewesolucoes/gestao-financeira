@@ -47,6 +47,19 @@
     margin: 0;
   }
 
+  .chat-ia-model-select {
+    width: auto;
+  }
+
+  .chat-ia-suggestion-btn {
+    text-align: left;
+    white-space: normal;
+  }
+
+  .chat-ia-loading-text {
+    font-size: 0.9rem;
+  }
+
   .chat-ia-mdtextarea {
     .form-control {
       min-height: 6rem;

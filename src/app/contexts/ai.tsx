@@ -9,9 +9,6 @@ declare global {
 }
 
 import React, { createContext, useEffect, useState } from "react"
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { generateText, stepCountIs, tool } from 'ai';
-import { z } from 'zod';
 import { useStorage } from "./storage";
 import { GOOGLE_GENERATIVE_AI_API_KEY } from "../repositories/parametros";
 import { NotificationUtil } from "../utils/notification";
@@ -22,52 +19,108 @@ export interface ChatMessage {
   content: string
 }
 
+export interface AiModelOption {
+  id: string
+  label: string
+}
+
 // Caps sequential tool-call round-trips (model -> consultarBancoDados -> model -> ...) to bound
 // latency/cost and avoid runaway loops.
 const MAX_STEPS = 6;
 
+export const DEFAULT_MODEL = 'gemini-3.5-flash-lite';
+
+// Used both as the initial select options (before listAvailableModels() resolves) and as the
+// fallback when the Google API model-listing request fails.
+export const FALLBACK_MODELS: AiModelOption[] = [
+  { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash Lite' },
+  { id: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash' },
+  { id: 'gemini-3.5-pro', label: 'Gemini 3.5 Pro' },
+];
+
 const AiContext = createContext({
   isReady: false,
-  askRelatoriosChat: async (messages: ChatMessage[]): Promise<string | undefined> => {
+  askRelatoriosChat: async (messages: ChatMessage[], model?: string): Promise<string | undefined> => {
     console.warn("askRelatoriosChat not implemented");
     return undefined;
+  },
+  listAvailableModels: async (): Promise<AiModelOption[]> => {
+    console.warn("listAvailableModels not implemented");
+    return FALLBACK_MODELS;
   },
 });
 
 export function AiProvider(props: any) {
   const { repository, isDbOk } = useStorage();
   const [isReady, setIsReady] = useState(false);
+  const [apiKey, setApiKey] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     isDbOk && load();
   }, [isDbOk]);
 
+  // Only checks whether an API key is configured. Does NOT create the Google client or import
+  // any AI library here: this effect runs on every page (AiProvider wraps the whole app), so
+  // pulling in @ai-sdk/google/ai/zod here would load them globally again. Those heavy libs are
+  // dynamically imported only inside askRelatoriosChat/getGoogleClient, i.e. when the chat is
+  // actually used.
   async function load() {
-    const apiKey = await repository.params.getValorByKey(GOOGLE_GENERATIVE_AI_API_KEY);
+    const key = await repository.params.getValorByKey(GOOGLE_GENERATIVE_AI_API_KEY);
+    const trimmedKey = key?.trim() || undefined;
 
-    if (!apiKey?.trim()) {
-      setIsReady(false);
-      return;
-    }
-
-    if (window.__google == null) {
-      window.__google = createGoogleGenerativeAI({ apiKey });
-    }
-
-    setIsReady(true);
+    setApiKey(trimmedKey);
+    setIsReady(!!trimmedKey);
   }
 
-  async function askRelatoriosChat(messages: ChatMessage[]): Promise<string | undefined> {
-    const google = window.__google;
+  async function getGoogleClient(key: string) {
+    if (window.__google == null) {
+      const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
 
-    if (google == null || !isReady) {
+      window.__google = createGoogleGenerativeAI({ apiKey: key });
+    }
+
+    return window.__google;
+  }
+
+  // Lists the models actually available for this API key via the Generative Language REST API
+  // (no SDK needed for this, just fetch), filtered to gemini-* models that support generateContent.
+  // Falls back to a fixed list on any failure (network, CORS, invalid key, unexpected shape).
+  async function listAvailableModels(): Promise<AiModelOption[]> {
+    if (!apiKey) return FALLBACK_MODELS;
+
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+
+      if (!response.ok) return FALLBACK_MODELS;
+
+      const data = await response.json();
+      const models: AiModelOption[] = (data?.models || [])
+        .filter((m: any) => typeof m?.name === 'string'
+          && m.name.includes('gemini')
+          && Array.isArray(m.supportedGenerationMethods)
+          && m.supportedGenerationMethods.includes('generateContent'))
+        .map((m: any) => ({ id: (m.name as string).replace(/^models\//, ''), label: m.displayName || m.name }));
+
+      return models.length > 0 ? models : FALLBACK_MODELS;
+    } catch (error) {
+      console.error('listAvailableModels error:', error);
+      return FALLBACK_MODELS;
+    }
+  }
+
+  async function askRelatoriosChat(messages: ChatMessage[], model: string = DEFAULT_MODEL): Promise<string | undefined> {
+    if (!apiKey || !isReady) {
       NotificationUtil.send(`Chave da API do Google Generative AI não configurada. Configure em Configurações > Parâmetros (${GOOGLE_GENERATIVE_AI_API_KEY}).`);
       return undefined;
     }
 
     try {
+      const google = await getGoogleClient(apiKey);
+      const { generateText, stepCountIs, tool } = await import('ai');
+      const { z } = await import('zod');
+
       const { text } = await generateText({
-        model: google('gemini-3.5-flash-lite'),
+        model: google(model),
         system: systemPrompt,
         messages,
         stopWhen: stepCountIs(MAX_STEPS),
@@ -95,6 +148,7 @@ export function AiProvider(props: any) {
       value={{
         isReady,
         askRelatoriosChat,
+        listAvailableModels,
       }}
       {...props}
     />
