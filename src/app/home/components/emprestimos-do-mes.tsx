@@ -9,12 +9,13 @@ interface EmprestimosDoMesProps {
 }
 
 export function EmprestimosDoMes({ totais, yearAndMonth }: EmprestimosDoMesProps) {
-  const { aReceber, aPagar, parcelasDoMes } = totais || {};
+  const { aReceber, aPagar, parcelasDoMes, parcelasPagasNoMes } = totais || {};
 
   const parcelasAReceber = parcelasDoMes?.filter(p => p.tipo === TipoDeEmprestimo.EMPRESTEI) || [];
   const parcelasAPagar = parcelasDoMes?.filter(p => p.tipo === TipoDeEmprestimo.TOMEI_EMPRESTADO) || [];
 
   const semParcelas = parcelasAReceber.length === 0 && parcelasAPagar.length === 0;
+  const parcelasQuitadas = parcelasPagasNoMes || [];
 
   return (
     <section className="card card-emprestimos card-material-1">
@@ -40,6 +41,20 @@ export function EmprestimosDoMes({ totais, yearAndMonth }: EmprestimosDoMesProps
               </div>
             </div>
           )}
+        {parcelasQuitadas.length > 0 && (
+          <div className="mt-3">
+            <h5>Recebido/pago este mês</h5>
+            <ul className="list-group">
+              {parcelasQuitadas.map(parcela => (
+                <li key={parcela.id} className="list-group-item d-flex justify-content-between align-items-center gap-3 list-group-item-success">
+                  <span>{parcela.pessoa}</span>
+                  <span>{NumberUtil.toCurrency(parcela.valor)}</span>
+                  <span className="badge bg-dark">{parcela.tipo === TipoDeEmprestimo.EMPRESTEI ? 'Recebido' : 'Pago'}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </section>
   )

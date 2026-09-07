@@ -30,6 +30,7 @@ export interface EmprestimoParcelas extends DefaultFields {
   dataVencimento: Date
   pago?: boolean
   dataPagamento?: Date
+  comentario?: string
 }
 
 export interface EmprestimoComParcelas extends Emprestimos {
@@ -41,6 +42,7 @@ export interface TotaisEmprestimosDoMes {
   aReceber: BigNumber
   aPagar: BigNumber
   parcelasDoMes: (EmprestimoParcelas & { pessoa?: string; tipo: TipoDeEmprestimo })[]
+  parcelasPagasNoMes: (EmprestimoParcelas & { pessoa?: string; tipo: TipoDeEmprestimo })[]
 }
 
 export class EmprestimosRepository extends DefaultRepository {
@@ -100,7 +102,7 @@ export class EmprestimosRepository extends DefaultRepository {
     return this.updateParcela({ ...parcela, pago, dataPagamento: pago ? new Date() : null } as any);
   }
 
-  public async editarParcela(parcelaId: number, data: Partial<Pick<EmprestimoParcelas, 'valor' | 'dataVencimento'>>): Promise<EmprestimoParcelas> {
+  public async editarParcela(parcelaId: number, data: Partial<Pick<EmprestimoParcelas, 'valor' | 'dataVencimento' | 'comentario'>>): Promise<EmprestimoParcelas> {
     const parcela = await this.getParcela(parcelaId);
 
     return this.updateParcela({ ...parcela, ...data });
@@ -144,7 +146,14 @@ export class EmprestimosRepository extends DefaultRepository {
     const result = await this.db.exec(query, { "$month": moment(yearAndMonth).format('MM'), "$year": moment(yearAndMonth).format('YYYY'), "$fimDoMes": fimDoMes });
 
     const mapper = { ...this.PARCELAS_MAPPING, tipo: MapperTypes.NUMBER };
-    const parcelasDoMes = (this.parseSqlResultToObj(result, mapper)[0] || []) as (EmprestimoParcelas & { pessoa?: string; tipo: TipoDeEmprestimo })[];
+    const parcelasDoPeriodo = (this.parseSqlResultToObj(result, mapper)[0] || []) as (EmprestimoParcelas & { pessoa?: string; tipo: TipoDeEmprestimo })[];
+
+    // Parcelas ainda não pagas alimentam os totais "em aberto"; as já pagas
+    // com vencimento no mês selecionado saem dos totais e são expostas à
+    // parte (parcelas pagas de meses anteriores nem chegam aqui, pois a
+    // query já as filtra fora — ver comentário acima).
+    const parcelasDoMes = parcelasDoPeriodo.filter(p => !p.pago);
+    const parcelasPagasNoMes = parcelasDoPeriodo.filter(p => p.pago);
 
     const aReceber = parcelasDoMes
       .filter(p => p.tipo === TipoDeEmprestimo.EMPRESTEI)
@@ -154,7 +163,7 @@ export class EmprestimosRepository extends DefaultRepository {
       .filter(p => p.tipo === TipoDeEmprestimo.TOMEI_EMPRESTADO)
       .reduce((acc, p) => acc.plus(p.valor ?? 0), BigNumber(0));
 
-    return { aReceber, aPagar, parcelasDoMes };
+    return { aReceber, aPagar, parcelasDoMes, parcelasPagasNoMes };
   }
 
   private async listParcelasByEmprestimo(emprestimoId: number): Promise<EmprestimoParcelas[]> {

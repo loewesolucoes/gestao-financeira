@@ -18,6 +18,7 @@ import categoriaTransacoesCreateSql from "./sql/categoria-transacoes/001_create.
 
 import emprestimosCreateSql from "./sql/emprestimos/001_create.sql";
 import emprestimoParcelasCreateSql from "./sql/emprestimo-parcelas/001_create.sql";
+import emprestimoParcelasAddComentarioSql from "./sql/emprestimo-parcelas/002_add_comentario.sql";
 
 // A single guarded schema migration. `name` is the stable id stored in the
 // `migrations` tracking table — for migrations that already shipped, this
@@ -80,4 +81,5 @@ export const ALL_MIGRATIONS: Migration[] = [
   // since it declares a foreign key referencing the "emprestimos" table.
   { name: "emprestimos", run: (db) => importAndExec(db, emprestimosCreateSql) },
   { name: "emprestimo_parcelas", run: (db) => importAndExec(db, emprestimoParcelasCreateSql) },
+  { name: "emprestimo_parcelas_campo_comentario", run: (db) => importAndExec(db, emprestimoParcelasAddComentarioSql) },
 ];

@@ -21,6 +21,24 @@ jest.mock("../../../contexts/storage", () => ({
   }),
 }));
 
+// `marked` isn't transformable in this project's Jest setup (ESM-only build)
+// — see relatorios/components/__tests__/chat-ia.test.tsx.
+jest.mock("../../../utils/markdown", () => ({
+  MarkdownUtils: {
+    render: (text: string) => text || "",
+  },
+}));
+
+// The real MDTextArea mounts EasyMDE/CodeMirror, which crashes under jsdom
+// once given non-empty initial text (CodeMirror's bidi detection needs a real
+// Range.getBoundingClientRect). Stand in with a plain textarea honoring the
+// same onChangeInput/inputValue contract — same workaround as chat-ia.test.tsx.
+jest.mock("../../../components/md-text-area", () => ({
+  MDTextArea: ({ onChangeInput, inputValue, otherProps }: any) => (
+    <textarea onChange={onChangeInput} value={inputValue ?? ""} {...otherProps} />
+  ),
+}));
+
 describe("EmprestimoParcelasList", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -70,5 +88,37 @@ describe("EmprestimoParcelasList", () => {
     const [parcelaId, data] = editarParcela.mock.calls[0];
     expect(parcelaId).toBe(1);
     expect(data.valor.toNumber()).toBe(150);
+  });
+
+  it("exibe o campo de comentário ao editar uma parcela e mantém o valor atual ao salvar", async () => {
+    const parcelas = buildParcelas();
+    parcelas[0].comentario = "pago com atraso";
+
+    render(<EmprestimoParcelasList parcelas={parcelas} />);
+
+    fireEvent.click(screen.getAllByText("Editar")[0]);
+
+    expect(screen.getByPlaceholderText(/Comentário/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Salvar"));
+
+    await waitFor(() => expect(editarParcela).toHaveBeenCalled());
+    const [, data] = editarParcela.mock.calls[0];
+    expect(data.comentario).toBe("pago com atraso");
+  });
+
+  it("exibe o comentário renderizado na linha da parcela quando presente", () => {
+    const parcelas = buildParcelas();
+    parcelas[0].comentario = "nota da parcela";
+
+    render(<EmprestimoParcelasList parcelas={parcelas} />);
+
+    expect(screen.getByText("nota da parcela")).toBeInTheDocument();
+  });
+
+  it("não exibe nenhum comentário quando a parcela não tem um", () => {
+    render(<EmprestimoParcelasList parcelas={buildParcelas()} />);
+
+    expect(screen.queryByText(/nota da parcela/i)).not.toBeInTheDocument();
   });
 });

@@ -20,7 +20,7 @@ function createDbMock(): jest.Mocked<IDatabase> {
 }
 
 function parcelasResult(parcelas: any[]) {
-  const columns = ["id", "emprestimoId", "numero", "valor", "dataVencimento", "pago", "dataPagamento", "createdDate", "updatedDate"];
+  const columns = ["id", "emprestimoId", "numero", "valor", "dataVencimento", "pago", "dataPagamento", "comentario", "createdDate", "updatedDate"];
 
   return [{
     columns,
@@ -195,6 +195,20 @@ describe("EmprestimosRepository", () => {
       expect(updateParams.$numero).toBe(2);
       expect(updateParams.$emprestimoId).toBe(1);
     });
+
+    it("persiste o comentário da parcela", async () => {
+      (db.exec as jest.Mock)
+        .mockResolvedValueOnce(parcelasResult([{ id: 2, emprestimoId: 1, numero: 2, valor: 100, dataVencimento: "2024-02-01 00:00:00", pago: 0 }])) // getParcela
+        .mockResolvedValueOnce([]) // update
+        .mockResolvedValueOnce(parcelasResult([{ id: 2, emprestimoId: 1, numero: 2, valor: 100, dataVencimento: "2024-02-01 00:00:00", pago: 0, comentario: "pago parcial" }])); // refetch
+
+      const result = await repository.editarParcela(2, { comentario: "pago parcial" });
+
+      expect(result.comentario).toBe("pago parcial");
+
+      const [, updateParams] = (db.exec as jest.Mock).mock.calls[1];
+      expect(updateParams.$comentario).toBe("pago parcial");
+    });
   });
 
   describe("cancelar", () => {
@@ -288,6 +302,44 @@ describe("EmprestimosRepository", () => {
       const [query] = (db.exec as jest.Mock).mock.calls[0];
       expect(query).toContain("p.pago IS NULL OR p.pago = 0");
       expect(query).toContain("p.dataVencimento <= $fimDoMes");
+    });
+
+    it("move parcela já paga do mês selecionado para parcelasPagasNoMes e a exclui dos totais em aberto", async () => {
+      const columns = ["id", "emprestimoId", "numero", "valor", "dataVencimento", "pago", "dataPagamento", "comentario", "createdDate", "updatedDate", "pessoa", "tipo"];
+      (db.exec as jest.Mock).mockResolvedValueOnce([{
+        columns,
+        values: [
+          // parcela do mês selecionado, já paga
+          [1, 10, 1, 100, "2024-06-01 00:00:00", 1, "2024-06-02 00:00:00", null, "2024-01-01 00:00:00", null, "João", TipoDeEmprestimo.EMPRESTEI],
+          // parcela do mês selecionado, ainda em aberto
+          [2, 11, 1, 50, "2024-06-15 00:00:00", 0, null, null, "2024-01-01 00:00:00", null, "Maria", TipoDeEmprestimo.TOMEI_EMPRESTADO],
+        ],
+      }]);
+
+      const result = await repository.totaisDoMes(moment("2024-06-01").toDate());
+
+      // a parcela paga sai do total "em aberto" e da lista parcelasDoMes...
+      expect(result.aReceber.toNumber()).toBe(0);
+      expect(result.aPagar.toNumber()).toBe(50);
+      expect(result.parcelasDoMes).toHaveLength(1);
+      expect(result.parcelasDoMes[0].id).toBe(2);
+
+      // ...e passa a aparecer em parcelasPagasNoMes
+      expect(result.parcelasPagasNoMes).toHaveLength(1);
+      expect(result.parcelasPagasNoMes[0].id).toBe(1);
+      expect(result.parcelasPagasNoMes[0].pessoa).toBe("João");
+    });
+
+    it("não inclui em nenhuma lista uma parcela atrasada de mês anterior que já foi paga", async () => {
+      // A query já filtra fora parcelas pagas de meses anteriores (só traz
+      // atrasadas *não pagas*), então uma parcela atrasada e paga nunca
+      // chega ao resultado — simulando isso diretamente aqui.
+      (db.exec as jest.Mock).mockResolvedValueOnce([{ columns: ["id"], values: [] }]);
+
+      const result = await repository.totaisDoMes(moment("2024-06-01").toDate());
+
+      expect(result.parcelasDoMes).toEqual([]);
+      expect(result.parcelasPagasNoMes).toEqual([]);
     });
   });
 });

@@ -9,7 +9,7 @@ jest.mock('@material-design-icons/svg/two-tone/local_atm.svg', () => 'svg', { vi
 
 describe("EmprestimosDoMes", () => {
   it("mostra o estado vazio quando não há parcelas no mês", () => {
-    render(<EmprestimosDoMes totais={{ aReceber: BigNumber(0), aPagar: BigNumber(0), parcelasDoMes: [] }} yearAndMonth={new Date(2024, 5, 1)} />);
+    render(<EmprestimosDoMes totais={{ aReceber: BigNumber(0), aPagar: BigNumber(0), parcelasDoMes: [], parcelasPagasNoMes: [] }} yearAndMonth={new Date(2024, 5, 1)} />);
 
     expect(screen.getByText(/Nenhuma parcela de empréstimo em aberto/i)).toBeInTheDocument();
   });
@@ -22,6 +22,7 @@ describe("EmprestimosDoMes", () => {
         { id: 1, tipo: TipoDeEmprestimo.EMPRESTEI, valor: BigNumber(300) } as any,
         { id: 2, tipo: TipoDeEmprestimo.TOMEI_EMPRESTADO, valor: BigNumber(150) } as any,
       ],
+      parcelasPagasNoMes: [],
     };
 
     render(<EmprestimosDoMes totais={totais} yearAndMonth={new Date(2024, 5, 1)} />);
@@ -41,11 +42,45 @@ describe("EmprestimosDoMes", () => {
       parcelasDoMes: [
         { id: 1, tipo: TipoDeEmprestimo.EMPRESTEI, valor: BigNumber(100) } as any,
       ],
+      parcelasPagasNoMes: [],
     };
 
     render(<EmprestimosDoMes totais={totais} yearAndMonth={new Date(2024, 5, 1)} />);
 
     expect(screen.getByText(/R\$\s*100,00/)).toBeInTheDocument();
     expect(screen.getByText("0 parcela(s)")).toBeInTheDocument();
+  });
+
+  it("não mostra a seção de recebido/pago quando não há parcelas quitadas no mês", () => {
+    const totais = {
+      aReceber: BigNumber(100),
+      aPagar: BigNumber(0),
+      parcelasDoMes: [{ id: 1, tipo: TipoDeEmprestimo.EMPRESTEI, valor: BigNumber(100) } as any],
+      parcelasPagasNoMes: [],
+    };
+
+    render(<EmprestimosDoMes totais={totais} yearAndMonth={new Date(2024, 5, 1)} />);
+
+    expect(screen.queryByText(/Recebido\/pago este mês/i)).not.toBeInTheDocument();
+  });
+
+  it("lista as parcelas já recebidas/pagas no mês numa seção separada, fora dos totais em aberto", () => {
+    const totais = {
+      aReceber: BigNumber(0),
+      aPagar: BigNumber(0),
+      parcelasDoMes: [],
+      parcelasPagasNoMes: [
+        { id: 1, pessoa: "João", tipo: TipoDeEmprestimo.EMPRESTEI, valor: BigNumber(300) } as any,
+        { id: 2, pessoa: "Maria", tipo: TipoDeEmprestimo.TOMEI_EMPRESTADO, valor: BigNumber(150) } as any,
+      ],
+    };
+
+    render(<EmprestimosDoMes totais={totais} yearAndMonth={new Date(2024, 5, 1)} />);
+
+    expect(screen.getByText(/Recebido\/pago este mês/i)).toBeInTheDocument();
+    expect(screen.getByText("João")).toBeInTheDocument();
+    expect(screen.getByText("Recebido")).toBeInTheDocument();
+    expect(screen.getByText("Maria")).toBeInTheDocument();
+    expect(screen.getByText("Pago")).toBeInTheDocument();
   });
 });
