@@ -175,21 +175,9 @@ describe("AiProvider / useAi", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("listAvailableModels busca modelos gemini com generateContent na API do Google, mantendo só pro/flash/lite", async () => {
+  it("listAvailableModels retorna o fallback e não chama a API do Google (busca de modelos desativada temporariamente)", async () => {
     mockIsDbOk = true;
     mockGetValorByKey.mockResolvedValue("fake-api-key");
-    fetchMock.mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        models: [
-          { name: "models/gemini-3.5-flash-lite", displayName: "Gemini 3.5 Flash Lite", supportedGenerationMethods: ["generateContent"] },
-          { name: "models/gemini-3.5-pro", displayName: "Gemini 3.5 Pro", supportedGenerationMethods: ["generateContent"] },
-          { name: "models/gemini-embedding-001", displayName: "Gemini Embedding", supportedGenerationMethods: ["embedContent"] },
-          { name: "models/aqa", displayName: "AQA", supportedGenerationMethods: ["generateContent"] },
-          { name: "models/gemini-2.5-computer-use", displayName: "Gemini Computer Use", supportedGenerationMethods: ["generateContent"] },
-        ],
-      }),
-    });
 
     let ai: ReturnType<typeof useAi> | undefined;
 
@@ -203,30 +191,7 @@ describe("AiProvider / useAi", () => {
 
     const models = await act(() => ai!.listAvailableModels());
 
-    expect(fetchMock).toHaveBeenCalledWith("https://generativelanguage.googleapis.com/v1beta/models?key=fake-api-key");
-    expect(models).toEqual([
-      { id: "gemini-3.5-flash-lite", label: "Gemini 3.5 Flash Lite" },
-      { id: "gemini-3.5-pro", label: "Gemini 3.5 Pro" },
-    ]);
-  });
-
-  it("listAvailableModels retorna o fallback quando a requisição falha", async () => {
-    mockIsDbOk = true;
-    mockGetValorByKey.mockResolvedValue("fake-api-key");
-    fetchMock.mockRejectedValue(new Error("network error"));
-
-    let ai: ReturnType<typeof useAi> | undefined;
-
-    render(
-      <AiProvider>
-        <TestComponent onReady={(a) => { ai = a; }} />
-      </AiProvider>
-    );
-
-    await waitFor(() => expect(screen.getByText("ready")).toBeInTheDocument());
-
-    const models = await act(() => ai!.listAvailableModels());
-
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(models).toEqual(FALLBACK_MODELS);
   });
 });
