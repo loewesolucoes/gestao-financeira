@@ -46,7 +46,13 @@ describe("runMigrations() against a real pre-refactor exported DB fixture", () =
     const before = sqlJsDb.exec(`SELECT name FROM "migrations" ORDER BY "id"`);
     const namesBefore = (before[0] ? before[0].values : []).map((v) => v[0]);
 
-    expect(namesBefore).toEqual(migrationsSnapshot.orderedMigrationNames);
+    // The fixture predates the `notificacoes` migrations (spec 011), so it
+    // only has the migrations up to that point already applied.
+    const preExistingMigrationNames = migrationsSnapshot.orderedMigrationNames.filter(
+      (name) => !["notificacoes", "notificacoes_seed_mensagens"].includes(name)
+    );
+
+    expect(namesBefore).toEqual(preExistingMigrationNames);
 
     const db = new InMemorySqlJsDatabase(sqlJsDb);
     const repo = new DefaultRepository(db);

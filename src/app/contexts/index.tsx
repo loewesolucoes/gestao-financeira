@@ -15,21 +15,21 @@ export function AppProviders({ children }: any) {
   return (
     <ErrorHandlerProvider>
       <EnvProvider>
-        <NotificationProvider>
-          <LocationProvider>
-            <LoggingProvider>
-              <AuthProvider>
-                <StorageProvider>
+        <LocationProvider>
+          <LoggingProvider>
+            <AuthProvider>
+              <StorageProvider>
+                <NotificationProvider>
                   <AiProvider>
                     <ThemeProvider>
                       {children}
                     </ThemeProvider>
                   </AiProvider>
-                </StorageProvider>
-              </AuthProvider>
-            </LoggingProvider>
-          </LocationProvider>
-        </NotificationProvider>
+                </NotificationProvider>
+              </StorageProvider>
+            </AuthProvider>
+          </LoggingProvider>
+        </LocationProvider>
       </EnvProvider>
     </ErrorHandlerProvider>
   )

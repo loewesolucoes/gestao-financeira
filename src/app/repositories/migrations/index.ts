@@ -19,6 +19,8 @@ import categoriaTransacoesCreateSql from "./sql/categoria-transacoes/001_create.
 import emprestimosCreateSql from "./sql/emprestimos/001_create.sql";
 import emprestimoParcelasCreateSql from "./sql/emprestimo-parcelas/001_create.sql";
 import emprestimoParcelasAddComentarioSql from "./sql/emprestimo-parcelas/002_add_comentario.sql";
+import notificacoesCreateSql from "./sql/notificacoes/001_create.sql";
+import notificacoesSeedMensagensSql from "./sql/notificacoes/002_seed_mensagens.sql";
 
 // A single guarded schema migration. `name` is the stable id stored in the
 // `migrations` tracking table — for migrations that already shipped, this
@@ -82,4 +84,8 @@ export const ALL_MIGRATIONS: Migration[] = [
   { name: "emprestimos", run: (db) => importAndExec(db, emprestimosCreateSql) },
   { name: "emprestimo_parcelas", run: (db) => importAndExec(db, emprestimoParcelasCreateSql) },
   { name: "emprestimo_parcelas_campo_comentario", run: (db) => importAndExec(db, emprestimoParcelasAddComentarioSql) },
+  
+  // notificacoes (new table, must run after all previously-shipped migrations above)
+  { name: "notificacoes", run: (db) => importAndExec(db, notificacoesCreateSql) },
+  { name: "notificacoes_seed_mensagens", run: (db) => importAndExec(db, notificacoesSeedMensagensSql) },
 ];
