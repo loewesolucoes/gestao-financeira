@@ -5,6 +5,7 @@ import "./page.scss";
 import { Layout } from "../shared/layout";
 import { useEffect, useState } from "react";
 import { useStorage } from "../contexts/storage";
+import { useNotification } from "../contexts/notification";
 import { useLocation } from "../contexts/location";
 import { Loader } from "../components/loader";
 import { Notificacao, TipoDeNotificacao } from "../repositories/notificacoes";
@@ -20,6 +21,7 @@ function paramFromTipo(tipo: TipoDeNotificacao): string {
 
 function NotificacoesPage() {
   const { isDbOk, repository } = useStorage();
+  const { refreshContadores } = useNotification();
   const { params, redirectTo } = useLocation();
   const tipo = tipoFromParam(params.get('tipo'));
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -50,11 +52,13 @@ function NotificacoesPage() {
   async function marcarComoLida(id: number) {
     await repository.notificacoes.marcarComoLida(id);
     await load();
+    await refreshContadores();
   }
 
   async function marcarTodasComoLidas() {
     await repository.notificacoes.marcarTodasComoLidas(tipo);
     await load();
+    await refreshContadores();
   }
 
   async function limparLidas() {
@@ -63,6 +67,7 @@ function NotificacoesPage() {
 
     await repository.notificacoes.limparLidas();
     await load();
+    await refreshContadores();
   }
 
   const tituloAba = tipo === TipoDeNotificacao.MENSAGEM ? 'mensagem' : 'notificação';

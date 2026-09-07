@@ -9,31 +9,13 @@ import IconCog from '@material-design-icons/svg/filled/settings.svg';
 import { ThemeSelector } from "./theme-selector";
 import { AuthButton } from "./auth-button";
 import { useAuth } from "../contexts/auth";
-import { useStorage } from "../contexts/storage";
-import { TipoDeNotificacao } from "../repositories/notificacoes";
+import { useNotification } from "../contexts/notification";
 import { Loader } from "./loader";
-import { useEffect, useState } from "react";
 
 
 function UserInfo() {
   const { userInfo, isLoadingAuth } = useAuth();
-  const { isDbOk, repository } = useStorage();
-  const [naoLidasNotificacoes, setNaoLidasNotificacoes] = useState<number>(0);
-  const [naoLidasMensagens, setNaoLidasMensagens] = useState<number>(0);
-
-  useEffect(() => {
-    isDbOk && loadContadores();
-  }, [isDbOk]);
-
-  async function loadContadores() {
-    const [notificacoes, mensagens] = await Promise.all([
-      repository.notificacoes.countUnread(TipoDeNotificacao.NOTIFICACAO),
-      repository.notificacoes.countUnread(TipoDeNotificacao.MENSAGEM),
-    ]);
-
-    setNaoLidasNotificacoes(notificacoes);
-    setNaoLidasMensagens(mensagens);
-  }
+  const { naoLidasNotificacoes, naoLidasMensagens } = useNotification();
 
   function getUserPhotoLink(): string {
     return (userInfo?.user?.photoLink?.replace('=s64', '=s240')) || `${process.env.BASE_PATH || ''}/user.jpg`;
