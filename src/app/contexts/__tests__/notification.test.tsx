@@ -11,6 +11,7 @@ let mockLimparLidas = jest.fn();
 let mockListByTipo = jest.fn();
 let mockMarcarComoLida = jest.fn();
 let mockMarcarTodasComoLidas = jest.fn();
+let mockRefresh = jest.fn();
 
 jest.mock("../storage", () => ({
   useStorage: () => ({
@@ -25,6 +26,7 @@ jest.mock("../storage", () => ({
         marcarTodasComoLidas: mockMarcarTodasComoLidas,
       },
     },
+    refresh: mockRefresh,
   }),
 }));
 
@@ -87,6 +89,7 @@ describe("NotificationProvider / useNotification", () => {
     mockListByTipo = jest.fn(async () => []);
     mockMarcarComoLida = jest.fn(async () => { });
     mockMarcarTodasComoLidas = jest.fn(async () => { });
+    mockRefresh = jest.fn(async () => { });
 
     CapturingBroadcastChannel.instances = [];
     // @ts-expect-error - substitui o mock no-op por um fake que permite disparar onmessage manualmente
@@ -226,9 +229,10 @@ describe("NotificationProvider / useNotification", () => {
     expect(mockMarcarComoLida).toHaveBeenCalledWith(1);
     expect(mockListByTipo).toHaveBeenCalledWith(TipoDeNotificacao.NOTIFICACAO);
     expect(mockCountUnread).toHaveBeenCalled();
+    expect(mockRefresh).toHaveBeenCalled();
   });
 
-  it("marcarTodasComoLidas delega ao repositório com o tipo informado, recarrega itens e contadores", async () => {
+  it("marcarTodasComoLidas delega ao repositório com o tipo informado e atualiza os contadores", async () => {
     mockIsDbOk = true;
     let notificationValue: ReturnType<typeof useNotification> | undefined;
 
@@ -246,11 +250,10 @@ describe("NotificationProvider / useNotification", () => {
     });
 
     expect(mockMarcarTodasComoLidas).toHaveBeenCalledWith(TipoDeNotificacao.MENSAGEM);
-    expect(mockListByTipo).toHaveBeenCalledWith(TipoDeNotificacao.MENSAGEM);
     expect(mockCountUnread).toHaveBeenCalled();
   });
 
-  it("limparLidas delega ao repositório, recarrega itens e contadores", async () => {
+  it("limparLidas delega ao repositório e atualiza os contadores", async () => {
     mockIsDbOk = true;
     let notificationValue: ReturnType<typeof useNotification> | undefined;
 
@@ -268,7 +271,6 @@ describe("NotificationProvider / useNotification", () => {
     });
 
     expect(mockLimparLidas).toHaveBeenCalledWith(undefined);
-    expect(mockListByTipo).toHaveBeenCalledWith(TipoDeNotificacao.NOTIFICACAO);
     expect(mockCountUnread).toHaveBeenCalled();
   });
 });

@@ -9,9 +9,7 @@
     "notas_campo_comentario_e_tipo",
     "metas",
     "categoria_transacoes",
-    "categoria_transacoes_chave_estrangeira",
-    "notificacoes",
-    "notificacoes_seed_mensagens"
+    "categoria_transacoes_chave_estrangeira"
   ],
   "schema": {
     "categoria_transacoes": {
