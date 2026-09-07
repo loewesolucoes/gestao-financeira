@@ -3,12 +3,11 @@
 import "./page.scss";
 
 import { Layout } from "../shared/layout";
-import { useEffect, useState } from "react";
-import { useStorage } from "../contexts/storage";
+import { useEffect } from "react";
 import { useNotification } from "../contexts/notification";
 import { useLocation } from "../contexts/location";
 import { Loader } from "../components/loader";
-import { Notificacao, TipoDeNotificacao } from "../repositories/notificacoes";
+import { TipoDeNotificacao } from "../repositories/notificacoes";
 import { NotificacaoItem } from "./components/notificacao-item";
 
 function tipoFromParam(value: string | null): TipoDeNotificacao {
@@ -20,54 +19,36 @@ function paramFromTipo(tipo: TipoDeNotificacao): string {
 }
 
 function NotificacoesPage() {
-  const { isDbOk, repository } = useStorage();
-  const { refreshContadores } = useNotification();
+  const {
+    isDbOk,
+    itens,
+    isLoadingItens,
+    carregarNotificacoes,
+    marcarComoLida,
+    marcarTodasComoLidas,
+    limparLidas,
+  } = useNotification();
   const { params, redirectTo } = useLocation();
   const tipo = tipoFromParam(params.get('tipo'));
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [itens, setItens] = useState<Notificacao[]>([]);
 
   useEffect(() => {
     document.title = `Notificações | ${process.env.NEXT_PUBLIC_TITLE}`
   }, []);
 
   useEffect(() => {
-    isDbOk && load();
+    isDbOk && carregarNotificacoes(tipo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDbOk, tipo]);
-
-  async function load() {
-    setIsLoading(true);
-
-    const result = await repository.notificacoes.listByTipo(tipo);
-
-    setItens(result);
-    setIsLoading(false);
-  }
 
   function trocarTab(novoTipo: TipoDeNotificacao) {
     redirectTo(`/notificacoes?tipo=${paramFromTipo(novoTipo)}`);
   }
 
-  async function marcarComoLida(id: number) {
-    await repository.notificacoes.marcarComoLida(id);
-    await load();
-    await refreshContadores();
-  }
-
-  async function marcarTodasComoLidas() {
-    await repository.notificacoes.marcarTodasComoLidas(tipo);
-    await load();
-    await refreshContadores();
-  }
-
-  async function limparLidas() {
+  async function handleLimparLidas() {
     if (!window.confirm('Tem certeza que deseja remover permanentemente todos os itens já lidos desta aba?'))
       return;
 
-    await repository.notificacoes.limparLidas();
-    await load();
-    await refreshContadores();
+    await limparLidas();
   }
 
   const tituloAba = tipo === TipoDeNotificacao.MENSAGEM ? 'mensagem' : 'notificação';
@@ -98,10 +79,10 @@ function NotificacoesPage() {
         </li>
       </ul>
       <div className="d-flex justify-content-end gap-2">
-        <button className="btn btn-secondary" disabled={!existeNaoLida} onClick={marcarTodasComoLidas}>Marcar todas como lidas</button>
-        <button className="btn btn-outline-danger" disabled={!existeLida} onClick={limparLidas}>Limpar lidas</button>
+        <button className="btn btn-secondary" disabled={!existeNaoLida} onClick={() => marcarTodasComoLidas(tipo)}>Marcar todas como lidas</button>
+        <button className="btn btn-outline-danger" disabled={!existeLida} onClick={handleLimparLidas}>Limpar lidas</button>
       </div>
-      {isLoading
+      {isLoadingItens
         ? <Loader className="align-self-center my-5" />
         : itens.length === 0
           ? (<div className="alert alert-info my-3" role="alert">Nenhuma {tituloAba} encontrada.</div>)

@@ -8,6 +8,9 @@ let mockIsDbOk = false;
 let mockSave = jest.fn();
 let mockCountUnread = jest.fn();
 let mockLimparLidas = jest.fn();
+let mockListByTipo = jest.fn();
+let mockMarcarComoLida = jest.fn();
+let mockMarcarTodasComoLidas = jest.fn();
 
 jest.mock("../storage", () => ({
   useStorage: () => ({
@@ -17,6 +20,9 @@ jest.mock("../storage", () => ({
         save: mockSave,
         countUnread: mockCountUnread,
         limparLidas: mockLimparLidas,
+        listByTipo: mockListByTipo,
+        marcarComoLida: mockMarcarComoLida,
+        marcarTodasComoLidas: mockMarcarTodasComoLidas,
       },
     },
   }),
@@ -63,6 +69,8 @@ function TestComponent({ onReady }: { onReady: (value: ReturnType<typeof useNoti
       <span data-testid="naoLidasNotificacoes">{notification.naoLidasNotificacoes}</span>
       <span data-testid="naoLidasMensagens">{notification.naoLidasMensagens}</span>
       <span data-testid="notificationsCount">{notification.notifications.length}</span>
+      <span data-testid="itensCount">{notification.itens.length}</span>
+      <span data-testid="isLoadingItens">{notification.isLoadingItens ? "true" : "false"}</span>
     </div>
   );
 }
@@ -76,6 +84,9 @@ describe("NotificationProvider / useNotification", () => {
     mockSave = jest.fn(async () => ({}));
     mockCountUnread = jest.fn(async (tipo: TipoDeNotificacao) => (tipo === TipoDeNotificacao.NOTIFICACAO ? 2 : 1));
     mockLimparLidas = jest.fn(async () => { });
+    mockListByTipo = jest.fn(async () => []);
+    mockMarcarComoLida = jest.fn(async () => { });
+    mockMarcarTodasComoLidas = jest.fn(async () => { });
 
     CapturingBroadcastChannel.instances = [];
     // @ts-expect-error - substitui o mock no-op por um fake que permite disparar onmessage manualmente
@@ -177,5 +188,87 @@ describe("NotificationProvider / useNotification", () => {
 
     await waitFor(() => expect(screen.getByTestId("naoLidasNotificacoes")).toHaveTextContent("5"));
     expect(screen.getByTestId("naoLidasMensagens")).toHaveTextContent("0");
+  });
+
+  it("carregarNotificacoes carrega itens do repositório e compartilha o mesmo estado", async () => {
+    mockIsDbOk = true;
+    mockListByTipo.mockResolvedValue([{ id: 1, lida: false }, { id: 2, lida: true }]);
+    let notificationValue: ReturnType<typeof useNotification> | undefined;
+
+    render(<NotificationProvider><TestComponent onReady={(value) => { notificationValue = value; }} /></NotificationProvider>);
+
+    await act(async () => {
+      await notificationValue!.carregarNotificacoes(TipoDeNotificacao.NOTIFICACAO);
+    });
+
+    expect(mockListByTipo).toHaveBeenCalledWith(TipoDeNotificacao.NOTIFICACAO);
+    await waitFor(() => expect(screen.getByTestId("itensCount")).toHaveTextContent("2"));
+    expect(notificationValue!.itens).toHaveLength(2);
+  });
+
+  it("marcarComoLida delega ao repositório, recarrega itens e atualiza os contadores", async () => {
+    mockIsDbOk = true;
+    mockListByTipo.mockResolvedValue([{ id: 1, lida: true }]);
+    let notificationValue: ReturnType<typeof useNotification> | undefined;
+
+    render(<NotificationProvider><TestComponent onReady={(value) => { notificationValue = value; }} /></NotificationProvider>);
+
+    await act(async () => {
+      await notificationValue!.carregarNotificacoes(TipoDeNotificacao.NOTIFICACAO);
+    });
+
+    mockCountUnread.mockClear();
+
+    await act(async () => {
+      await notificationValue!.marcarComoLida(1);
+    });
+
+    expect(mockMarcarComoLida).toHaveBeenCalledWith(1);
+    expect(mockListByTipo).toHaveBeenCalledWith(TipoDeNotificacao.NOTIFICACAO);
+    expect(mockCountUnread).toHaveBeenCalled();
+  });
+
+  it("marcarTodasComoLidas delega ao repositório com o tipo informado, recarrega itens e contadores", async () => {
+    mockIsDbOk = true;
+    let notificationValue: ReturnType<typeof useNotification> | undefined;
+
+    render(<NotificationProvider><TestComponent onReady={(value) => { notificationValue = value; }} /></NotificationProvider>);
+
+    await act(async () => {
+      await notificationValue!.carregarNotificacoes(TipoDeNotificacao.MENSAGEM);
+    });
+
+    mockListByTipo.mockClear();
+    mockCountUnread.mockClear();
+
+    await act(async () => {
+      await notificationValue!.marcarTodasComoLidas(TipoDeNotificacao.MENSAGEM);
+    });
+
+    expect(mockMarcarTodasComoLidas).toHaveBeenCalledWith(TipoDeNotificacao.MENSAGEM);
+    expect(mockListByTipo).toHaveBeenCalledWith(TipoDeNotificacao.MENSAGEM);
+    expect(mockCountUnread).toHaveBeenCalled();
+  });
+
+  it("limparLidas delega ao repositório, recarrega itens e contadores", async () => {
+    mockIsDbOk = true;
+    let notificationValue: ReturnType<typeof useNotification> | undefined;
+
+    render(<NotificationProvider><TestComponent onReady={(value) => { notificationValue = value; }} /></NotificationProvider>);
+
+    await act(async () => {
+      await notificationValue!.carregarNotificacoes(TipoDeNotificacao.NOTIFICACAO);
+    });
+
+    mockListByTipo.mockClear();
+    mockCountUnread.mockClear();
+
+    await act(async () => {
+      await notificationValue!.limparLidas();
+    });
+
+    expect(mockLimparLidas).toHaveBeenCalledWith(undefined);
+    expect(mockListByTipo).toHaveBeenCalledWith(TipoDeNotificacao.NOTIFICACAO);
+    expect(mockCountUnread).toHaveBeenCalled();
   });
 });
