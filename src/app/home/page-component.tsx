@@ -15,6 +15,8 @@ import { HomeCashAndGoals } from "./components/cash-and-goals";
 import moment from "moment";
 import { ListaCaixa } from "../caixa/components/lista-caixa";
 import { TableNames } from "../repositories/default";
+import { EmprestimosDoMes } from "./components/emprestimos-do-mes";
+import { TotaisEmprestimosDoMes } from "../repositories/emprestimos";
 
 export function Home() {
   const { isDbOk, repository } = useStorage();
@@ -24,6 +26,7 @@ export function Home() {
   const [yearAndMonth, setYearAndMonth] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [totais, setTotais] = useState<TotaisHome>({} as any);
+  const [totaisEmprestimos, setTotaisEmprestimos] = useState<TotaisEmprestimosDoMes>({} as any);
   const [periodo, setPeriodo] = useState<PeriodoTransacoes>(PeriodoTransacoes.TRES_ULTIMOS_MESES);
 
   useEffect(() => {
@@ -42,8 +45,10 @@ export function Home() {
     setIsLoading(true);
 
     const result = await repository.transacoes.totais(yearAndMonth);
+    const resultEmprestimos = await repository.emprestimos.totaisDoMes(yearAndMonth);
 
     setTotais(result);
+    setTotaisEmprestimos(resultEmprestimos);
     setIsLoading(false);
   }
 
@@ -60,6 +65,7 @@ export function Home() {
           : (
             <>
               <HomeCashAndGoals valorEmCaixa={valorEmCaixa} yearAndMonth={yearAndMonth} setYearAndMonth={setYearAndMonth} metas={metas} sobra={sobra} receitas={receitas} despesas={despesas} />
+              <EmprestimosDoMes totais={totaisEmprestimos} yearAndMonth={yearAndMonth} />
               <PeriodoForm periodo={periodo} setPeriodo={setPeriodo} />
               <HomeCharts transacoesAcumuladaPorMes={transacoesAcumuladaPorMes} transacoesComNotasECategorias={transacoesComNotasECategorias} periodo={periodo} />
               <HomeTable transacoesDoMes={transacoesDoMes} yearAndMonth={yearAndMonth} />

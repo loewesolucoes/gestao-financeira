@@ -10,7 +10,14 @@ describe("ALL_MIGRATIONS", () => {
   it("declares migration names in the exact historical order captured in the pre-refactor snapshot", () => {
     const names = ALL_MIGRATIONS.map((migration) => migration.name);
 
-    expect(names).toEqual(migrationsSnapshot.orderedMigrationNames);
+    // The pre-refactor snapshot only covers migrations that existed at the
+    // time of the refactor (spec 001). Migrations added afterwards (e.g. spec
+    // 006's "emprestimos"/"emprestimo_parcelas") are expected to be appended
+    // after that point, so this asserts the historical slice is an untouched,
+    // ordered prefix rather than the full, ever-growing list.
+    expect(names.slice(0, migrationsSnapshot.orderedMigrationNames.length)).toEqual(
+      migrationsSnapshot.orderedMigrationNames
+    );
   });
 
   it("never has duplicate migration names", () => {

@@ -76,11 +76,16 @@ describe("runMigrations() baseline (spec 001 regression harness)", () => {
     const migrationsResult = sqlJsDb.exec(`SELECT name FROM "migrations" ORDER BY "id"`);
     const migrationNames = (migrationsResult[0] ? migrationsResult[0].values : []).map((v) => v[0]);
 
-    expect(migrationNames).toEqual(migrationsSnapshot.orderedMigrationNames);
+    // See index.test.ts for why this is a prefix check: the snapshot is a
+    // pre-refactor (spec 001) baseline, and migrations added afterwards (e.g.
+    // spec 006's emprestimos tables) legitimately extend the list.
+    expect(migrationNames.slice(0, migrationsSnapshot.orderedMigrationNames.length)).toEqual(
+      migrationsSnapshot.orderedMigrationNames
+    );
 
     const schema = querySchema(sqlJsDb);
 
-    expect(Object.keys(schema).sort()).toEqual(Object.keys(migrationsSnapshot.schema).sort());
+    expect(Object.keys(schema)).toEqual(expect.arrayContaining(Object.keys(migrationsSnapshot.schema)));
 
     for (const tableName of Object.keys(migrationsSnapshot.schema)) {
       expect(schema[tableName].columns).toEqual(

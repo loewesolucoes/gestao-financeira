@@ -27,6 +27,8 @@ export enum TableNames {
   METAS = "metas",
   PARAMETROS = "parametros",
   CATEGORIA_TRANSACOES = "categoria_transacoes",
+  EMPRESTIMOS = "emprestimos",
+  EMPRESTIMO_PARCELAS = "emprestimo_parcelas",
 }
 
 export interface DefaultFields {
