@@ -51,6 +51,11 @@ export function ChatIa() {
     setIsLoading(false);
   }
 
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    handleSend();
+  }
+
   function handleClear() {
     setMessages([]);
     setInput("");
@@ -85,26 +90,26 @@ export function ChatIa() {
         {isLoading && <Loader />}
         <div ref={messagesEndRef} />
       </div>
-      <div className="chat-ia-input d-flex flex-column gap-2">
+      <form className="chat-ia-input d-flex flex-column gap-2" onSubmit={handleSubmit}>
         <div className="chat-ia-mdtextarea flex-grow-1">
           <Input
             type="mdtextarea"
             className="form-control"
             id="chat-ia-pergunta"
-            placeholder="Escreva sua pergunta em markdown e clique em Enviar"
+            placeholder="Escreva sua pergunta em markdown (Ctrl+Enter para enviar)"
             value={input}
             onChange={setInput}
           />
         </div>
         <div className="d-flex gap-2">
-          <button type="button" className="btn btn-secondary flex-grow-1" disabled={isLoading || !input.trim()} onClick={handleSend}>
+          <button type="submit" className="btn btn-secondary flex-grow-1" disabled={isLoading || !input.trim()}>
             Enviar
           </button>
           <button type="button" className="btn btn-outline-secondary" disabled={isLoading || messages.length === 0} onClick={handleClear}>
             Limpar conversa
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
