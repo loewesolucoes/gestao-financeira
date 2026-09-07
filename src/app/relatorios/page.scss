@@ -1,0 +1,38 @@
+@import "../_bootstrap";
+
+.relatorios {
+  .chat-ia {
+    min-height: 40vh;
+  }
+
+  .chat-ia-messages {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  .chat-ia-bubble {
+    max-width: 80%;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    white-space: pre-wrap;
+  }
+
+  .chat-ia-bubble-user {
+    margin-left: auto;
+    background-color: var(--bs-primary);
+    color: var(--bs-white);
+    border-bottom-right-radius: 2px;
+  }
+
+  .chat-ia-bubble-assistant {
+    margin-right: auto;
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+    border-bottom-left-radius: 2px;
+  }
+
+  .chat-ia-notice {
+    margin: 0;
+  }
+}

@@ -195,4 +195,35 @@ describe("DefaultRepository", () => {
       expect(row.descricao).toBe("texto");
     });
   });
+
+  describe("runReadOnlyQuery", () => {
+    it("executa a consulta sanitizada e serializa BigNumber/Date para o resultado da tool", async () => {
+      (db.exec as jest.Mock).mockResolvedValueOnce([
+        { columns: ["id", "valor", "createdDate"], values: [[1, 150.5, "2024-06-01 10:30:00"]] },
+      ]);
+
+      const result = await repository.runReadOnlyQuery("SELECT * FROM transacoes");
+
+      expect(db.exec).toHaveBeenCalledWith("SELECT * FROM transacoes LIMIT 200");
+      expect(result.success).toBe(true);
+      expect(result.rows).toEqual([{ id: 1, valor: 150.5, createdDate: moment("2024-06-01 10:30:00", "YYYY-MM-DD hh:mm:ss").toDate().toISOString() }]);
+    });
+
+    it("retorna um erro estruturado (sem lançar exceção) quando o guard rejeita a consulta", async () => {
+      const result = await repository.runReadOnlyQuery("SELECT * FROM parametros");
+
+      expect(db.exec).not.toHaveBeenCalled();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("parametros");
+    });
+
+    it("retorna um erro estruturado quando a execução no banco falha", async () => {
+      (db.exec as jest.Mock).mockRejectedValueOnce(new Error("erro de execução simulado"));
+
+      const result = await repository.runReadOnlyQuery("SELECT * FROM transacoes");
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("erro de execução simulado");
+    });
+  });
 });

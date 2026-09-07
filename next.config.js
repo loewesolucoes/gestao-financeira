@@ -26,6 +26,11 @@ module.exports = async (phase) => {
         test: /\.sql$/,
         type: "asset/source"
       });
+      
+      config.module.rules.push({
+        test: /\.md$/,
+        use: ["raw-loader"]
+      });
 
       config.resolve.fallback = {
         ...config.resolve.fallback,
