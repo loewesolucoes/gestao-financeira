@@ -3,6 +3,20 @@ import './md-text-area.scss';
 import { useRef, useState, useEffect } from 'react';
 import { useEnv } from '../contexts/env';
 
+// Exported standalone so it can be unit tested without needing to simulate real
+// keyboard interaction against the CodeMirror/EasyMDE instance (unreliable under jsdom).
+export function requestFormSubmit(element: Element | null | undefined) {
+  const form = element?.closest('form');
+
+  if (form == null) return;
+
+  if (typeof form.requestSubmit === 'function') {
+    form.requestSubmit();
+  } else {
+    form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+  }
+}
+
 export function MDTextArea({ onChangeInput, inputValue, otherProps }) {
   const textAsDivRef = useRef<HTMLDivElement>(null);
   const innerDivRef = useRef<HTMLDivElement>(null);
@@ -77,6 +91,13 @@ export function MDTextArea({ onChangeInput, inputValue, otherProps }) {
       onChangeInput({
         target: { value: easyMDERef.current?.value() || '' }
       });
+    });
+
+    // Ctrl/Cmd+Enter submits the closest <form>, mirroring the shortcut users expect
+    // from plain textareas/inputs (Enter alone stays as "insert newline" in markdown).
+    easyMDERef.current.codemirror.addKeyMap({
+      'Ctrl-Enter': () => requestFormSubmit(easyMDERef.current?.codemirror.getWrapperElement()),
+      'Cmd-Enter': () => requestFormSubmit(easyMDERef.current?.codemirror.getWrapperElement()),
     });
 
     setIsLoading(false);

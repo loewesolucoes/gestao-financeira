@@ -4,6 +4,7 @@ import "./page.scss";
 
 import { Layout } from "../shared/layout";
 import { useEffect } from "react";
+import { ChatIa } from "./components/chat-ia";
 
 function Relatorios() {
   useEffect(() => {
@@ -13,7 +14,13 @@ function Relatorios() {
   return (
     <main className="relatorios container mt-3">
       <h1>Relatórios</h1>
-      <p>Pagina em construção. Em breve você poderá visualizar e gerar relatórios.</p>
+      <p>Converse com o assistente de IA para tirar dúvidas sobre suas finanças, com base nos seus dados reais.</p>
+      <section className="card">
+        <h5 className="card-header">Assistente de IA</h5>
+        <div className="card-body">
+          <ChatIa />
+        </div>
+      </section>
     </main>
   );
 }

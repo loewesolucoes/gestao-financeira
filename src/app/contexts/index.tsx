@@ -9,6 +9,7 @@ import { LocationProvider } from "./location";
 import { NotificationProvider } from "./notification";
 import { ThemeProvider } from "./theme";
 import { ErrorHandlerProvider } from "./error-handler";
+import { AiProvider } from "./ai";
 
 export function AppProviders({ children }: any) {
   return (
@@ -19,9 +20,11 @@ export function AppProviders({ children }: any) {
             <LoggingProvider>
               <AuthProvider>
                 <StorageProvider>
-                  <ThemeProvider>
-                    {children}
-                  </ThemeProvider>
+                  <AiProvider>
+                    <ThemeProvider>
+                      {children}
+                    </ThemeProvider>
+                  </AiProvider>
                 </StorageProvider>
               </AuthProvider>
             </LoggingProvider>
