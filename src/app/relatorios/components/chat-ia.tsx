@@ -5,6 +5,7 @@ import { useStorage } from "../../contexts/storage";
 import { useAi, ChatMessage } from "../../contexts/ai";
 import { GOOGLE_GENERATIVE_AI_API_KEY } from "../../repositories/parametros";
 import { Loader } from "../../components/loader";
+import { MarkdownUtils } from "../../utils/markdown";
 
 export function ChatIa() {
   const { isDbOk, repository } = useStorage();
@@ -82,7 +83,9 @@ export function ChatIa() {
         )}
         {messages.map((message, index) => (
           <div key={index} className={`chat-ia-bubble chat-ia-bubble-${message.role}`}>
-            {message.content}
+            {message.role === "assistant"
+              ? <div dangerouslySetInnerHTML={{ __html: MarkdownUtils.render(message.content) }} />
+              : message.content}
           </div>
         ))}
         {isLoading && <Loader />}

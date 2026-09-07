@@ -22,6 +22,27 @@ jest.mock("../../../contexts/ai", () => ({
   }),
 }));
 
+// `marked`/`dompurify` aren't transformable in this project's Jest setup (ESM-only
+// build), so use a tiny stand-in that covers the markdown constructs exercised below.
+jest.mock("../../../utils/markdown", () => ({
+  MarkdownUtils: {
+    render: (text: string) => {
+      if (!text) return "";
+
+      return text
+        .split("\n\n")
+        .map(block => {
+          if (block.startsWith("- ")) {
+            const items = block.split("\n").map(line => `<li>${line.replace(/^- /, "")}</li>`).join("");
+            return `<ul>${items}</ul>`;
+          }
+          return `<p>${block.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")}</p>`;
+        })
+        .join("");
+    },
+  },
+}));
+
 describe("ChatIa", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -54,6 +75,23 @@ describe("ChatIa", () => {
 
     await waitFor(() => expect(screen.getByText("Você gastou R$ 100,00 em julho.")).toBeInTheDocument());
     expect(mockAskRelatoriosChat).toHaveBeenCalledWith([{ role: "user", content: "Quanto gastei em julho?" }]);
+  });
+
+  it("renderiza a resposta do assistente como markdown", async () => {
+    mockGetValorByKey.mockResolvedValue("fake-api-key");
+    mockAskRelatoriosChat.mockResolvedValue("**Maior gasto:** Mercado\n\n- Item 1\n- Item 2");
+
+    render(<ChatIa />);
+
+    const textarea = await screen.findByPlaceholderText(/Digite sua pergunta/i);
+
+    fireEvent.change(textarea, { target: { value: "Quais foram os maiores gastos?" } });
+    fireEvent.click(screen.getByRole("button", { name: /enviar/i }));
+
+    await waitFor(() => expect(screen.getByText("Maior gasto:")).toBeInTheDocument());
+
+    expect(screen.getByText("Maior gasto:").tagName).toBe("STRONG");
+    expect(screen.getByText("Item 1").closest("li")).toBeInTheDocument();
   });
 
   it("mostra o loader enquanto aguarda a resposta", async () => {
