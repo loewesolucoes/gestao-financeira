@@ -100,77 +100,99 @@ footer {
   }
 }
 
-// Desktop sidebar: sits on the page ground, separated by a hairline.
-.sidebar {
-  background: var(--surface-page);
+// Sidebar (design system Navigation): a surface-card panel with 40px items. Desktop keeps it
+// in view while the page scrolls; mobile renders the same panel flat, with 48px touch targets.
+.sidebar-desktop {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  align-items: flex-start;
+  width: calc(var(--sidebar-width) + 2 * var(--space-4));
+  height: 100vh;
+  overflow-y: auto;
+  padding: var(--space-4);
 
-  @include media-breakpoint-up(xl) {
-    border-right: 1px solid var(--border-subtle);
+  .ps-sidebar {
+    width: 100%;
   }
 }
 
-.user-info-card {
-  .profile-image {
-    height: 3.75rem;
-    width: 3.75rem;
+.sidebar-mobile {
+  width: 100%;
+
+  .ps-sidebar {
+    width: 100%;
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+    border: 0;
+    background: transparent;
+  }
+
+  .ps-nav-item {
+    height: var(--control-lg);
+  }
+}
+
+// Grid tracks default to auto and grow with nowrap content (a long user name); lock them to the panel width.
+.sidebar .ps-sidebar,
+.sidebar-footer {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+// Material icons ship with a black default fill: follow the text colour in both themes.
+.ps-nav-item svg,
+.sidebar .ps-icon-btn svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  fill: currentColor;
+}
+
+.sidebar-footer {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  .user-avatar {
+    width: var(--control-md);
+    height: var(--control-md);
+    margin-right: var(--space-2);
+    border-radius: 50%;
     object-fit: cover;
   }
 
-  // Material icons ship with a black default fill: follow the link colour in both themes.
-  .nav-link svg {
-    fill: currentColor;
+  .user-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--surface-card);
   }
 }
 
-// Navigation: 40px items, brand-soft + brand text for the active route, group label as overline.
-.side-bar-menu {
-  .card-body {
-    padding: var(--space-3);
-  }
+.theme-tabs {
+  display: flex;
 
-  .nav-item {
-    > .nav-link {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      min-height: var(--control-md);
-      padding: 0 var(--space-3);
-      border-radius: var(--radius-md);
-      color: var(--ink-muted);
-      font-weight: 700;
-      transition: background-color 0.15s ease, color 0.15s ease;
-
-      &:hover {
-        background: var(--surface-sunken);
-        color: var(--ink);
-      }
-
-      > .nav-icon {
-        display: inline-flex;
-        flex: none;
-
-        svg {
-          width: 20px;
-          height: 20px;
-          fill: currentColor;
-        }
-      }
-    }
-
-    &.active > .nav-link {
-      background: var(--brand-soft);
-      color: var(--brand);
-    }
-
-    &.not-link > .nav-link.disabled {
-      min-height: 0;
-      padding: var(--space-2) var(--space-3);
-      color: var(--ink-subtle);
-      font-size: 11px;
-      line-height: 16px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
+  .ps-tab {
+    flex: 1;
+    padding: 0 var(--space-2);
   }
 }
 

@@ -18,7 +18,7 @@ export function AuthButton() {
             <>
               <LoadGDriveButton />
               <SaveGDriveButton />
-              <button className="btn btn-outline-success btn-sm me-2" type="button" onClick={doLogout}>Sair</button>
+              <button className="btn btn-outline-success btn-sm" type="button" onClick={doLogout}>Sair</button>
             </>
           )}
       </div>
@@ -32,7 +32,7 @@ function LoadGDriveButton() {
   const { isGDriveLoadLoading, doGDriveLoad } = useStorage();
 
   return (
-    <button className="btn btn-outline-success btn-sm me-2" type="button" onClick={doGDriveLoad} disabled={isGDriveLoadLoading}>
+    <button className="btn btn-outline-success btn-sm" type="button" onClick={doGDriveLoad} disabled={isGDriveLoadLoading}>
       Carregar do drive
     </button>
   );
@@ -42,7 +42,7 @@ function SaveGDriveButton() {
   const { isGDriveSaveLoading, doGDriveSave } = useStorage();
 
   return (
-    <button className="btn btn-outline-success btn-sm me-2" type="button" onClick={doGDriveSave} disabled={isGDriveSaveLoading}>
+    <button className="btn btn-outline-success btn-sm" type="button" onClick={doGDriveSave} disabled={isGDriveSaveLoading}>
       Salvar no drive
     </button>
   );

@@ -1,5 +1,6 @@
 "use client";
 import Link from 'next/link';
+import { Fragment } from 'react';
 import { usePathname } from "next/navigation";
 import { AuthButton } from "./auth-button";
 import { ThemeSelector } from './theme-selector';
@@ -47,16 +48,19 @@ const pages = [
   {
     name: 'Relatórios',
     path: '/relatorios',
+    group: 'Análise',
     icon: <IconFileBarGraph width="24" height="24" viewBox="0 0 24 24" />
   },
   {
     name: 'Configurações',
     path: '/configuracoes',
+    group: 'Conta',
     icon: <IconGear width="24" height="24" viewBox="0 0 24 24" />
   },
   {
     name: 'Perguntas frequentes',
     path: '/faq',
+    group: 'Conta',
     icon: <IconQuestion width="24" height="24" viewBox="0 0 24 24" />,
   },
 ];
@@ -66,32 +70,26 @@ interface CustomProps {
   className?: string
 }
 
-export function SideBarMenu() {
+function isActive(pathname: string, path: string): boolean {
+  return path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`);
+}
+
+export function SideBarMenu({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <div className="card side-bar-menu w-100">
-      <div className='card-body'>
-        <ul className="navbar-nav flex-grow-1">
-          <li className="nav-item not-link fw-semibold">
-            <span className="nav-link disabled">Menu</span>
-          </li>
-          {pages.map(x => (
-            <li key={x.path} className={`nav-item px-2 ${pathname == x.path ? 'active' : ''}`}>
-              <Link className={`nav-link d-flex align-items-center`} href={x.path} aria-current={pathname == x.path ? 'page' : undefined}>
-                <span className="nav-icon">
-                  {x.icon}
-                </span>
-                <span className='px-1 flex-grow-1'>
-                  {x.name}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  )
+    <nav className="ps-nav" aria-label="Menu principal">
+      {pages.map((x, i) => (
+        <Fragment key={x.path}>
+          {x.group && x.group !== pages[i - 1]?.group && <div className="ps-overline ps-nav-group">{x.group}</div>}
+          <Link className="ps-nav-item" href={x.path} onClick={onNavigate} aria-current={isActive(pathname, x.path) ? 'page' : undefined}>
+            {x.icon}
+            {x.name}
+          </Link>
+        </Fragment>
+      ))}
+    </nav>
+  );
 }
 
 export function NavbarCollapse({ show, className }: CustomProps) {
@@ -104,7 +102,7 @@ export function NavbarCollapse({ show, className }: CustomProps) {
           <Link className={`nav-link ${pathname == x.path ? 'active' : ''}`} href={x.path}>{x.icon}{' '}{x.name}</Link>
         </li>
       ))}
-      <ThemeSelector />
+      <li><ThemeSelector /></li>
     </ul>
     <AuthButton />
   </div>;
