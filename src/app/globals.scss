@@ -23,6 +23,10 @@
 @import "../../node_modules/bootstrap/scss/toasts";
 @import "../../node_modules/bootstrap/scss/dropdown";
 
+// Design system: tokens (CSS variables) and the Bootstrap component overrides built on them.
+@import "tokens";
+@import "design-system";
+
 body,
 #root {
   min-height: 100vh;
@@ -38,7 +42,7 @@ body,
 }
 
 body p.logo {
-  color: #65a147;
+  color: var(--brand);
   font-size: large;
   font-weight: bold;
 }
@@ -49,15 +53,34 @@ header {
   justify-content: flex-start;
 }
 
+// Logo: pick the file by surface (light/dark), never recolour it.
 .logo-link {
-  > svg {
-    width: 30px;
-    height: 30px;
+  .logo-img {
+    display: block;
+    width: auto;
+    height: 36px;
 
     @include media-breakpoint-up(xl) {
-      width: 40px;
       height: 40px;
     }
+  }
+
+  .logo-mark {
+    height: 32px;
+  }
+
+  .logo-dark {
+    display: none;
+  }
+}
+
+[data-bs-theme="dark"] .logo-link {
+  .logo-light {
+    display: none;
+  }
+
+  .logo-dark {
+    display: block;
   }
 }
 
@@ -66,177 +89,134 @@ footer {
   position: relative;
   justify-content: center;
   align-items: center;
-  color: #000;
+  color: var(--ink-subtle);
 
   a {
-    color: #000;
+    color: var(--ink-muted);
 
     &:hover {
-      color: rgba(#000, 0.7);
+      color: var(--brand);
     }
   }
 }
 
-// .real-body {
-//   background: #F7FAFF;
-//   border-top-left-radius: $card-border-radius;
-//   box-shadow: inset 3px 3px 7px 0px rgba(0, 0, 0, 0.1);
-// }
+// Desktop sidebar: sits on the page ground, separated by a hairline.
+.sidebar {
+  background: var(--surface-page);
+
+  @include media-breakpoint-up(xl) {
+    border-right: 1px solid var(--border-subtle);
+  }
+}
 
 .user-info-card {
-  background: var(--bs-white);
-  border-color: #fbfbfb;
-  box-shadow: rgba(35, 35, 35, 0.1) 0px 8px 20px;
-
   .profile-image {
     height: 3.75rem;
     width: 3.75rem;
     object-fit: cover;
   }
 
-  .form-control {
-    background: rgba(0, 170, 93, 0.04);
-    border: 1px solid rgba(0, 170, 93, 0.15);
-    color: var(--bs-primary);
+  // Material icons ship with a black default fill: follow the link colour in both themes.
+  .nav-link svg {
+    fill: currentColor;
   }
 }
 
+// Navigation: 40px items, brand-soft + brand text for the active route, group label as overline.
 .side-bar-menu {
-  background: #eaedf2;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  border: none;
+  .card-body {
+    padding: var(--space-3);
+  }
 
   .nav-item {
-    color: #838fa0;
-    fill: #838fa0;
-    border-left: 1px solid;
-
     > .nav-link {
-      position: relative;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      min-height: var(--control-md);
+      padding: 0 var(--space-3);
+      border-radius: var(--radius-md);
+      color: var(--ink-muted);
+      font-weight: 700;
+      transition: background-color 0.15s ease, color 0.15s ease;
+
+      &:hover {
+        background: var(--surface-sunken);
+        color: var(--ink);
+      }
 
       > .nav-icon {
-        height: 2rem;
-        width: 2rem;
-        font-size: 0.8rem;
         display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 0.5rem;
-        border-radius: 5px;
-      }
+        flex: none;
 
-      &::before {
-        content: "";
-        display: inline-flex;
-        height: 30px;
-        width: 3px;
-        position: absolute;
-        top: 50%;
-        left: -8px;
-        transform: translateY(-50%);
-        opacity: 0;
-        border-radius: 6px;
-      }
-    }
-
-    &.active {
-      color: rgb(131, 143, 160);
-
-      > .nav-link {
-        > .nav-icon {
-          color: var(--bs-primary);
-          fill: var(--bs-primary);
-          box-shadow: rgba(35, 35, 35, 0.2) 5px 9px 30px;
-          background: var(--bs-white);
-        }
-
-        > span {
-          color: var(--bs-primary);
-        }
-
-        &::before {
-          opacity: 1;
-          background-color: var(--bs-primary);
+        svg {
+          width: 20px;
+          height: 20px;
+          fill: currentColor;
         }
       }
     }
 
-    &.not-link {
-      border-left: none;
+    &.active > .nav-link {
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+
+    &.not-link > .nav-link.disabled {
+      min-height: 0;
+      padding: var(--space-2) var(--space-3);
+      color: var(--ink-subtle);
+      font-size: 11px;
+      line-height: 16px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
   }
 }
 
-@include color-mode(dark) {
-  .user-info-card,
-  .side-bar-menu {
-    background: linear-gradient(
-      117deg,
-      rgba(69, 69, 69, 0) -152.27%,
-      #202227 100.58%
-    );
-    box-shadow: none;
-    border-color: #282b31;
+// Mobile tab bar: 48px targets, 11px labels, brand for the active tab.
+.bottom-navbar {
+  background: var(--surface-card);
+  border-top: 1px solid var(--border-subtle);
+
+  .btn-group > .btn {
+    --bs-btn-color: var(--ink-muted);
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-color: var(--ink);
+    --bs-btn-hover-bg: transparent;
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-color: var(--brand);
+    --bs-btn-active-bg: transparent;
+    --bs-btn-active-border-color: transparent;
+
+    min-height: var(--control-lg);
+    padding: 6px 0;
+    font-size: 11px;
+    line-height: 14px;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
   }
 }
 
+// Surfaces: every "material" card is the design system card (hairline + shadow-sm).
 .card-material-1,
 .card-material-2,
-.card-material-3 {
-  background: var(--bs-white);
-  border-color: #fbfbfb;
-}
-
-.card-material-1 {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-
-.card-material-2 {
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-}
-
-.card-material-3 {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-}
-
-@include color-mode(dark) {
-  .card-material-1,
-  .card-material-2,
-  .card-material-3 {
-    background: linear-gradient(
-      117deg,
-      rgba(69, 69, 69, 0) -152.27%,
-      #202227 100.58%
-    );
-    box-shadow: none;
-    border-color: #282b31;
-  }
-}
-
-.list-group-material-1 {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-
-.list-group-material-2 {
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-}
-
-.list-group-material-3 {
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-}
-
-@include color-mode(dark) {
-  .list-group-material-1,
-  .list-group-material-2,
-  .list-group-material-3 {
-    box-shadow: none;
-  }
-}
-
+.card-material-3,
 .card.card-shadow {
-  --bs-box-shadow: 0px 0px 35px 0px rgba(154, 161, 171, 0.15);
-  -webkit-box-shadow: var(--bs-box-shadow);
-  box-shadow: var(--bs-box-shadow);
+  background: var(--surface-card);
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+.list-group-material-1,
+.list-group-material-2,
+.list-group-material-3 {
+  box-shadow: var(--shadow-sm);
 }
 
 .apexcharts-canvas {

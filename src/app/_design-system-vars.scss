@@ -1,0 +1,95 @@
+// Maps Bootstrap's runtime variables to the design system tokens (_tokens.scss),
+// so every Bootstrap component follows data-bs-theme="light|dark" without recompiling.
+// Imported at the end of _bootstrap.scss so it also wins over the :root block that
+// Bootstrap emits in each page stylesheet.
+
+:root,
+[data-bs-theme="light"],
+[data-bs-theme="dark"] {
+  --bs-font-sans-serif: var(--font-sans);
+  --bs-body-font-family: var(--font-sans);
+
+  --bs-body-bg: var(--surface-page);
+  --bs-body-bg-rgb: var(--surface-page-rgb);
+  --bs-body-color: var(--ink);
+  --bs-body-color-rgb: var(--ink-rgb);
+  --bs-emphasis-color: var(--ink);
+  --bs-emphasis-color-rgb: var(--ink-rgb);
+  --bs-heading-color: var(--ink);
+  --bs-secondary-color: var(--ink-muted);
+  --bs-secondary-color-rgb: var(--ink-muted-rgb);
+  --bs-secondary-bg: var(--surface-sunken);
+  --bs-secondary-bg-rgb: var(--surface-sunken-rgb);
+  --bs-tertiary-color: var(--ink-subtle);
+  --bs-tertiary-bg: var(--surface-sunken);
+  --bs-tertiary-bg-rgb: var(--surface-sunken-rgb);
+  --bs-border-color: var(--border-subtle);
+  --bs-border-color-translucent: var(--border-subtle);
+  --bs-highlight-bg: var(--warning-soft);
+
+  --bs-border-radius: var(--radius-md);
+  --bs-border-radius-sm: var(--radius-sm);
+  --bs-border-radius-lg: var(--radius-lg);
+  --bs-border-radius-xl: var(--radius-xl);
+  --bs-border-radius-pill: var(--radius-pill);
+  --bs-box-shadow-sm: var(--shadow-sm);
+  --bs-box-shadow: var(--shadow-md);
+  --bs-box-shadow-lg: var(--shadow-lg);
+
+  --bs-link-color: var(--brand);
+  --bs-link-color-rgb: var(--brand-rgb);
+  --bs-link-hover-color: var(--brand-hover);
+  --bs-link-hover-color-rgb: var(--brand-rgb);
+
+  --bs-primary: var(--brand);
+  --bs-primary-rgb: var(--brand-rgb);
+  --bs-secondary: var(--ink-muted);
+  --bs-secondary-rgb: var(--ink-muted-rgb);
+  --bs-success: var(--positive);
+  --bs-success-rgb: var(--positive-rgb);
+  --bs-info: var(--info);
+  --bs-info-rgb: var(--info-rgb);
+  --bs-warning: var(--warning);
+  --bs-warning-rgb: var(--warning-rgb);
+  --bs-danger: var(--negative);
+  --bs-danger-rgb: var(--negative-rgb);
+  --bs-light: var(--surface-sunken);
+  --bs-light-rgb: var(--surface-sunken-rgb);
+  --bs-dark: var(--ink);
+  --bs-dark-rgb: var(--ink-rgb);
+
+  // Soft fills + text: drive .alert-*, .list-group-item-*, .bg-*-subtle in both themes.
+  --bs-primary-text-emphasis: var(--brand);
+  --bs-primary-bg-subtle: var(--brand-soft);
+  --bs-primary-border-subtle: var(--brand-soft);
+  --bs-secondary-text-emphasis: var(--ink-muted);
+  --bs-secondary-bg-subtle: var(--surface-sunken);
+  --bs-secondary-border-subtle: var(--border-subtle);
+  --bs-success-text-emphasis: var(--positive);
+  --bs-success-bg-subtle: var(--positive-soft);
+  --bs-success-border-subtle: var(--positive-soft);
+  --bs-info-text-emphasis: var(--info);
+  --bs-info-bg-subtle: var(--info-soft);
+  --bs-info-border-subtle: var(--info-soft);
+  --bs-warning-text-emphasis: var(--warning);
+  --bs-warning-bg-subtle: var(--warning-soft);
+  --bs-warning-border-subtle: var(--warning-soft);
+  --bs-danger-text-emphasis: var(--negative);
+  --bs-danger-bg-subtle: var(--negative-soft);
+  --bs-danger-border-subtle: var(--negative-soft);
+}
+
+// Soft badges (design system Badge): tinted fill + matching text, never colour alone.
+// These are Bootstrap helpers, which every page stylesheet repeats after globals.css,
+// so the override lives here (carried by _bootstrap.scss) instead of in _design-system.scss.
+@each $name, $token in (primary: brand, success: positive, danger: negative, warning: warning, info: info) {
+  .text-bg-#{$name} {
+    background-color: var(--#{$token}-soft) !important;
+    color: var(--#{$token}) !important;
+  }
+}
+
+.text-bg-dark {
+  background-color: var(--ink) !important;
+  color: var(--surface-page) !important;
+}

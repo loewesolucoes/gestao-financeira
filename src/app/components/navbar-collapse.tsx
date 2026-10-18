@@ -3,15 +3,15 @@ import Link from 'next/link';
 import { usePathname } from "next/navigation";
 import { AuthButton } from "./auth-button";
 import { ThemeSelector } from './theme-selector';
-import IconHouse from '@material-design-icons/svg/filled/home.svg';
-import IconWallet from '@material-design-icons/svg/filled/local_atm.svg';
-import IconPiggy from '@material-design-icons/svg/filled/savings.svg';
-import IconStickies from '@material-design-icons/svg/filled/sticky_note_2.svg';
-import IconChecklist from '@material-design-icons/svg/filled/emoji_events.svg';
-import IconBank from '@material-design-icons/svg/filled/account_balance.svg';
-import IconFileBarGraph from '@material-design-icons/svg/filled/analytics.svg';
-import IconGear from '@material-design-icons/svg/filled/settings.svg';
-import IconQuestion from '@material-design-icons/svg/filled/contact_support.svg';
+import IconHouse from '@material-design-icons/svg/outlined/home.svg';
+import IconWallet from '@material-design-icons/svg/outlined/local_atm.svg';
+import IconPiggy from '@material-design-icons/svg/outlined/savings.svg';
+import IconStickies from '@material-design-icons/svg/outlined/sticky_note_2.svg';
+import IconChecklist from '@material-design-icons/svg/outlined/emoji_events.svg';
+import IconBank from '@material-design-icons/svg/outlined/account_balance.svg';
+import IconFileBarGraph from '@material-design-icons/svg/outlined/analytics.svg';
+import IconGear from '@material-design-icons/svg/outlined/settings.svg';
+import IconQuestion from '@material-design-icons/svg/outlined/contact_support.svg';
 
 const pages = [
   {
@@ -78,7 +78,7 @@ export function SideBarMenu() {
           </li>
           {pages.map(x => (
             <li key={x.path} className={`nav-item px-2 ${pathname == x.path ? 'active' : ''}`}>
-              <Link className={`nav-link d-flex align-items-center`} href={x.path}>
+              <Link className={`nav-link d-flex align-items-center`} href={x.path} aria-current={pathname == x.path ? 'page' : undefined}>
                 <span className="nav-icon">
                   {x.icon}
                 </span>

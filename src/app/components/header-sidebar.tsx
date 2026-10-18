@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { SideBarMenu } from "./navbar-collapse";
-import Logo from "../../../public/logo.svg";
-import IconEnvelope from '@material-design-icons/svg/filled/inbox.svg';
-import IconBell from '@material-design-icons/svg/filled/notifications.svg';
-import IconCog from '@material-design-icons/svg/filled/settings.svg';
+import IconEnvelope from '@material-design-icons/svg/outlined/inbox.svg';
+import IconBell from '@material-design-icons/svg/outlined/notifications.svg';
+import IconCog from '@material-design-icons/svg/outlined/settings.svg';
 import { ThemeSelector } from "./theme-selector";
 import { AuthButton } from "./auth-button";
 import { useAuth } from "../contexts/auth";
 import { useNotification } from "../contexts/notification";
 import { Loader } from "./loader";
+
+const basePath = process.env.BASE_PATH || '';
 
 
 function UserInfo() {
@@ -68,7 +69,7 @@ function UserInfo() {
 
 export function HeaderSidebar({ mobile, onClose }: { mobile?: boolean, onClose?: () => void }) {
   return (
-    <header className={`sidebar p-3 flex-column flex-shrink-0 ${!mobile && 'd-none d-xl-flex'}`} style={{ width: !mobile && '320px', minHeight: '100vh' }}>
+    <header className={`sidebar p-3 flex-column flex-shrink-0 ${!mobile && 'd-none d-xl-flex'}`} style={{ width: !mobile && 'var(--sidebar-width)', minHeight: '100vh' }}>
       {onClose && (
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={onClose} style={{ position: 'absolute', right: 15, top: 15 }}></button>
       )}
@@ -77,10 +78,8 @@ export function HeaderSidebar({ mobile, onClose }: { mobile?: boolean, onClose?:
         rel="noopener noreferrer"
         className='navbar-brand logo-link d-flex align-items-center mb-5'
       >
-        <Logo className="d-inline-block align-text-top me-1" />
-        <span className="d-inline">
-          Planner financeiro
-        </span>
+        <img className="logo-img logo-light" src={`${basePath}/brand/logo-horizontal.svg`} alt="Planner financeiro" />
+        <img className="logo-img logo-dark" src={`${basePath}/brand/logo-horizontal-escuro.svg`} alt="" aria-hidden="true" />
       </Link>
       <UserInfo />
       <SideBarMenu />
