@@ -4,23 +4,23 @@ import { useEffect, useState, useRef } from "react";
 import type { ApexOptions } from "apexcharts";
 import { EnumUtil } from "../utils/enum";
 import { NumberUtil } from "../utils/number";
+import { useTheme } from "../contexts/theme";
 
+// Design system data-viz palette, light theme (chart-1 … chart-6, in order). withChartTheme() swaps in the dark values.
 export enum ChartPalette {
-  yellow = "rgba(255, 193, 7, 1)",
-  blue = "rgba(0, 123, 255, 1)",
-  purple = "rgba(111, 66, 193, 1)",
-  gray = "rgba(108, 117, 125, 1)",
-  orange = "rgba(253, 126, 20, 1)",
-  teal = "rgba(32, 201, 151, 1)",
-  green = "rgba(67, 160, 71, 1)",
-  red = "rgba(229, 57, 53, 1)",
+  green = "#1d6b41", // chart-1: income, totals
+  blue = "#2f6f9f", // chart-2: planned, comparison
+  yellow = "#b9770e", // chart-3: investments, patrimony
+  red = "#b3261e", // chart-4: expenses, debt (same value as the negative token)
+  teal = "#4f8a74", // chart-5: reserve, savings
+  gray = "#7d837a", // chart-6: others
 }
 
 export const defaultChartOptions: ApexOptions = {
   chart: {
     zoom: { enabled: true, autoScaleYaxis: true },
     toolbar: { show: true },
-    foreColor: '#999',
+    foreColor: '#4a554e',
   },
   colors: EnumUtil.values(ChartPalette).map(x => ChartPalette[x]),
   stroke: { curve: 'smooth', },
@@ -33,7 +33,7 @@ export const defaultChartOptions: ApexOptions = {
   },
   grid: {
     show: true,
-    borderColor: 'rgba(56, 56, 56, 0.06)',
+    borderColor: '#e3e1d8',
     xaxis: { lines: { show: true } },
     yaxis: { lines: { show: true } },
   },
@@ -41,6 +41,33 @@ export const defaultChartOptions: ApexOptions = {
   legend: { position: "bottom" as const },
   responsive: [{ breakpoint: 600, options: { chart: { width: "100%" } } }],
   yaxis: { labels: { formatter: NumberUtil.toCurrencyAbbreviated, } },
+}
+
+// Dark-theme counterparts of the palette above (design system dark values).
+const DARK_CHART_COLOR: Record<string, string> = {
+  [ChartPalette.green]: "#5ccf8a",
+  [ChartPalette.blue]: "#7fb2e0",
+  [ChartPalette.yellow]: "#f2b04e",
+  [ChartPalette.red]: "#ff8c82",
+  [ChartPalette.teal]: "#7cc4ae",
+  [ChartPalette.gray]: "#a0a89f",
+};
+
+function isDarkTheme(theme: string): boolean {
+  return theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+}
+
+// Apex draws with SVG attributes, so CSS variables do not reach it: resolve text, grid and series colours per theme here.
+export function withChartTheme(options: ApexOptions | undefined, theme: string): ApexOptions {
+  const dark = isDarkTheme(theme);
+
+  return {
+    ...options,
+    colors: (options?.colors ?? defaultChartOptions.colors)?.map(c => (dark ? DARK_CHART_COLOR[c as string] : undefined) ?? c),
+    chart: { ...options?.chart, foreColor: dark ? '#aab5ad' : '#4a554e', background: 'transparent' },
+    grid: { ...options?.grid, borderColor: dark ? '#2f3b34' : '#e3e1d8' },
+    theme: { ...options?.theme, mode: dark ? 'dark' : 'light' },
+  };
 }
 
 interface Props {
@@ -76,6 +103,7 @@ declare global {
 
 export function ChartWrapper({ type, series, options, width, height }: Props) {
   const [isLoading, setIsLoading] = useState(true);
+  const { theme } = useTheme();
 
   useEffect(() => {
     load();
@@ -100,7 +128,7 @@ export function ChartWrapper({ type, series, options, width, height }: Props) {
       <ReactApexcharts
         type={type}
         series={series}
-        options={options}
+        options={withChartTheme(options, theme)}
         width={width as any}
         height={height as any}
         {...{} as any}

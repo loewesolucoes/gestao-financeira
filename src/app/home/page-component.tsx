@@ -57,7 +57,7 @@ export function Home() {
 
   return (
     <main className="main container">
-      <h1 className="mt-xl-3">👋 {DateUtil.generateGreetings()}{userInfo ? ', ' + userInfo?.user?.displayName : ''}</h1>
+      <h1 className="home-greeting ps-display mt-xl-3">{DateUtil.generateGreetings()}{userInfo ? ', ' + userInfo?.user?.displayName : ''}</h1>
       <NoData isLoading={isLoading} valorEmCaixa={valorEmCaixa} />
       <section className="home d-flex flex-column my-3 gap-3">
         {isLoading

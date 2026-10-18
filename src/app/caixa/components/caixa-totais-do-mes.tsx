@@ -3,7 +3,7 @@ import { NumberUtil } from "../../utils/number";
 import BigNumber from "bignumber.js";
 import { Transacoes } from "@/app/repositories/transacoes";
 import { useStorage } from "@/app/contexts/storage";
-import { ChartWrapper } from "@/app/components/general-chart";
+import { ChartWrapper, ChartPalette } from "@/app/components/general-chart";
 
 export function CaixaTotaisDoMes({ transacoesDoPeriodo, transacoesAcumuladasPorMes }: { transacoesDoPeriodo: Transacoes[], transacoesAcumuladasPorMes: any }) {
   const somaPeriodo = transacoesDoPeriodo.reduce((p, n) => p.plus(n.valor || 0), BigNumber(0));
@@ -97,7 +97,7 @@ export function GraficoBalancoDoMes({ transacoesDoPeriodo }: { transacoesDoPerio
       series={[somaReceitas.toNumber(), somaDespesas.abs().toNumber()]}
       options={{
         labels: ['Receitas', 'Despesas'],
-        colors: ['#65a148', '#dc3545'],
+        colors: [ChartPalette.green, ChartPalette.red],
         legend: { position: 'bottom' },
         responsive: [{
           breakpoint: 480,

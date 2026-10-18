@@ -49,3 +49,31 @@
 .home .card {
   // box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
+
+// Hero: figure on top, month field at the bottom when the row stretches it to the neighbouring cards.
+.card-caixa .ps-balance {
+  align-content: space-between;
+}
+
+.home-greeting {
+  font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+  line-height: 1.1;
+}
+
+// Month field on the inverse hero panel: transparent with an inverse hairline (design system BalanceCard).
+.ps-balance .form-control {
+  background: transparent;
+  color: var(--ink-inverse);
+  border-color: var(--ink-inverse-muted);
+  color-scheme: dark;
+
+  &:hover:not(:focus) {
+    background: color-mix(in srgb, var(--ink-inverse) 10%, transparent);
+  }
+
+  &:focus {
+    background: transparent;
+    border-color: var(--ink-inverse);
+    outline-color: var(--ink-inverse);
+  }
+}

@@ -1,0 +1,291 @@
+// Planner financeiro design system applied to the Bootstrap components in use.
+// Imported by globals.scss after Bootstrap's component partials. Values come from
+// _tokens.scss (CSS variables), so light and dark share the same rules.
+
+body {
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+.h1 {
+  letter-spacing: -0.01em;
+}
+
+// Keyboard focus: 2px solid ring with 2px offset (design system "States and motion").
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+// ---- Buttons --------------------------------------------------------------
+@mixin ds-btn($color, $bg, $border, $hover-color, $hover-bg, $hover-border) {
+  --bs-btn-color: #{$color};
+  --bs-btn-bg: #{$bg};
+  --bs-btn-border-color: #{$border};
+  --bs-btn-hover-color: #{$hover-color};
+  --bs-btn-hover-bg: #{$hover-bg};
+  --bs-btn-hover-border-color: #{$hover-border};
+  --bs-btn-active-color: #{$hover-color};
+  --bs-btn-active-bg: #{$hover-bg};
+  --bs-btn-active-border-color: #{$hover-border};
+  --bs-btn-disabled-color: #{$color};
+  --bs-btn-disabled-bg: #{$bg};
+  --bs-btn-disabled-border-color: #{$border};
+}
+
+.btn {
+  --bs-btn-font-weight: 700;
+  --bs-btn-disabled-opacity: 0.45;
+  --bs-btn-focus-box-shadow: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-md);
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-sm {
+  min-height: var(--control-sm);
+}
+
+.btn-lg {
+  min-height: var(--control-lg);
+}
+
+.btn-primary {
+  @include ds-btn(var(--on-brand), var(--brand), var(--brand), var(--on-brand), var(--brand-hover), var(--brand-hover));
+}
+
+.btn-secondary {
+  @include ds-btn(var(--ink), var(--surface-card), var(--border-strong), var(--ink), var(--surface-sunken), var(--border-strong));
+}
+
+.btn-light {
+  @include ds-btn(var(--ink), var(--surface-card), var(--border-subtle), var(--ink), var(--surface-sunken), var(--border-subtle));
+}
+
+.btn-danger {
+  @include ds-btn(var(--negative), var(--negative-soft), var(--negative-soft), var(--negative), var(--negative-soft), var(--negative));
+}
+
+.btn-dark {
+  @include ds-btn(var(--surface-page), var(--ink), var(--ink), var(--surface-page), var(--ink-muted), var(--ink-muted));
+}
+
+.btn-outline-primary,
+.btn-outline-success {
+  @include ds-btn(var(--brand), transparent, var(--brand), var(--brand-hover), var(--brand-soft), var(--brand));
+}
+
+.btn-outline-secondary {
+  @include ds-btn(var(--ink-muted), transparent, var(--border-strong), var(--ink), var(--surface-sunken), var(--border-strong));
+}
+
+.btn-outline-danger {
+  @include ds-btn(var(--negative), transparent, var(--negative), var(--negative), var(--negative-soft), var(--negative));
+}
+
+.btn-outline-dark {
+  @include ds-btn(var(--ink), transparent, var(--ink), var(--surface-page), var(--ink), var(--ink));
+}
+
+// ---- Cards and lists ----------------------------------------------------------
+.card {
+  --bs-card-bg: var(--surface-card);
+  --bs-card-border-color: var(--border-subtle);
+  --bs-card-cap-bg: transparent;
+
+  box-shadow: var(--shadow-sm);
+
+  @media (max-width: 640px) {
+    --bs-card-spacer-x: var(--space-4);
+    --bs-card-spacer-y: var(--space-4);
+  }
+}
+
+.card-title {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 700;
+}
+
+.list-group {
+  --bs-list-group-bg: var(--surface-card);
+  --bs-list-group-border-color: var(--border-subtle);
+  --bs-list-group-border-radius: var(--radius-md);
+  --bs-list-group-action-hover-bg: var(--surface-sunken);
+  --bs-list-group-active-bg: var(--brand-soft);
+  --bs-list-group-active-color: var(--brand);
+  --bs-list-group-active-border-color: var(--brand-soft);
+}
+
+// ---- Forms ------------------------------------------------------------------
+.form-control,
+.form-select {
+  min-height: var(--control-md);
+  background-color: var(--surface-card);
+  color: var(--ink);
+  border-color: var(--border-strong);
+  font-weight: 500;
+
+  &::placeholder {
+    color: var(--ink-subtle);
+  }
+
+  &:hover:not(:focus):not(:disabled) {
+    background-color: var(--surface-sunken);
+  }
+
+  &:focus {
+    background-color: var(--surface-card);
+    border-color: var(--focus-ring);
+    box-shadow: none;
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    background-color: var(--surface-sunken);
+  }
+}
+
+.form-control-sm,
+.form-select-sm {
+  min-height: var(--control-sm);
+}
+
+.form-control-lg,
+.form-select-lg {
+  min-height: var(--control-lg);
+}
+
+// Native fields at 16px on phones so iOS does not zoom on focus.
+@media (max-width: 480px) {
+  .form-control,
+  .form-select {
+    font-size: 16px;
+  }
+}
+
+:not(.form-floating) > .form-label {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+
+.form-text {
+  color: var(--ink-subtle);
+}
+
+.input-group-text {
+  background-color: var(--surface-sunken);
+  color: var(--ink-muted);
+  border-color: var(--border-strong);
+}
+
+.form-check-input {
+  background-color: var(--surface-card);
+  border-color: var(--border-strong);
+
+  &:checked,
+  &[type="checkbox"]:indeterminate {
+    background-color: var(--brand);
+    border-color: var(--brand);
+  }
+
+  &:focus {
+    border-color: var(--focus-ring);
+    box-shadow: none;
+  }
+}
+
+// ---- Overlays and menus -------------------------------------------------------
+.dropdown-menu {
+  --bs-dropdown-bg: var(--surface-card);
+  --bs-dropdown-color: var(--ink);
+  --bs-dropdown-border-color: var(--border-subtle);
+  --bs-dropdown-border-radius: var(--radius-md);
+  --bs-dropdown-link-color: var(--ink);
+  --bs-dropdown-link-hover-color: var(--ink);
+  --bs-dropdown-link-hover-bg: var(--surface-sunken);
+  --bs-dropdown-link-active-color: var(--brand);
+  --bs-dropdown-link-active-bg: var(--brand-soft);
+  --bs-dropdown-box-shadow: var(--shadow-md);
+}
+
+.modal-content {
+  --bs-modal-bg: var(--surface-card);
+  --bs-modal-color: var(--ink);
+  --bs-modal-border-color: var(--border-subtle);
+  --bs-modal-border-radius: var(--radius-xl);
+  --bs-modal-inner-border-radius: calc(var(--radius-xl) - 1px);
+  --bs-modal-header-border-color: var(--border-subtle);
+  --bs-modal-footer-border-color: var(--border-subtle);
+
+  box-shadow: var(--shadow-lg);
+}
+
+// The mobile menu opens the sidebar full screen: it sits on the page ground, not on a card.
+.modal-fullscreen .modal-content {
+  --bs-modal-bg: var(--surface-page);
+
+  box-shadow: none;
+}
+
+.modal-backdrop {
+  --bs-backdrop-bg: color-mix(in srgb, var(--surface-inverse) 60%, transparent);
+  --bs-backdrop-opacity: 1;
+}
+
+.toast {
+  --bs-toast-bg: var(--surface-inverse);
+  --bs-toast-color: var(--ink-inverse);
+  --bs-toast-border-color: transparent;
+  --bs-toast-border-radius: var(--radius-md);
+  --bs-toast-header-bg: transparent;
+  --bs-toast-header-color: var(--ink-inverse-muted);
+  --bs-toast-header-border-color: transparent;
+}
+
+// The close button is dark by default; the toast sits on the inverse surface.
+.toast .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+// ---- Badges, progress, pagination, navbar ------------------------------------
+.badge {
+  --bs-badge-border-radius: var(--radius-pill);
+  --bs-badge-font-weight: 700;
+}
+
+.progress {
+  --bs-progress-bg: var(--surface-sunken);
+  --bs-progress-bar-bg: var(--brand);
+  --bs-progress-border-radius: var(--radius-pill);
+}
+
+.pagination {
+  --bs-pagination-bg: var(--surface-card);
+  --bs-pagination-border-color: var(--border-subtle);
+  --bs-pagination-color: var(--brand);
+  --bs-pagination-hover-color: var(--brand-hover);
+  --bs-pagination-hover-bg: var(--surface-sunken);
+  --bs-pagination-hover-border-color: var(--border-subtle);
+  --bs-pagination-active-bg: var(--brand);
+  --bs-pagination-active-color: var(--on-brand);
+  --bs-pagination-active-border-color: var(--brand);
+  --bs-pagination-disabled-bg: var(--surface-sunken);
+}
+
+.navbar {
+  --bs-navbar-color: var(--ink-muted);
+  --bs-navbar-hover-color: var(--ink);
+  --bs-navbar-active-color: var(--brand);
+  --bs-navbar-brand-color: var(--ink);
+  --bs-navbar-brand-hover-color: var(--ink);
+  --bs-navbar-toggler-border-color: var(--border-strong);
+}

@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { SideBarMenu } from "./navbar-collapse";
-import Logo from "../../../public/logo.svg";
-import IconEnvelope from '@material-design-icons/svg/filled/inbox.svg';
-import IconBell from '@material-design-icons/svg/filled/notifications.svg';
-import IconCog from '@material-design-icons/svg/filled/settings.svg';
+import IconEnvelope from '@material-design-icons/svg/outlined/inbox.svg';
+import IconBell from '@material-design-icons/svg/outlined/notifications.svg';
+import IconClose from '@material-design-icons/svg/outlined/close.svg';
 import { ThemeSelector } from "./theme-selector";
 import { AuthButton } from "./auth-button";
 import { useAuth } from "../contexts/auth";
 import { useNotification } from "../contexts/notification";
 import { Loader } from "./loader";
+
+const basePath = process.env.BASE_PATH || '';
 
 
 function UserInfo() {
@@ -21,95 +22,53 @@ function UserInfo() {
     return (userInfo?.user?.photoLink?.replace('=s64', '=s240')) || `${process.env.BASE_PATH || ''}/user.jpg`;
   }
 
+  if (isLoadingAuth) return <Loader className="" />;
+
   return (
-    <div className="card user-info-card text-center mb-4 w-75">
-      {isLoadingAuth ? (
-        <div className="card-body mt-4">
-          <Loader className="" />
-        </div>
-      ) : (
-        <>
-          <Link href="#">
-            <img className="rounded-circle profile-image position-absolute top-0 start-50 translate-middle mb-2" src={getUserPhotoLink()} alt="Profile Image" />
-          </Link>
-          <div className="card-body mt-4">
-            <h6 className="fw-bold mb-3">{userInfo?.user?.displayName}</h6>
-            <ul className="list-inline">
-              <li className="list-inline-item position-relative me-3">
-                <Link className="nav-link p-0" href="/notificacoes?tipo=notificacao" role="button" aria-expanded="false">
-                  <IconBell />
-                  {naoLidasNotificacoes > 0 && (
-                    <span className="position-absolute top-0 start-100 translate-middle p-1 bg-secondary border rounded-circle"></span>
-                  )}
-                </Link>
-              </li>
-              <li className="list-inline-item position-relative me-3">
-                <Link className="nav-link p-0" href="/notificacoes?tipo=mensagem" role="button" aria-expanded="false">
-                  <IconEnvelope />
-                  {naoLidasMensagens > 0 && (
-                    <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                  )}
-                </Link>
-              </li>
-              <li className="list-inline-item position-relative">
-                <Link className="nav-link p-0" href="/configuracoes" role="button" aria-expanded="false">
-                  <IconCog />
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </>
-      )}
+    <div className="user-row">
+      <img className="user-avatar" src={getUserPhotoLink()} alt="" />
+      <span className="user-name">{userInfo?.user?.displayName}</span>
+      <Link className="ps-icon-btn position-relative" href="/notificacoes?tipo=notificacao" aria-label="Notificações">
+        <IconBell width="24" height="24" viewBox="0 0 24 24" />
+        {naoLidasNotificacoes > 0 && <span className="nav-dot bg-secondary" />}
+      </Link>
+      <Link className="ps-icon-btn position-relative" href="/notificacoes?tipo=mensagem" aria-label="Mensagens">
+        <IconEnvelope width="24" height="24" viewBox="0 0 24 24" />
+        {naoLidasMensagens > 0 && <span className="nav-dot bg-danger" />}
+      </Link>
     </div>
   );
-
 }
 
 
+// Desktop: sticky panel from 1200px. Mobile: the same panel, full width inside the menu modal.
 export function HeaderSidebar({ mobile, onClose }: { mobile?: boolean, onClose?: () => void }) {
   return (
-    <header className={`sidebar p-3 flex-column flex-shrink-0 ${!mobile && 'd-none d-xl-flex'}`} style={{ width: !mobile && '320px', minHeight: '100vh' }}>
-      {onClose && (
-        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={onClose} style={{ position: 'absolute', right: 15, top: 15 }}></button>
-      )}
-      <Link
-        href="/"
-        rel="noopener noreferrer"
-        className='navbar-brand logo-link d-flex align-items-center mb-5'
-      >
-        <Logo className="d-inline-block align-text-top me-1" />
-        <span className="d-inline">
-          Planner financeiro
-        </span>
-      </Link>
-      <UserInfo />
-      <SideBarMenu />
-      <SideBarExtra />
+    <header className={`sidebar flex-shrink-0 ${mobile ? 'sidebar-mobile d-flex' : 'sidebar-desktop d-none d-xl-flex'}`}>
+      <div className="ps-sidebar">
+        <div className="d-flex align-items-center justify-content-between">
+          <Link
+            href="/"
+            rel="noopener noreferrer"
+            className='navbar-brand logo-link d-flex align-items-center m-0'
+            onClick={onClose}
+          >
+            <img className="logo-img logo-light" src={`${basePath}/brand/logo-horizontal.svg`} alt="Planner financeiro" />
+            <img className="logo-img logo-dark" src={`${basePath}/brand/logo-horizontal-escuro.svg`} alt="" aria-hidden="true" />
+          </Link>
+          {onClose && (
+            <button type="button" className="ps-icon-btn" aria-label="Fechar menu" onClick={onClose}>
+              <IconClose width="24" height="24" viewBox="0 0 24 24" />
+            </button>
+          )}
+        </div>
+        <SideBarMenu onNavigate={onClose} />
+        <div className="sidebar-footer">
+          <UserInfo />
+          <ThemeSelector />
+          <AuthButton />
+        </div>
+      </div>
     </header>
   );
 }
-
-
-function SideBarExtra() {
-  return (
-    <>
-      <div className="card w-100 mt-3 user-info-card">
-        <div className='card-body'>
-          <ul className="navbar-nav flex-grow-1">
-            <ThemeSelector />
-          </ul>
-        </div>
-      </div>
-      <div className="card w-100 mt-3 user-info-card">
-        <div className='card-body'>
-          <ul className="navbar-nav flex-grow-1">
-            <li className="nav-item not-link">
-              <AuthButton />
-            </li>
-          </ul>
-        </div>
-      </div>
-    </>
-  )
-}
-

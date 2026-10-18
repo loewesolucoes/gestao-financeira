@@ -1,17 +1,18 @@
 "use client";
 import Link from 'next/link';
+import { Fragment } from 'react';
 import { usePathname } from "next/navigation";
 import { AuthButton } from "./auth-button";
 import { ThemeSelector } from './theme-selector';
-import IconHouse from '@material-design-icons/svg/filled/home.svg';
-import IconWallet from '@material-design-icons/svg/filled/local_atm.svg';
-import IconPiggy from '@material-design-icons/svg/filled/savings.svg';
-import IconStickies from '@material-design-icons/svg/filled/sticky_note_2.svg';
-import IconChecklist from '@material-design-icons/svg/filled/emoji_events.svg';
-import IconBank from '@material-design-icons/svg/filled/account_balance.svg';
-import IconFileBarGraph from '@material-design-icons/svg/filled/analytics.svg';
-import IconGear from '@material-design-icons/svg/filled/settings.svg';
-import IconQuestion from '@material-design-icons/svg/filled/contact_support.svg';
+import IconHouse from '@material-design-icons/svg/outlined/home.svg';
+import IconWallet from '@material-design-icons/svg/outlined/local_atm.svg';
+import IconPiggy from '@material-design-icons/svg/outlined/savings.svg';
+import IconStickies from '@material-design-icons/svg/outlined/sticky_note_2.svg';
+import IconChecklist from '@material-design-icons/svg/outlined/emoji_events.svg';
+import IconBank from '@material-design-icons/svg/outlined/account_balance.svg';
+import IconFileBarGraph from '@material-design-icons/svg/outlined/analytics.svg';
+import IconGear from '@material-design-icons/svg/outlined/settings.svg';
+import IconQuestion from '@material-design-icons/svg/outlined/contact_support.svg';
 
 const pages = [
   {
@@ -47,16 +48,19 @@ const pages = [
   {
     name: 'Relatórios',
     path: '/relatorios',
+    group: 'Análise',
     icon: <IconFileBarGraph width="24" height="24" viewBox="0 0 24 24" />
   },
   {
     name: 'Configurações',
     path: '/configuracoes',
+    group: 'Conta',
     icon: <IconGear width="24" height="24" viewBox="0 0 24 24" />
   },
   {
     name: 'Perguntas frequentes',
     path: '/faq',
+    group: 'Conta',
     icon: <IconQuestion width="24" height="24" viewBox="0 0 24 24" />,
   },
 ];
@@ -66,32 +70,26 @@ interface CustomProps {
   className?: string
 }
 
-export function SideBarMenu() {
+function isActive(pathname: string, path: string): boolean {
+  return path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`);
+}
+
+export function SideBarMenu({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <div className="card side-bar-menu w-100">
-      <div className='card-body'>
-        <ul className="navbar-nav flex-grow-1">
-          <li className="nav-item not-link fw-semibold">
-            <span className="nav-link disabled">Menu</span>
-          </li>
-          {pages.map(x => (
-            <li key={x.path} className={`nav-item px-2 ${pathname == x.path ? 'active' : ''}`}>
-              <Link className={`nav-link d-flex align-items-center`} href={x.path}>
-                <span className="nav-icon">
-                  {x.icon}
-                </span>
-                <span className='px-1 flex-grow-1'>
-                  {x.name}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  )
+    <nav className="ps-nav" aria-label="Menu principal">
+      {pages.map((x, i) => (
+        <Fragment key={x.path}>
+          {x.group && x.group !== pages[i - 1]?.group && <div className="ps-overline ps-nav-group">{x.group}</div>}
+          <Link className="ps-nav-item" href={x.path} onClick={onNavigate} aria-current={isActive(pathname, x.path) ? 'page' : undefined}>
+            {x.icon}
+            {x.name}
+          </Link>
+        </Fragment>
+      ))}
+    </nav>
+  );
 }
 
 export function NavbarCollapse({ show, className }: CustomProps) {
@@ -104,7 +102,7 @@ export function NavbarCollapse({ show, className }: CustomProps) {
           <Link className={`nav-link ${pathname == x.path ? 'active' : ''}`} href={x.path}>{x.icon}{' '}{x.name}</Link>
         </li>
       ))}
-      <ThemeSelector />
+      <li><ThemeSelector /></li>
     </ul>
     <AuthButton />
   </div>;
